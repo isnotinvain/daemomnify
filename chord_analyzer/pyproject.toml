@@ -1,0 +1,17 @@
+[project]
+name = "chord-analyzer"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Alex Levenson", email = "alex@isnotinvain.com" }
+]
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "basic-pitch>=0.4.0",
+    "setuptools>=80.9.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.11,<0.10.0"]
+build-backend = "uv_build"
