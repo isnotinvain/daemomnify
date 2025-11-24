@@ -118,7 +118,10 @@ class Omnify:
         self.current_chord_playing_root = msg.note
         clamped_notes = set()
         for offset in self.current_chord_playing.value.offsets[msg.note % 12]:
-            clamped = clamp_note(self.current_chord_playing_root + offset)
+            # TODO: Make configurable?
+            # This makes middle C (60) play the octave that omnichord's chords play in.
+            ocatve_shift = -12
+            clamped = clamp_note(self.current_chord_playing_root + offset + ocatve_shift)
             if clamped in clamped_notes:
                 continue
             clamped_notes.add(clamped)

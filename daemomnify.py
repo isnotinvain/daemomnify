@@ -1,25 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: Investigate PyInstaller
-#
-# TODO: Add a mode that works with *samples* of real omnichord chords from omni-84 / decent sampler
-# TODO: This would work by only sending one note on/off, in the correct octave for omni-84's layout
-#
-# TODO: Add a mode for just using the omni-84 layout, this was the first way I had thought to do the layout
-# TODO: and I feel like some users would want that if they've got a big keyboard.
-#
-# TODO: Add a mode where the strumplate works regardless of whether a chord is playing, so that the strum
-# TODO: plate can be used to drive omni-84's SonicStrings (or anything else) with or without backing chords
-#
-# TODO: Janky as it is, I think there is value in adding a VST UI for this, that speaks over some protocol to
-# TODO: the daemon, so that all the settings can be done in-DAW, and parameters can be midi-mapped
-#
-# TODO: Verify if the chord_notes.json (and offsets derived from it) are accurate. They were
-# TODO: extracted from sample .wav files and who knows how well that worked.
-#
-# TODO: Pitch bend mode for spring loaded pitch wheels. Roll up from center = strum up,
-# TODO: ignore descent back to center. Swipe down from center = strum down, ignore on it's way back up to center
-#
 import sys
 import time
 import traceback
