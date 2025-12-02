@@ -4,8 +4,8 @@
   "strum_channel": 2,
   "strum_cooldown_secs": 0.3,
   "strum_gate_time_secs": 0.5,
-  "chord_midi_map_style": {
-    "type": "NotePerChordMode",
+  "chord_quality_selection_style": {
+    "type": "NotePerChordQuality",
     "note_mapping": {
       "0": "MAJOR",
       "1": "MINOR",

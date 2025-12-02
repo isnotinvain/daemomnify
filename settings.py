@@ -18,8 +18,8 @@ def _deserialize_chord_dict(value: dict[int, str | Chord]) -> dict[int, Chord]:
     return {k: v if isinstance(v, Chord) else Chord[v] for k, v in value.items()}
 
 
-class NotePerChordMode(BaseModel):
-    type: Literal["NotePerChordMode"] = "NotePerChordMode"
+class NotePerChordQuality(BaseModel):
+    type: Literal["NotePerChordQuality"] = "NotePerChordQuality"
     note_mapping: dict[int, Chord]
 
     @field_serializer("note_mapping")
@@ -37,8 +37,8 @@ class NotePerChordMode(BaseModel):
         return None
 
 
-class CCPerChordMode(BaseModel):
-    type: Literal["CCPerChordMode"] = "CCPerChordMode"
+class CCPerChordQuality(BaseModel):
+    type: Literal["CCPerChordQuality"] = "CCPerChordQuality"
     cc_mapping: dict[int, Chord]
 
     @field_serializer("cc_mapping")
@@ -56,8 +56,8 @@ class CCPerChordMode(BaseModel):
         return None
 
 
-class CCRangePerChordMode(BaseModel):
-    type: Literal["CCRangePerChordMode"] = "CCRangePerChordMode"
+class CCRangePerChordQuality(BaseModel):
+    type: Literal["CCRangePerChordQuality"] = "CCRangePerChordQuality"
     cc: int
 
     def handles_message(self, msg):
@@ -67,7 +67,7 @@ class CCRangePerChordMode(BaseModel):
         return None
 
 
-ChordModeMidiMapStyle = Annotated[NotePerChordMode | CCPerChordMode | CCRangePerChordMode, Field(discriminator="type")]
+ChordQualitySelectionStyle = Annotated[NotePerChordQuality | CCPerChordQuality | CCRangePerChordQuality, Field(discriminator="type")]
 
 
 class ButtonAction(Enum):
@@ -109,15 +109,15 @@ class DaemomnifySettings(BaseModel):
     strum_channel: int
     strum_cooldown_secs: float
     strum_gate_time_secs: float
-    chord_midi_map_style: ChordModeMidiMapStyle
+    chord_quality_selection_style: ChordQualitySelectionStyle
     strum_plate_cc: int
     latch_toggle_button: MidiButton
     stop_button: MidiButton
 
     # TODO: just make a set of these in the constructor
     def is_note_control_note(self, note: int) -> bool:
-        match self.chord_midi_map_style:
-            case NotePerChordMode() as m:
+        match self.chord_quality_selection_style:
+            case NotePerChordQuality() as m:
                 if note in m.note_mapping:
                     return True
             case _:
@@ -156,7 +156,7 @@ DEFAULT_SETTINGS: DaemomnifySettings = DaemomnifySettings(
     strum_channel=2,
     strum_cooldown_secs=0.3,  # TODO: use cc
     strum_gate_time_secs=0.5,  # TODO: use cc
-    chord_midi_map_style=NotePerChordMode(note_mapping={24: Chord.MAJOR, 25: Chord.MINOR, 26: Chord.DOM_7}),
+    chord_quality_selection_style=NotePerChordQuality(note_mapping={24: Chord.MAJOR, 25: Chord.MINOR, 26: Chord.DOM_7}),
     strum_plate_cc=1,
     latch_toggle_button=MidiCCButton(cc=102, is_toggle=True),
     stop_button=MidiCCButton(cc=103, is_toggle=False),

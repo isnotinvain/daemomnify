@@ -10,13 +10,13 @@ import mido
 from chords import Chord
 from settings import (
     DEFAULT_SETTINGS,
-    CCPerChordMode,
-    CCRangePerChordMode,
+    CCPerChordQuality,
+    CCRangePerChordQuality,
     DaemomnifySettings,
     MidiButton,
     MidiCCButton,
     MidiNoteButton,
-    NotePerChordMode,
+    NotePerChordQuality,
     save_settings,
 )
 from util import irange
@@ -168,7 +168,7 @@ def run_wizard():
                         else:
                             note_mapping[note] = chord
                             break
-                new_settings.chord_midi_map_style = NotePerChordMode(note_mapping=note_mapping)
+                new_settings.chord_quality_selection_style = NotePerChordQuality(note_mapping=note_mapping)
             case 2:
                 cc_mapping = {}
                 for chord in Chord:
@@ -180,11 +180,11 @@ def run_wizard():
                         else:
                             cc_mapping[cc] = chord
                             break
-                new_settings.chord_midi_map_style = CCPerChordMode(cc_mapping=cc_mapping)
+                new_settings.chord_quality_selection_style = CCPerChordQuality(cc_mapping=cc_mapping)
             case 3:
                 print("Please press / slide / wiggle the controller to use for all chords:")
                 cc = get_next_cc(inport)
-                new_settings.chord_midi_map_style = CCRangePerChordMode(cc=cc)
+                new_settings.chord_quality_selection_style = CCRangePerChordQuality(cc=cc)
 
         print("Now we need to configure how you will switch between latch / unlatched chord mode.")
         new_settings.latch_toggle_button = select_midi_button(inport)

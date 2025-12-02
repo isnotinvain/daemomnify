@@ -20,9 +20,9 @@ class Omnify:
     def __init__(self, scheduler: MessageScheduler, event_dispatcher: EventDispatcher, settings: DaemomnifySettings):
         self.scheduler = scheduler
         self.settings = settings
-        self.current_chord_mode = Chord.MAJOR
+        self.current_chord_quality = Chord.MAJOR
 
-        # we need this for when the user queues up a new chord mode, but hasn't started a new chord yet.
+        # we need this for when the user queues up a new chord quality, but hasn't started a new chord yet.
         # we need the strum to not change until the next chord
         self.current_chord_playing = None
         self.current_chord_playing_root = None
@@ -32,7 +32,7 @@ class Omnify:
         self.latch = False
 
         # Buttons and control signals first so that they don't get treated as normal notes etc
-        event_dispatcher.register_handler(self.settings.chord_midi_map_style.handles_message, self.on_chord_mode_button)
+        event_dispatcher.register_handler(self.settings.chord_quality_selection_style.handles_message, self.on_chord_quality_change)
         event_dispatcher.register_handler(self.settings.stop_button.handles_message, self.on_stop_button)
         event_dispatcher.register_handler(self.settings.latch_toggle_button.handles_message, self.on_latch_button)
 
@@ -41,8 +41,8 @@ class Omnify:
         event_dispatcher.register_handler(self.is_chord_note_off, self.on_chord_note_off)
         event_dispatcher.register_handler(self.is_strum, self.on_strum)
 
-    def on_chord_mode_button(self, chord):
-        self.current_chord_mode = chord
+    def on_chord_quality_change(self, chord):
+        self.current_chord_quality = chord
 
     def on_stop_button(self, _):
         return self.stop_notes_of_current_chord()
@@ -111,7 +111,7 @@ class Omnify:
         # stop currently plaing chord
         events = self.stop_notes_of_current_chord() or []
 
-        self.current_chord_playing = self.current_chord_mode
+        self.current_chord_playing = self.current_chord_quality
         # now we generate the chord note_on evnets
         # (chord offsets includes 0, so no need to add msg itself,
         # and it might have the wrong channel anyway)
