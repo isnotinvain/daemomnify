@@ -15,9 +15,6 @@ def _load_chord_offsets(path):
         return result
 
 
-# _chord_data = _load_chord_offsets(path=Path(__file__).parent / "chord_offsets.json")
-
-
 @dataclass(frozen=True)
 class ChordQualityData:
     nice_name: str
@@ -34,78 +31,41 @@ ChordQuality.all = list(ChordQuality)
 ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
 
 
-class ChordBuilder(ABC):
+class ChordConstructor(ABC):
     """
-    Interface for building a chord given the root note of the chord.
-    Some builders will return notes below the root, that's fine, think of
-    the root as the "anchor" of the chord. Builders can choose to use fixed octaves
+    Interface for constructing a chord given a quality and root note.
+    Some constructors will return notes below the root, that's fine, think of
+    the root as the "anchor" of the chord. Constructors can choose to use fixed octaves
     or be relative to the root.
     """
 
     @abstractmethod
-    def notes(self, root: int) -> list[int]: ...
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]: ...
 
 
-class VoicingStyle(ABC):
+class RootPositionConstructor(ChordConstructor):
     """
-    Interface for a chord voicing style.
-    Maps each chord quality to a ChordBuilder.
-    """
-
-    @abstractmethod
-    def builders(self) -> dict[ChordQuality, ChordBuilder]: ...
-
-
-class FixedOffsetBuilder(ChordBuilder):
-    """
-    offsets are semitones from the root
-    add_sub is a mutable container for whether the user has toggled a bass root note
+    Makes plain root position chords
     """
 
-    def __init__(self, offsets: list[int], add_sub: list[bool]):
-        self.offsets = offsets
-        # list of single element, used as a mutable container (or None)
-        self.add_sub = add_sub
+    OFFSETS = {
+        ChordQuality.MAJOR: [0, 4, 7],
+        ChordQuality.MINOR: [0, 3, 7],
+        ChordQuality.DOM_7: [0, 3, 7, 10],
+    }
 
-    def notes(self, root: int) -> list[int]:
-        n = [root + x for x in self.offsets]
+    def __init__(self, add_sub_ref: list[bool]):
+        self.add_sub = add_sub_ref
+
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
+        offsets = self.OFFSETS[quality]
+        n = [root + x for x in offsets]
         if self.add_sub is not None and self.add_sub[0]:
             n.append(root - 12)
         return n
 
 
-class LookupBuilder(ChordBuilder):
-    """
-    lookup is dict[note_class, offsets]
-    offsets are semitones from the root
-    """
-
-    def __init__(self, lookup: dict[int, list[int]]):
-        self.lookup = lookup
-
-    def notes(self, root: int) -> list[int]:
-        note_class = root % 12
-        return self.lookup[note_class]
-
-
-class RootPositionVoicingStyle(VoicingStyle):
-    """
-    Makes plain root position chords
-    """
-
-    def __init__(self, add_sub_ref: list[bool]):
-        self.add_sub = add_sub_ref
-        self._builders = {
-            ChordQuality.MAJOR: FixedOffsetBuilder(offsets=[0, 4, 7], add_sub=self.add_sub),
-            ChordQuality.MINOR: FixedOffsetBuilder(offsets=[0, 3, 7], add_sub=self.add_sub),
-            ChordQuality.DOM_7: FixedOffsetBuilder(offsets=[0, 3, 7, 10], add_sub=self.add_sub),
-        }
-
-    def builders(self) -> dict[ChordQuality, ChordBuilder]:
-        return self._builders
-
-
-class FileVoicingStyle(VoicingStyle):
+class FileConstructor(ChordConstructor):
     """
     Loads chord offset voicings from a json file
     """
@@ -113,18 +73,23 @@ class FileVoicingStyle(VoicingStyle):
     def __init__(self, path):
         # dict[json_file_key, dict[note_class, list[offsets]]]
         self.data = _load_chord_offsets(path)
-        self._builders = {}
-        for quality in ChordQuality.all:
-            self._builders[quality] = LookupBuilder(self.data[quality.value.json_file_key])
 
-    def builders(self) -> dict[ChordQuality, ChordBuilder]:
-        return self._builders
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
+        lookup = self.data[quality.value.json_file_key]
+        note_class = root % 12
+        return lookup[note_class]
 
 
-class PlainAscendingStrumStyle(VoicingStyle):
+class PlainAscendingStrumConstructor(ChordConstructor):
     """
     Makes plain ascending strum sequences
     """
+
+    TRIAD_OFFSETS = {
+        ChordQuality.MAJOR: [0, 4, 7],
+        ChordQuality.MINOR: [0, 3, 7],
+        ChordQuality.DOM_7: [0, 3, 10],  # drop the 5th
+    }
 
     @staticmethod
     def make_strum_from_triad(offsets):
@@ -132,42 +97,26 @@ class PlainAscendingStrumStyle(VoicingStyle):
         for shift in (-12, 0, 12, 24):
             for o in offsets:
                 res.append(shift + o)
-
         # 13th element is one more octave up
         res.append(36)
+        return res
 
-    @staticmethod
-    def make_strum_from_tetrad(offsets):
-        """
-        just drops the 5th
-        """
-        root, third, fifth, seventh = offsets
-        return PlainAscendingStrumStyle.make_strum_from_triad([root, third, seventh])
-
-    @staticmethod
-    def make_strum_from_chord_offsets(offsets):
-        match len(offsets):
-            case 3:
-                return PlainAscendingStrumStyle.make_strum_from_triad(offsets)
-            case 4:
-                return PlainAscendingStrumStyle.make_strum_from_tetrad(offsets)
-            case _:
-                raise ValueError("offsets should be length 3 or 4")
-
-    def __init__(self):
-        self._builders = {}
-        root_style = RootPositionVoicingStyle(None)
-        for quality, builder in root_style.builders().items():
-            strum_offsets = PlainAscendingStrumStyle.make_strum_from_chord_offsets(builder.offsets)
-            self._builders[quality] = FixedOffsetBuilder(strum_offsets, None)
-
-    def builders(self) -> dict[ChordQuality, ChordBuilder]:
-        return self._builders
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
+        triad = self.TRIAD_OFFSETS[quality]
+        strum_offsets = self.make_strum_from_triad(triad)
+        return [root + x for x in strum_offsets]
 
 
-class OmnichordStrumBuilder(ChordBuilder):
-    def __init__(self, triad: list[int]):
-        self.triad = triad
+class OmnichordStrumConstructor(ChordConstructor):
+    """
+    Mimics the omnichord strum voicing algorithm
+    """
+
+    TRIAD_OFFSETS = {
+        ChordQuality.MAJOR: [0, 4, 7],
+        ChordQuality.MINOR: [0, 3, 7],
+        ChordQuality.DOM_7: [0, 3, 10],  # drop the 5th
+    }
 
     @staticmethod
     def clamp(lowest_f_sharp: int, n: int) -> int:
@@ -184,37 +133,14 @@ class OmnichordStrumBuilder(ChordBuilder):
         lowest_f_sharp = (root_octave * 12) + 6
         return lowest_f_sharp
 
-    def notes(self, root: int) -> list[int]:
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
+        triad = self.TRIAD_OFFSETS[quality]
         res = []
-        root_octave_start = OmnichordStrumBuilder.find_lowest_f_sharp(root)
+        root_octave_start = self.find_lowest_f_sharp(root)
         for o in (-12, 0, 12, 24, 36):
             this_octave_start = root_octave_start + o
-            for n in self.triad:
-                res.append(OmnichordStrumBuilder.clamp(this_octave_start, n))
+            for offset in triad:
+                note = root + offset
+                res.append(self.clamp(this_octave_start, note))
 
         return res[0:13]  # we only need 13 notes not 15
-
-
-class OmnichordStrumStyle(VoicingStyle):
-    """
-    Mimics the omnichord strum voicing algorithm
-    """
-
-    def __init__(self):
-        self._builders = {}
-        root_style = RootPositionVoicingStyle(None)
-        for quality, builder in root_style.builders().items():
-            match builder.offsets:
-                case 3:
-                    triad = builder.offsets
-                case 4:
-                    root, third, fifth, seventh = builder.offsets
-                    # drop 5th
-                    triad = [root, third, seventh]
-                case _:
-                    raise ValueError("offsets should be length 3 or 4")
-
-            self._builders[quality] = OmnichordStrumBuilder(triad)
-
-    def builders(self) -> dict[ChordQuality, ChordBuilder]:
-        return self._builders
