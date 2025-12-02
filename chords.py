@@ -14,7 +14,7 @@ class ChordQualityData:
 class ChordQuality(Enum):
     MAJOR = ChordQualityData("Major", "MAJOR", (0, 4, 7))
     MINOR = ChordQualityData("Minor", "MINOR", (0, 3, 7))
-    DOM_7 = ChordQualityData("Dominant 7th", "DOMINANT_7", (0, 3, 7, 10))
+    DOM_7 = ChordQualityData("Dominant 7th", "DOMINANT_7", (0, 4, 7, 10))
 
 
 # TODO: maybe this should filter away multiples of 7? Maybe it never even comes up
