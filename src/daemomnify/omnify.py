@@ -2,11 +2,11 @@ import time
 
 import mido
 
-from chords import ChordQuality
-from event_dispatcher import EventDispatcher
-from message_scheduler import MessageScheduler
-from settings import ButtonAction, DaemomnifySettings
-from util import clamp_note
+from daemomnify.chords import ChordQuality
+from daemomnify.event_dispatcher import EventDispatcher
+from daemomnify.message_scheduler import MessageScheduler
+from daemomnify.settings import ButtonAction, DaemomnifySettings
+from daemomnify.util import clamp_note
 
 
 class Omnify:

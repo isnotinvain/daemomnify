@@ -7,8 +7,8 @@ from textwrap import dedent
 
 import mido
 
-from chords import ChordQuality
-from settings import (
+from daemomnify.chords import ChordQuality
+from daemomnify.settings import (
     DEFAULT_SETTINGS,
     CCPerChordQuality,
     CCRangePerChordQuality,
@@ -19,7 +19,7 @@ from settings import (
     NotePerChordQuality,
     save_settings,
 )
-from util import irange
+from daemomnify.util import irange
 
 
 def select_int(r: range[int], default: int | None = None) -> int:

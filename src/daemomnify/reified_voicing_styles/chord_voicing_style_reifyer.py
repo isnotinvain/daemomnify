@@ -1,4 +1,4 @@
-import chords
+from daemomnify import chords
 
 
 def reify_chord_voicing_style(style):

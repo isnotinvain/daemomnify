@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, PrivateAttr, field_serializer, field_validator
 
-import chords
+from daemomnify import chords
 
 
 def _serialize_chord_quality_dict(value: dict[int, chords.ChordQuality]) -> dict[int, str]:
