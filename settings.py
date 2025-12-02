@@ -1,6 +1,3 @@
-# TODO: IDK how to separate the plain settings / json stuff from the "Midi UI" / button stuff in a nice way
-# TODO: that isn't terribly tedious. Something to think about.
-
 from enum import Enum
 from pathlib import Path
 from typing import Annotated, Literal

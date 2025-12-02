@@ -34,12 +34,29 @@ ChordQuality.all = list(ChordQuality)
 ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
 
 
-class ChordFormer(ABC):
+class ChordBuilder(ABC):
+    """
+    Interface for building a chord given the root note of the chord.
+    Some builders will return notes below the root, that's fine, think of
+    the root as the "anchor" of the chord. Builders can choose to use fixed octaves
+    or be relative to the root.
+    """
+
     @abstractmethod
     def notes(self, root: int) -> list[int]: ...
 
 
-class FixedPatternFormer(ChordFormer):
+class VoicingStyle(ABC):
+    """
+    Interface for a chord voicing style.
+    Maps each chord quality to a ChordBuilder.
+    """
+
+    @abstractmethod
+    def builders(self) -> dict[ChordQuality, ChordBuilder]: ...
+
+
+class FixedOffsetBuilder(ChordBuilder):
     """
     offsets are semitones from the root
     add_sub is a mutable container for whether the user has toggled a bass root note
@@ -57,7 +74,7 @@ class FixedPatternFormer(ChordFormer):
         return n
 
 
-class LookupPatternFormer(ChordFormer):
+class LookupBuilder(ChordBuilder):
     """
     lookup is dict[note_class, offsets]
     offsets are semitones from the root
@@ -71,29 +88,24 @@ class LookupPatternFormer(ChordFormer):
         return self.lookup[note_class]
 
 
-class ChordVoicer(ABC):
-    @abstractmethod
-    def formers(self) -> dict[ChordQuality, ChordFormer]: ...
-
-
-class RootPositionChordVoicer(ChordVoicer):
+class RootPositionVoicingStyle(VoicingStyle):
     """
     Makes plain root position chords
     """
 
     def __init__(self, add_sub_ref: list[bool]):
         self.add_sub = add_sub_ref
-        self._formers = {
-            ChordQuality.MAJOR: FixedPatternFormer(offsets=[0, 4, 7], add_sub=self.add_sub),
-            ChordQuality.MINOR: FixedPatternFormer(offsets=[0, 3, 7], add_sub=self.add_sub),
-            ChordQuality.DOM_7: FixedPatternFormer(offsets=[0, 3, 7, 10], add_sub=self.add_sub),
+        self._builders = {
+            ChordQuality.MAJOR: FixedOffsetBuilder(offsets=[0, 4, 7], add_sub=self.add_sub),
+            ChordQuality.MINOR: FixedOffsetBuilder(offsets=[0, 3, 7], add_sub=self.add_sub),
+            ChordQuality.DOM_7: FixedOffsetBuilder(offsets=[0, 3, 7, 10], add_sub=self.add_sub),
         }
 
-    def formers(self) -> dict[ChordQuality, ChordFormer]:
-        return self._formers
+    def builders(self) -> dict[ChordQuality, ChordBuilder]:
+        return self._builders
 
 
-class FileChordVoicer(ChordVoicer):
+class FileVoicingStyle(VoicingStyle):
     """
     Loads chord offset voicings from a json file
     """
@@ -101,15 +113,15 @@ class FileChordVoicer(ChordVoicer):
     def __init__(self, path):
         # dict[json_file_key, dict[note_class, list[offsets]]]
         self.data = _load_chord_offsets(path)
-        self._formers = {}
+        self._builders = {}
         for quality in ChordQuality.all:
-            self._formers[quality] = LookupPatternFormer(self.data[quality.value.json_file_key])
+            self._builders[quality] = LookupBuilder(self.data[quality.value.json_file_key])
 
-    def formers(self) -> dict[ChordQuality, ChordFormer]:
-        return self._formers
+    def builders(self) -> dict[ChordQuality, ChordBuilder]:
+        return self._builders
 
 
-class PlainAscendingStrumVoicer(ChordVoicer):
+class PlainAscendingStrumStyle(VoicingStyle):
     """
     Makes plain ascending strum sequences
     """
@@ -130,30 +142,30 @@ class PlainAscendingStrumVoicer(ChordVoicer):
         just drops the 5th
         """
         root, third, fifth, seventh = pattern
-        return PlainAscendingStrumVoicer.make_strum_from_triad([root, third, seventh])
+        return PlainAscendingStrumStyle.make_strum_from_triad([root, third, seventh])
 
     @staticmethod
     def make_strum_from_chord_offsets(offsets):
         match len(offsets):
             case 3:
-                return PlainAscendingStrumVoicer.make_strum_from_triad(offsets)
+                return PlainAscendingStrumStyle.make_strum_from_triad(offsets)
             case 4:
-                return PlainAscendingStrumVoicer.make_strum_from_tetrad(offsets)
+                return PlainAscendingStrumStyle.make_strum_from_tetrad(offsets)
             case _:
                 raise ValueError("offsets should be length 3 or 4")
 
     def __init__(self):
-        self._formers = {}
-        root_voicer = RootPositionChordVoicer(None)
-        for quality, former in root_voicer.formers().items():
-            strum_offsets = PlainAscendingStrumVoicer.make_strum_from_chord_offsets(former.offsets)
-            self._formers[quality] = FixedPatternFormer(strum_offsets, None)
+        self._builders = {}
+        root_style = RootPositionVoicingStyle(None)
+        for quality, builder in root_style.builders().items():
+            strum_offsets = PlainAscendingStrumStyle.make_strum_from_chord_offsets(builder.offsets)
+            self._builders[quality] = FixedOffsetBuilder(strum_offsets, None)
 
-    def formers(self) -> dict[ChordQuality, ChordFormer]:
-        return self._formers
+    def builders(self) -> dict[ChordQuality, ChordBuilder]:
+        return self._builders
 
 
-class OmnichordStrumFormer(ChordFormer):
+class OmnichordStrumBuilder(ChordBuilder):
     def __init__(self, triad: list[int]):
         self.triad = triad
 
@@ -174,35 +186,35 @@ class OmnichordStrumFormer(ChordFormer):
 
     def notes(self, root: int) -> list[int]:
         res = []
-        root_octave_start = OmnichordStrumFormer.find_lowest_f_sharp(root)
+        root_octave_start = OmnichordStrumBuilder.find_lowest_f_sharp(root)
         for o in (-12, 0, 12, 24, 36):
             this_octave_start = root_octave_start + o
             for n in self.triad:
-                res.append(OmnichordStrumFormer.clamp(this_octave_start, n))
+                res.append(OmnichordStrumBuilder.clamp(this_octave_start, n))
 
         return res[0:13]  # we only need 13 notes not 15
 
 
-class OmnichordStrumVoicer(ChordVoicer):
+class OmnichordStrumStyle(VoicingStyle):
     """
     Mimics the omnichord strum voicing algorithm
     """
 
     def __init__(self):
-        self._formers = {}
-        root_voicer = RootPositionChordVoicer(None)
-        for quality, former in root_voicer.formers().items():
-            match former.offsets:
+        self._builders = {}
+        root_style = RootPositionVoicingStyle(None)
+        for quality, builder in root_style.builders().items():
+            match builder.offsets:
                 case 3:
-                    triad = former.offsets
+                    triad = builder.offsets
                 case 4:
-                    root, third, fifth, seventh = former.offsets
+                    root, third, fifth, seventh = builder.offsets
                     # drop 5th
                     triad = [root, third, seventh]
                 case _:
                     raise ValueError("offsets should be length 3 or 4")
 
-            self._formers[quality] = OmnichordStrumFormer(triad)
+            self._builders[quality] = OmnichordStrumBuilder(triad)
 
-    def formers(self) -> dict[ChordQuality, ChordFormer]:
-        return self._formers
+    def builders(self) -> dict[ChordQuality, ChordBuilder]:
+        return self._builders
