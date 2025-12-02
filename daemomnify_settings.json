@@ -6,7 +6,7 @@
   "chord_channel": 1,
   "strum_channel": 2,
   "strum_voicing_style": {
-    "type": "OmnichordStrumStyle"
+    "type": "PlainAscendingStrumStyle"
   },
   "strum_cooldown_secs": 0.3,
   "strum_gate_time_secs": 0.5,
