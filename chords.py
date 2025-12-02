@@ -33,8 +33,8 @@ ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
 class ChordVoicingStyle(ABC):
     """
     Interface for constructing a chord given a quality and root note.
-    Some constructors will return notes below the root, that's fine, think of
-    the root as the "anchor" of the chord. Constructors can choose to use fixed octaves
+    Some styles will return notes below the root, that's fine, think of
+    the root as the "anchor" of the chord. Styles can choose to use fixed octaves
     or be relative to the root.
     """
 
