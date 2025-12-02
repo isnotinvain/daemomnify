@@ -5,6 +5,10 @@ Outputs separate midi channels for chords vs strums.
 
 WIP, has many configurable input / output modes, and the plan is to wrap this all up in a VST as well.
 
+## Brief Demo
+
+https://github.com/user-attachments/assets/10d7aac1-48a5-483b-8785-d843f0cc5ee8
+
 ## Setup
 
 Requires Python 3.14+ and [uv](https://docs.astral.sh/uv/).
