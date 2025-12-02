@@ -6,14 +6,7 @@ from chords import Chord
 from event_dispatcher import EventDispatcher
 from message_scheduler import MessageScheduler
 from settings import ButtonAction, DaemomnifySettings
-
-
-def clamp_note(note):
-    if note > 127:
-        return (note % 12) + 108  # Clamp to highest octave
-    if note < 0:
-        return abs(note) % 12
-    return note
+from util import clamp_note
 
 
 class Omnify:
