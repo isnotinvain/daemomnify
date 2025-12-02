@@ -19,19 +19,29 @@ def _load_chord_offsets(path):
 class ChordQualityData:
     nice_name: str
     json_file_key: str
+    offsets: tuple[int, ...]
 
 
 class ChordQuality(Enum):
-    MAJOR = ChordQualityData("Major", "MAJOR")
-    MINOR = ChordQualityData("Minor", "MINOR")
-    DOM_7 = ChordQualityData("Dominant 7th", "DOMINANT_7")
+    MAJOR = ChordQualityData("Major", "MAJOR", (0, 4, 7))
+    MINOR = ChordQualityData("Minor", "MINOR", (0, 3, 7))
+    DOM_7 = ChordQualityData("Dominant 7th", "DOMINANT_7", (0, 3, 7, 10))
+
+
+# TODO: maybe this should filter away multiples of 7? Maybe it never even comes up
+def drop_fifth(offsets: tuple[int, ...]) -> tuple[int, ...]:
+    """Converts a tetrad to a triad by dropping the 5th (index 2)."""
+    if len(offsets) == 3:
+        return offsets
+    root, third, _fifth, seventh = offsets
+    return (root, third, seventh)
 
 
 ChordQuality.all = list(ChordQuality)
 ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
 
 
-class ChordConstructor(ABC):
+class ChordVoicingStyle(ABC):
     """
     Interface for constructing a chord given a quality and root note.
     Some constructors will return notes below the root, that's fine, think of
@@ -43,29 +53,23 @@ class ChordConstructor(ABC):
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]: ...
 
 
-class RootPositionConstructor(ChordConstructor):
+class RootPositionStyle(ChordVoicingStyle):
     """
     Makes plain root position chords
     """
-
-    OFFSETS = {
-        ChordQuality.MAJOR: [0, 4, 7],
-        ChordQuality.MINOR: [0, 3, 7],
-        ChordQuality.DOM_7: [0, 3, 7, 10],
-    }
 
     def __init__(self, add_sub_ref: list[bool]):
         self.add_sub = add_sub_ref
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        offsets = self.OFFSETS[quality]
+        offsets = quality.value.offsets
         n = [root + x for x in offsets]
         if self.add_sub is not None and self.add_sub[0]:
             n.append(root - 12)
         return n
 
 
-class FileConstructor(ChordConstructor):
+class FileStyle(ChordVoicingStyle):
     """
     Loads chord offset voicings from a json file
     """
@@ -80,16 +84,10 @@ class FileConstructor(ChordConstructor):
         return lookup[note_class]
 
 
-class PlainAscendingStrumConstructor(ChordConstructor):
+class PlainAscendingStrumStyle(ChordVoicingStyle):
     """
     Makes plain ascending strum sequences
     """
-
-    TRIAD_OFFSETS = {
-        ChordQuality.MAJOR: [0, 4, 7],
-        ChordQuality.MINOR: [0, 3, 7],
-        ChordQuality.DOM_7: [0, 3, 10],  # drop the 5th
-    }
 
     @staticmethod
     def make_strum_from_triad(offsets):
@@ -102,21 +100,15 @@ class PlainAscendingStrumConstructor(ChordConstructor):
         return res
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        triad = self.TRIAD_OFFSETS[quality]
+        triad = drop_fifth(quality.value.offsets)
         strum_offsets = self.make_strum_from_triad(triad)
         return [root + x for x in strum_offsets]
 
 
-class OmnichordStrumConstructor(ChordConstructor):
+class OmnichordStrumStyle(ChordVoicingStyle):
     """
     Mimics the omnichord strum voicing algorithm
     """
-
-    TRIAD_OFFSETS = {
-        ChordQuality.MAJOR: [0, 4, 7],
-        ChordQuality.MINOR: [0, 3, 7],
-        ChordQuality.DOM_7: [0, 3, 10],  # drop the 5th
-    }
 
     @staticmethod
     def clamp(lowest_f_sharp: int, n: int) -> int:
@@ -134,7 +126,7 @@ class OmnichordStrumConstructor(ChordConstructor):
         return lowest_f_sharp
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        triad = self.TRIAD_OFFSETS[quality]
+        triad = drop_fifth(quality.value.offsets)
         res = []
         root_octave_start = self.find_lowest_f_sharp(root)
         for o in (-12, 0, 12, 24, 36):
