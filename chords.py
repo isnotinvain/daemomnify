@@ -38,6 +38,9 @@ class ChordVoicingStyle(ABC):
     or be relative to the root.
     """
 
+    def __init__(self, settings):
+        self.settings = settings
+
     @abstractmethod
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]: ...
 
@@ -47,15 +50,9 @@ class RootPositionStyle(ChordVoicingStyle):
     Makes plain root position chords
     """
 
-    def __init__(self, add_sub_ref: list[bool]):
-        self.add_sub = add_sub_ref
-
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
         offsets = quality.value.offsets
-        n = [root + x for x in offsets]
-        if self.add_sub is not None and self.add_sub[0]:
-            n.append(root - 12)
-        return n
+        return [root + x for x in offsets]
 
 
 class FileStyle(ChordVoicingStyle):
@@ -63,7 +60,8 @@ class FileStyle(ChordVoicingStyle):
     Loads chord offset voicings from a json file
     """
 
-    def __init__(self, path):
+    def __init__(self, settings, path):
+        super().__init__(settings)
         # dict[json_file_key, dict[note_class, list[offsets]]]
         self.data = self._load_chord_offsets(path)
 
