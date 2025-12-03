@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 from daemomnify import chords
 from daemomnify.chords import (
     FileStyle,
+    Omni84Style,
     OmnichordStrumStyle,
     PlainAscendingStrumStyle,
     RootPositionStyle,
@@ -80,7 +81,7 @@ class MidiCCButton(BaseModel):
 MidiButton = Annotated[MidiNoteButton | MidiCCButton, Field(discriminator="type")]
 
 
-ChordStyleConfig = Annotated[RootPositionStyle | FileStyle, Field(discriminator="type")]
+ChordStyleConfig = Annotated[RootPositionStyle | FileStyle | Omni84Style, Field(discriminator="type")]
 StrumStyleConfig = Annotated[PlainAscendingStrumStyle | OmnichordStrumStyle, Field(discriminator="type")]
 
 

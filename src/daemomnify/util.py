@@ -11,3 +11,21 @@ def clamp_note(note):
     return note
 
 
+PITCH_CLASSES = [
+    "C",
+    "C#/Db",
+    "D",
+    "D#/Eb",
+    "E",
+    "F",
+    "F#/Gb",
+    "G",
+    "G#/Ab",
+    "A",
+    "A#/Bb",
+    "B",
+]
+
+# MIDI 36 = C1 (Ableton convention), so octave = (midi - 36) // 12 + 1
+# which simplifies to (midi - 24) // 12
+NOTE_NAMES = {midi: f"{PITCH_CLASSES[midi % 12]}{(midi - 24) // 12}" for midi in range(128)}

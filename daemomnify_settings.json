@@ -1,7 +1,7 @@
 {
   "midi_device_name": "Launchkey Mini MK3 MIDI Port",
   "chord_voicing_style": {
-    "type": "RootPositionChordStyle"
+    "type": "Omni84Style"
   },
   "chord_channel": 1,
   "strum_channel": 2,
