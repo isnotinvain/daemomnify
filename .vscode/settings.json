@@ -12,12 +12,5 @@
       "source.organizeImports": "explicit"
     }
   },
-  "ruff.nativeServer": "on",
-
-  // GitHub Copilot: manual trigger only (use Option+\ to trigger)
-  "github.copilot.enable": {
-    "*": true
-  },
-  "github.copilot.editor.enableAutoCompletions": false,
-  "editor.inlineSuggest.enabled": false
+  "ruff.nativeServer": "on"
 }
