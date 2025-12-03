@@ -1,7 +1,10 @@
 import json
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
+from typing import Literal
+
+from pydantic import BaseModel, PrivateAttr
+from pydantic_core import core_schema
 
 
 @dataclass(frozen=True)
@@ -15,6 +18,13 @@ class ChordQuality(Enum):
     MAJOR = ChordQualityData("Major", "MAJOR", (0, 4, 7))
     MINOR = ChordQualityData("Minor", "MINOR", (0, 3, 7))
     DOM_7 = ChordQualityData("Dominant 7th", "DOMINANT_7", (0, 4, 7, 10))
+
+    @classmethod
+    def __get_pydantic_core_schema__(cls, source_type, handler):
+        return core_schema.no_info_plain_validator_function(
+            lambda v: v if isinstance(v, cls) else cls[v],
+            serialization=core_schema.plain_serializer_function_ser_schema(lambda v: v.name),
+        )
 
 
 # TODO: maybe this should filter away multiples of 7? Maybe it never even comes up
@@ -30,7 +40,7 @@ ChordQuality.all = list(ChordQuality)
 ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
 
 
-class ChordVoicingStyle(ABC):
+class ChordVoicingStyle(BaseModel):
     """
     Interface for constructing a chord given a quality and root note.
     Some styles will return notes below the root, that's fine, think of
@@ -38,17 +48,16 @@ class ChordVoicingStyle(ABC):
     or be relative to the root.
     """
 
-    def __init__(self, settings):
-        self.settings = settings
-
-    @abstractmethod
-    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]: ...
+    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
+        raise NotImplementedError
 
 
 class RootPositionStyle(ChordVoicingStyle):
     """
     Makes plain root position chords
     """
+
+    type: Literal["RootPositionChordStyle"] = "RootPositionChordStyle"
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
         offsets = quality.value.offsets
@@ -60,10 +69,9 @@ class FileStyle(ChordVoicingStyle):
     Loads chord offset voicings from a json file
     """
 
-    def __init__(self, settings, path):
-        super().__init__(settings)
-        # dict[json_file_key, dict[note_class, list[offsets]]]
-        self.data = self._load_chord_offsets(path)
+    type: Literal["FileChordStyle"] = "FileChordStyle"
+    path: str
+    _data: dict | None = PrivateAttr(default=None)
 
     @staticmethod
     def _load_chord_offsets(path):
@@ -76,8 +84,13 @@ class FileStyle(ChordVoicingStyle):
                     result[name][int(note_str)] = offsets
             return result
 
+    def _get_data(self):
+        if self._data is None:
+            self._data = self._load_chord_offsets(self.path)
+        return self._data
+
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        lookup = self.data[quality.value.json_file_key]
+        lookup = self._get_data()[quality.value.json_file_key]
         note_class = root % 12
         return lookup[note_class]
 
@@ -86,6 +99,8 @@ class PlainAscendingStrumStyle(ChordVoicingStyle):
     """
     Makes plain ascending strum sequences
     """
+
+    type: Literal["PlainAscendingStrumStyle"] = "PlainAscendingStrumStyle"
 
     @staticmethod
     def make_strum_from_triad(offsets):
@@ -107,6 +122,8 @@ class OmnichordStrumStyle(ChordVoicingStyle):
     """
     Mimics the omnichord strum voicing algorithm
     """
+
+    type: Literal["OmnichordStrumStyle"] = "OmnichordStrumStyle"
 
     @staticmethod
     def clamp(lowest_f_sharp: int, n: int) -> int:
