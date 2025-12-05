@@ -15,16 +15,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
         0));
 
     // Chord Channel
-    layout.add(std::make_unique<juce::AudioParameterInt>(
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::CHORD_CHANNEL, 1),
         "Chord Channel",
-        1, 16, 0));
+        ChordChannelChoices::choices,
+        0));
 
     // Strum Channel
-    layout.add(std::make_unique<juce::AudioParameterInt>(
+    layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::STRUM_CHANNEL, 1),
         "Strum Channel",
-        1, 16, 0));
+        StrumChannelChoices::choices,
+        1));
 
     // Strum Voicing Style
     layout.add(std::make_unique<juce::AudioParameterChoice>(

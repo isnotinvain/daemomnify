@@ -5,15 +5,20 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Parse command line arguments
 INSTALL=false
+DEBUG=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         -i|--install)
             INSTALL=true
             shift
             ;;
+        -d|--debug)
+            DEBUG=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--install|-i]"
+            echo "Usage: $0 [--install|-i] [--debug|-d]"
             exit 1
             ;;
     esac
@@ -21,10 +26,21 @@ done
 
 echo "Starting compilation..."
 
-# Build the plugin
-echo "Building plugin in Release mode..."
+# Generate VST parameters from Python settings
+echo "Generating VST parameters..."
+uv run python "$SCRIPT_DIR/generate_vst_params.py"
+
+# Determine build type
+if [ "$DEBUG" = true ]; then
+    BUILD_TYPE="Debug"
+    echo "Building plugin in Debug mode..."
+else
+    BUILD_TYPE="Release"
+    echo "Building plugin in Release mode..."
+fi
+
 cd "$SCRIPT_DIR/build"
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 make
 
 if [ $? -eq 0 ]; then

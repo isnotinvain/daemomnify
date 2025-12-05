@@ -47,6 +47,15 @@ class VSTChoice(VSTParam):
 
 
 @dataclass
+class VSTIntChoice(VSTParam):
+    """Integer range as a choice parameter (combo box). For small ranges like MIDI channel 1-16."""
+    min: int = 0
+    max: int = 127
+    default: int = 0
+    label: str | None = None
+
+
+@dataclass
 class VSTString(VSTParam):
     """String parameter (text field)."""
     default: str = ""

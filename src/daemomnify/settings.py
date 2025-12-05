@@ -18,6 +18,7 @@ from daemomnify.vst_params import (
     VSTChoice,
     VSTFloat,
     VSTInt,
+    VSTIntChoice,
     VSTSkip,
     VSTString,
 )
@@ -119,8 +120,8 @@ StrumStyleConfig = Annotated[
 class DaemomnifySettings(BaseModel):
     midi_device_name: Annotated[str, VSTSkip()]
     chord_voicing_style: ChordStyleConfig
-    chord_channel: Annotated[int, VSTInt(min=1, max=16, label="Chord Channel")]
-    strum_channel: Annotated[int, VSTInt(min=1, max=16, label="Strum Channel")]
+    chord_channel: Annotated[int, VSTIntChoice(min=1, max=16, default=1, label="Chord Channel")]
+    strum_channel: Annotated[int, VSTIntChoice(min=1, max=16, default=2, label="Strum Channel")]
     strum_voicing_style: StrumStyleConfig
     strum_cooldown_secs: Annotated[float, VSTFloat(min=0.0, max=5.0, label="Strum Cooldown (sec)")]
     strum_gate_time_secs: Annotated[float, VSTFloat(min=0.0, max=5.0, label="Strum Gate Time (sec)")]

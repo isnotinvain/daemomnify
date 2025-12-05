@@ -10,8 +10,19 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
       parameters(*this, nullptr, "PARAMETERS", GeneratedParams::createParameterLayout()) {
     FOLEYS_SET_SOURCE_PATH(__FILE__);
 
-    // Load the GUI layout from embedded binary data
+    // Update parameter map after APVTS is created so Foleys can see the parameters
+    magicState.updateParameterMap();
+
+    // Load the GUI layout - from file in debug mode for hot reload, from binary data in release
+#if JUCE_DEBUG
+    auto xmlFile = juce::File(__FILE__).getParentDirectory().getChildFile("Resources/magic.xml");
+    if (xmlFile.existsAsFile())
+        magicState.setGuiValueTree(xmlFile);
+    else
+        magicState.setGuiValueTree(BinaryData::magic_xml, BinaryData::magic_xmlSize);
+#else
     magicState.setGuiValueTree(BinaryData::magic_xml, BinaryData::magic_xmlSize);
+#endif
 }
 
 //==============================================================================

@@ -23,6 +23,7 @@ from daemomnify.vst_params import (
     VSTChoice,
     VSTFloat,
     VSTInt,
+    VSTIntChoice,
     VSTParam,
     VSTSkip,
     VSTString,
@@ -180,6 +181,19 @@ def collect_params(
                 "default": vst_param.default,
                 "parent_variant": parent_variant,
             })
+        elif isinstance(vst_param, VSTIntChoice):
+            # Generate choices as strings from min to max
+            choices = [str(i) for i in range(vst_param.min, vst_param.max + 1)]
+            params.append({
+                "name": full_name,
+                "param_id": snake_to_camel(full_name),
+                "label": vst_param.label or field_name.replace("_", " ").title(),
+                "type": "int_choice",
+                "choices": choices,
+                "namespace": snake_to_pascal(full_name) + "Choices",
+                "default": vst_param.default - vst_param.min,  # Convert to index
+                "parent_variant": parent_variant,
+            })
         elif isinstance(vst_param, VSTString):
             # For now, skip strings as JUCE doesn't have a native string parameter
             # Could implement as a special case later
@@ -226,7 +240,7 @@ def generate_header(params: list[dict]) -> str:
 
     # Generate choice arrays
     for p in params:
-        if p["type"] == "choice":
+        if p["type"] in ("choice", "int_choice"):
             lines.append(f"namespace {p['namespace']} {{")
             choices_str = ", ".join(f'"{c}"' for c in p["choices"])
             lines.append(f"inline const juce::StringArray choices = {{{choices_str}}};")
@@ -270,6 +284,14 @@ def generate_cpp(params: list[dict]) -> str:
             lines.append(f'        "{p["label"]}",')
             lines.append(f"        {p['namespace']}::choices,")
             lines.append("        0));")
+            lines.append("")
+        elif p["type"] == "int_choice":
+            lines.append(f"    // {p['label']}{variant_comment}")
+            lines.append("    layout.add(std::make_unique<juce::AudioParameterChoice>(")
+            lines.append(f'        juce::ParameterID(ParamIDs::{snake_to_screaming(p["name"])}, 1),')
+            lines.append(f'        "{p["label"]}",')
+            lines.append(f"        {p['namespace']}::choices,")
+            lines.append(f"        {p['default']}));")
             lines.append("")
         elif p["type"] == "int":
             lines.append(f"    // {p['label']}{variant_comment}")
