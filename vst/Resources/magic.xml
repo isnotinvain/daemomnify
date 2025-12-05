@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<magic>
+    <Styles>
+        <Style name="default">
+            <Nodes/>
+            <Classes>
+                <group border="2" padding="10" margin="5" flex-direction="column" background-color="ff303030" border-color="ff505050"/>
+                <param-row flex-direction="row" flex-wrap="wrap" padding="5"/>
+                <section-label font-size="16" max-height="30" min-height="30" justification="left" color="ffffffff"/>
+            </Classes>
+            <Types>
+                <Slider border="0" slider-textbox="textbox-below" min-width="70" max-width="100" min-height="120" max-height="150" caption-size="18"/>
+                <ToggleButton border="0" min-height="40" max-height="50" min-width="100" caption-size="0" text="Toggle"/>
+                <TextButton border="0" min-height="30" max-height="40" caption-size="0"/>
+                <ComboBox border="0" min-height="30" max-height="40" min-width="120" max-width="180" caption-size="18"/>
+                <Label font-size="14" justification="centred" color="ffffffff"/>
+            </Types>
+        </Style>
+    </Styles>
+
+    <View id="root" flex-direction="column" padding="10" background-color="ff252525" resizable="1" resize-corner="1" min-width="900" min-height="700">
+        <Label text="Omnify" font-size="28" min-height="40" max-height="50" justification="centred"/>
+
+        <!-- Chord Settings -->
+        <View styleClass="group">
+            <Label styleClass="section-label" text="Chord Settings"/>
+            <View styleClass="param-row">
+                <ComboBox parameter="chordVoicingStyle" caption="Voicing Style"/>
+                <ComboBox parameter="chordChannel" caption="Channel"/>
+            </View>
+        </View>
+
+        <!-- Strum Settings -->
+        <View styleClass="group">
+            <Label styleClass="section-label" text="Strum Settings"/>
+            <View styleClass="param-row">
+                <ComboBox parameter="strumVoicingStyle" caption="Voicing"/>
+                <ComboBox parameter="strumChannel" caption="Channel"/>
+                <Slider parameter="strumCooldownSecs" caption="Cooldown"/>
+                <Slider parameter="strumGateTimeSecs" caption="Gate"/>
+                <Slider parameter="strumPlateCc" caption="Plate CC" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="150" max-width="200" min-height="50" max-height="60"/>
+            </View>
+        </View>
+
+        <!-- Chord Quality Selection -->
+        <View styleClass="group">
+            <Label styleClass="section-label" text="Chord Quality Selection"/>
+            <View styleClass="param-row">
+                <ComboBox parameter="chordQualitySelectionStyle" caption="Mode"/>
+            </View>
+
+            <Label text="Note Mapping (per chord quality)" font-size="12" max-height="20" justification="left"/>
+            <View styleClass="param-row">
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingMajor" caption="Maj" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingMinor" caption="Min" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingDom7" caption="Dom7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingMajor7" caption="Maj7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingMinor7" caption="Min7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+            </View>
+            <View styleClass="param-row">
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingDim7" caption="Dim7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingAugmented" caption="Aug" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingSus4" caption="Sus4" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleNoteperchordqualityNoteMappingAdd9" caption="Add9" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+            </View>
+
+            <Label text="CC Mapping (per chord quality)" font-size="12" max-height="20" justification="left"/>
+            <View styleClass="param-row">
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingMajor" caption="Maj" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingMinor" caption="Min" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingDom7" caption="Dom7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingMajor7" caption="Maj7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingMinor7" caption="Min7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+            </View>
+            <View styleClass="param-row">
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingDim7" caption="Dim7" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingAugmented" caption="Aug" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingSus4" caption="Sus4" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+                <Slider parameter="chordQualitySelectionStyleCcperchordqualityCcMappingAdd9" caption="Add9" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="100" max-width="130" min-height="40" max-height="50"/>
+            </View>
+
+            <View styleClass="param-row">
+                <Slider parameter="chordQualitySelectionStyleCcrangeperchordqualityCc" caption="CC Range" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="150" max-width="200" min-height="40" max-height="50"/>
+            </View>
+        </View>
+
+        <!-- Latch Toggle Button -->
+        <View styleClass="group">
+            <Label styleClass="section-label" text="Latch Toggle Button"/>
+            <View styleClass="param-row">
+                <ComboBox parameter="latchToggleButton" caption="Type"/>
+                <Slider parameter="latchToggleButtonMidinotebuttonNote" caption="Note" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="120" max-width="150" min-height="40" max-height="50"/>
+                <Slider parameter="latchToggleButtonMidiccbuttonCc" caption="CC" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="120" max-width="150" min-height="40" max-height="50"/>
+                <ToggleButton parameter="latchToggleButtonMidiccbuttonIsToggle" text="Is Toggle"/>
+            </View>
+        </View>
+
+        <!-- Stop Button -->
+        <View styleClass="group">
+            <Label styleClass="section-label" text="Stop Button"/>
+            <View styleClass="param-row">
+                <ComboBox parameter="stopButton" caption="Type"/>
+                <Slider parameter="stopButtonMidinotebuttonNote" caption="Note" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="120" max-width="150" min-height="40" max-height="50"/>
+                <Slider parameter="stopButtonMidiccbuttonCc" caption="CC" slider-type="linear-horizontal" slider-textbox="textbox-right" min-width="120" max-width="150" min-height="40" max-height="50"/>
+                <ToggleButton parameter="stopButtonMidiccbuttonIsToggle" text="Is Toggle"/>
+            </View>
+        </View>
+    </View>
+</magic>

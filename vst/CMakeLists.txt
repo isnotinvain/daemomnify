@@ -14,6 +14,9 @@ set(CMAKE_OSX_ARCHITECTURES "arm64")
 # Add JUCE as a subdirectory. Assumes JUCE is in a 'JUCE' folder at the root.
 add_subdirectory(JUCE)
 
+# Add Foleys GUI Magic module
+juce_add_module(foleys_gui_magic/modules/foleys_gui_magic)
+
 juce_add_plugin(Omnify
     COMPANY_NAME "alexlevenson"
     PRODUCT_NAME "Omnify"
@@ -37,11 +40,18 @@ target_sources(Omnify
     PRIVATE
         ${OMNIFY_SOURCES})
 
+# Add binary resources (magic.xml for GUI)
+juce_add_binary_data(OmnifyBinaryData
+    SOURCES
+        Resources/magic.xml)
+
 target_link_libraries(Omnify
     PRIVATE
         juce::juce_audio_processors
         juce::juce_audio_utils
         juce::juce_audio_devices
+        foleys_gui_magic
+        OmnifyBinaryData
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

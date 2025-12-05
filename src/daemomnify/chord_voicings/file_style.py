@@ -1,9 +1,10 @@
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, PrivateAttr
 
 from daemomnify.chord_quality import ChordQuality
 from daemomnify.chord_voicings.chord_voicing_style import ChordVoicingStyle
+from daemomnify.vst_params import VSTString
 
 
 class ChordFile(BaseModel):
@@ -19,7 +20,7 @@ class FileStyle(ChordVoicingStyle):
     """
 
     type: Literal["FileStyle"] = "FileStyle"
-    path: str
+    path: Annotated[str, VSTString(label="Chord File Path")]
     _data: ChordFile | None = PrivateAttr(default=None)
 
     @staticmethod
