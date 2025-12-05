@@ -47,7 +47,8 @@ constexpr const char* STOP_BUTTON_MIDICCBUTTON_IS_TOGGLE = "stopButtonMidiccbutt
 } // namespace ParamIDs
 
 namespace ChordVoicingStyleChoices {
-inline const juce::StringArray choices = {"RootPositionChordStyle", "FileStyle", "Omni84Style"};
+inline const juce::StringArray labels = {"Root Position", "File", "Omni-84"};
+inline const juce::StringArray values = {"RootPositionChordStyle", "FileStyle", "Omni84Style"};
 } // namespace ChordVoicingStyleChoices
 
 namespace ChordChannelChoices {
@@ -59,19 +60,23 @@ inline const juce::StringArray choices = {"1", "2", "3", "4", "5", "6", "7", "8"
 } // namespace StrumChannelChoices
 
 namespace StrumVoicingStyleChoices {
-inline const juce::StringArray choices = {"PlainAscendingStrumStyle", "OmnichordStrumStyle"};
+inline const juce::StringArray labels = {"Plain Ascending", "Omnichord"};
+inline const juce::StringArray values = {"PlainAscendingStrumStyle", "OmnichordStrumStyle"};
 } // namespace StrumVoicingStyleChoices
 
 namespace ChordQualitySelectionStyleChoices {
-inline const juce::StringArray choices = {"NotePerChordQuality", "CCPerChordQuality", "CCRangePerChordQuality"};
+inline const juce::StringArray labels = {"Note Per Quality", "CC Per Quality", "CC Range"};
+inline const juce::StringArray values = {"NotePerChordQuality", "CCPerChordQuality", "CCRangePerChordQuality"};
 } // namespace ChordQualitySelectionStyleChoices
 
 namespace LatchToggleButtonChoices {
-inline const juce::StringArray choices = {"MidiNoteButton", "MidiCCButton"};
+inline const juce::StringArray labels = {"Note", "CC"};
+inline const juce::StringArray values = {"MidiNoteButton", "MidiCCButton"};
 } // namespace LatchToggleButtonChoices
 
 namespace StopButtonChoices {
-inline const juce::StringArray choices = {"MidiNoteButton", "MidiCCButton"};
+inline const juce::StringArray labels = {"Note", "CC"};
+inline const juce::StringArray values = {"MidiNoteButton", "MidiCCButton"};
 } // namespace StopButtonChoices
 
 // Create the parameter layout

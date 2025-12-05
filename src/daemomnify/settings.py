@@ -14,13 +14,12 @@ from daemomnify.chord_voicings.root_position_style import (
 )
 from daemomnify.vst_params import (
     VSTBool,
-    VSTChordQualityMap,
     VSTChoice,
+    VSTChordQualityMap,
     VSTFloat,
     VSTInt,
     VSTIntChoice,
     VSTSkip,
-    VSTString,
 )
 
 
@@ -30,6 +29,10 @@ class NotePerChordQuality(BaseModel):
         dict[int, chord_quality.ChordQuality],
         VSTChordQualityMap(min=0, max=127, label_prefix="Note for"),
     ]
+
+    @classmethod
+    def vst_label(cls) -> str:
+        return "Note Per Quality"
 
     def handles_message(self, msg):
         if msg.type == "note_on" and msg.note in self.note_mapping:
@@ -44,6 +47,10 @@ class CCPerChordQuality(BaseModel):
         VSTChordQualityMap(min=0, max=127, label_prefix="CC for"),
     ]
 
+    @classmethod
+    def vst_label(cls) -> str:
+        return "CC Per Quality"
+
     def handles_message(self, msg):
         if msg.type == "control_change" and msg.control in self.cc_mapping:
             return self.cc_mapping[msg.control]
@@ -53,6 +60,10 @@ class CCPerChordQuality(BaseModel):
 class CCRangePerChordQuality(BaseModel):
     type: Literal["CCRangePerChordQuality"] = "CCRangePerChordQuality"
     cc: Annotated[int, VSTInt(min=0, max=127, label="CC Number")]
+
+    @classmethod
+    def vst_label(cls) -> str:
+        return "CC Range"
 
     def handles_message(self, msg):
         if msg.type == "control_change" and msg.control == self.cc:
@@ -78,6 +89,10 @@ class MidiNoteButton(BaseModel):
     type: Literal["MidiNoteButton"] = "MidiNoteButton"
     note: Annotated[int, VSTInt(min=0, max=127, label="Note")]
 
+    @classmethod
+    def vst_label(cls) -> str:
+        return "Note"
+
     def handles_message(self, msg):
         if msg.type == "note_on" and msg.note == self.note:
             return ButtonAction.FLIP
@@ -88,6 +103,10 @@ class MidiCCButton(BaseModel):
     type: Literal["MidiCCButton"] = "MidiCCButton"
     cc: Annotated[int, VSTInt(min=0, max=127, label="CC Number")]
     is_toggle: Annotated[bool, VSTBool(label="Is Toggle")]
+
+    @classmethod
+    def vst_label(cls) -> str:
+        return "CC"
 
     def handles_message(self, msg):
         if msg.type == "control_change" and msg.control == self.cc:

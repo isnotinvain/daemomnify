@@ -74,22 +74,33 @@ def get_union_types(annotation) -> list[type] | None:
     return None
 
 
-def get_discriminated_union_info(annotation) -> tuple[list[str], list[type]] | None:
-    """Get (choices, types) from a discriminated union."""
+def get_variant_label(model_class: type) -> str | None:
+    """Get the vst_label from a model class if present."""
+    if hasattr(model_class, "vst_label"):
+        return model_class.vst_label()
+    return None
+
+
+def get_discriminated_union_info(annotation) -> tuple[list[str], list[str], list[type]] | None:
+    """Get (type_values, labels, types) from a discriminated union."""
     union_types = get_union_types(annotation)
     if not union_types:
         return None
 
-    choices = []
+    type_values = []  # The actual discriminator values (used for param names)
+    labels = []  # The display labels
     valid_types = []
     for t in union_types:
         if hasattr(t, "model_fields") and "type" in t.model_fields:
             type_field = t.model_fields["type"]
             if type_field.default:
-                choices.append(type_field.default)
+                type_values.append(type_field.default)
+                # Use VSTVariant label if present, otherwise fall back to type value
+                variant_label = get_variant_label(t)
+                labels.append(variant_label if variant_label else type_field.default)
                 valid_types.append(t)
 
-    return (choices, valid_types) if choices else None
+    return (type_values, labels, valid_types) if type_values else None
 
 
 def collect_params(
@@ -125,7 +136,7 @@ def collect_params(
         # Check if this is a discriminated union (choice with nested types)
         union_info = get_discriminated_union_info(annotation)
         if union_info:
-            choices, variant_types = union_info
+            type_values, labels, variant_types = union_info
 
             # Add the type selector parameter
             label = vst_param.label if isinstance(vst_param, VSTChoice) and vst_param.label else field_name.replace("_", " ").title()
@@ -134,16 +145,17 @@ def collect_params(
                 "param_id": snake_to_camel(full_name),
                 "label": label,
                 "type": "choice",
-                "choices": choices,
+                "choices": labels,  # Use labels for display
+                "values": type_values,  # Programmatic values for serialization
                 "namespace": snake_to_pascal(full_name) + "Choices",
             })
 
             # Recursively collect params from each variant
-            for variant_type, variant_name in zip(variant_types, choices):
+            for variant_type, type_value in zip(variant_types, type_values):
                 variant_params = collect_params(
                     variant_type,
-                    prefix=f"{full_name}_{variant_name}",
-                    parent_variant=variant_name,
+                    prefix=f"{full_name}_{type_value}",  # Use type_value for param names
+                    parent_variant=type_value,
                 )
                 params.extend(variant_params)
 
@@ -240,7 +252,16 @@ def generate_header(params: list[dict]) -> str:
 
     # Generate choice arrays
     for p in params:
-        if p["type"] in ("choice", "int_choice"):
+        if p["type"] == "choice":
+            lines.append(f"namespace {p['namespace']} {{")
+            labels_str = ", ".join(f'"{c}"' for c in p["choices"])
+            lines.append(f"inline const juce::StringArray labels = {{{labels_str}}};")
+            if "values" in p:
+                values_str = ", ".join(f'"{v}"' for v in p["values"])
+                lines.append(f"inline const juce::StringArray values = {{{values_str}}};")
+            lines.append(f"}} // namespace {p['namespace']}")
+            lines.append("")
+        elif p["type"] == "int_choice":
             lines.append(f"namespace {p['namespace']} {{")
             choices_str = ", ".join(f'"{c}"' for c in p["choices"])
             lines.append(f"inline const juce::StringArray choices = {{{choices_str}}};")
@@ -282,7 +303,7 @@ def generate_cpp(params: list[dict]) -> str:
             lines.append("    layout.add(std::make_unique<juce::AudioParameterChoice>(")
             lines.append(f'        juce::ParameterID(ParamIDs::{snake_to_screaming(p["name"])}, 1),')
             lines.append(f'        "{p["label"]}",')
-            lines.append(f"        {p['namespace']}::choices,")
+            lines.append(f"        {p['namespace']}::labels,")
             lines.append("        0));")
             lines.append("")
         elif p["type"] == "int_choice":

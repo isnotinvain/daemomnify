@@ -11,6 +11,10 @@ class OmnichordStrumStyle(ChordVoicingStyle):
 
     type: Literal["OmnichordStrumStyle"] = "OmnichordStrumStyle"
 
+    @classmethod
+    def vst_label(cls) -> str:
+        return "Omnichord"
+
     @staticmethod
     def clamp(lowest_f_sharp: int, n: int) -> int:
         pitch_class = n % 12

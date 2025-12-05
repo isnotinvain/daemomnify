@@ -21,6 +21,10 @@ class FileStyle(ChordVoicingStyle):
 
     type: Literal["FileStyle"] = "FileStyle"
     path: Annotated[str, VSTString(label="Chord File Path")]
+
+    @classmethod
+    def vst_label(cls) -> str:
+        return "File"
     _data: ChordFile | None = PrivateAttr(default=None)
 
     @staticmethod

@@ -69,6 +69,12 @@ class VSTSkip(VSTParam):
 
 
 @dataclass
+class VSTVariant(VSTParam):
+    """Label for a variant in a discriminated union. Apply to the model class itself."""
+    label: str
+
+
+@dataclass
 class VSTChordQualityMap(VSTParam):
     """
     Special handler for dict[int, ChordQuality] mappings.

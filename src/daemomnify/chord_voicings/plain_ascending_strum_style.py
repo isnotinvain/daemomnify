@@ -11,6 +11,10 @@ class PlainAscendingStrumStyle(ChordVoicingStyle):
 
     type: Literal["PlainAscendingStrumStyle"] = "PlainAscendingStrumStyle"
 
+    @classmethod
+    def vst_label(cls) -> str:
+        return "Plain Ascending"
+
     @staticmethod
     def make_strum_from_triad(offsets):
         res = []

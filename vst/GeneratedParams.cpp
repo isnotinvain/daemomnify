@@ -11,7 +11,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::CHORD_VOICING_STYLE, 1),
         "Chord Voicing Style",
-        ChordVoicingStyleChoices::choices,
+        ChordVoicingStyleChoices::labels,
         0));
 
     // Chord Channel
@@ -32,7 +32,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::STRUM_VOICING_STYLE, 1),
         "Strum Voicing Style",
-        StrumVoicingStyleChoices::choices,
+        StrumVoicingStyleChoices::labels,
         0));
 
     // Strum Cooldown (sec)
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::CHORD_QUALITY_SELECTION_STYLE, 1),
         "Chord Quality Selection",
-        ChordQualitySelectionStyleChoices::choices,
+        ChordQualitySelectionStyleChoices::labels,
         0));
 
     // Note for Major (when NotePerChordQuality)
@@ -178,7 +178,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::LATCH_TOGGLE_BUTTON, 1),
         "Button Type",
-        LatchToggleButtonChoices::choices,
+        LatchToggleButtonChoices::labels,
         0));
 
     // Note (when MidiNoteButton)
@@ -203,7 +203,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout() {
     layout.add(std::make_unique<juce::AudioParameterChoice>(
         juce::ParameterID(ParamIDs::STOP_BUTTON, 1),
         "Button Type",
-        StopButtonChoices::choices,
+        StopButtonChoices::labels,
         0));
 
     // Note (when MidiNoteButton)

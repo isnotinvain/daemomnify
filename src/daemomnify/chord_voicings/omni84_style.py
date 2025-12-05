@@ -12,6 +12,10 @@ class Omni84Style(ChordVoicingStyle):
 
     type: Literal["Omni84Style"] = "Omni84Style"
 
+    @classmethod
+    def vst_label(cls) -> str:
+        return "Omni-84"
+
     OCTAVE_BEGIN_MAP: ClassVar[dict[ChordQuality, int]] = {ChordQuality.MAJOR: 36, ChordQuality.MINOR: 48, ChordQuality.DOM_7: 60}
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
