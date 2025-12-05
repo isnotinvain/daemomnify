@@ -1,12 +1,14 @@
 {
   "midi_device_name": "Launchkey Mini MK3 MIDI Port",
   "chord_voicing_style": {
-    "type": "Omni84Style"
+    "type": "FileStyle",
+    "path": "src/daemomnify/reified_voicing_styles/om_108_chord_voicing_offsets.json",
+    "contains_offsets": true
   },
   "chord_channel": 1,
   "strum_channel": 2,
   "strum_voicing_style": {
-    "type": "PlainAscendingStrumStyle"
+    "type": "OmnichordStrumStyle"
   },
   "strum_cooldown_secs": 0.3,
   "strum_gate_time_secs": 0.5,

@@ -81,11 +81,12 @@ class Omni84Style(ChordVoicingStyle):
 
 class FileStyle(ChordVoicingStyle):
     """
-    Loads chord offset voicings from a json file
+    Loads chord notes or offsets from a json file
     """
 
-    type: Literal["FileChordStyle"] = "FileChordStyle"
+    type: Literal["FileStyle"] = "FileStyle"
     path: str
+    contains_offsets: bool
     _data: dict | None = PrivateAttr(default=None)
 
     @staticmethod
@@ -107,7 +108,11 @@ class FileStyle(ChordVoicingStyle):
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
         lookup = self._get_data()[quality.name]
         note_class = root % 12
-        return lookup[note_class]
+        offsets_or_notes = lookup[note_class]
+        if self.contains_offsets:
+            return [root + x for x in offsets_or_notes]
+        else:
+            return offsets_or_notes
 
 
 class PlainAscendingStrumStyle(ChordVoicingStyle):
