@@ -5,11 +5,11 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, Field
 
 from daemomnify import chords
-from daemomnify.chords import (
-    FileStyle,
-    Omni84Style,
-    OmnichordStrumStyle,
-    PlainAscendingStrumStyle,
+from daemomnify.FileStyle import FileStyle
+from daemomnify.Omni84Style import Omni84Style
+from daemomnify.OmnichordStrumStyle import OmnichordStrumStyle
+from daemomnify.PlainAscendingStrumStyle import PlainAscendingStrumStyle
+from daemomnify.RootPositionStyle import (
     RootPositionStyle,
 )
 

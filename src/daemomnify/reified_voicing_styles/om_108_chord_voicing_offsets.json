@@ -1,5 +1,9 @@
 {
-  "ADD9": {
+"name": "OmniChord: Relative",
+"description": "Uses the real omnichord voicings, but respects what octave you play the root in",
+"is_offset_file": true,
+"chords": {
+  "ADD_9": {
     "0": [
       7,
       12,
@@ -61,7 +65,7 @@
       7
     ]
   },
-  "AUG": {
+  "AUGMENTED": {
     "0": [
       8,
       12,
@@ -123,7 +127,7 @@
       8
     ]
   },
-  "DIM": {
+  "DIM_7": {
     "0": [
       9,
       12,
@@ -495,7 +499,7 @@
       3
     ]
   },
-  "SUS": {
+  "SUS_4": {
     "0": [
       7,
       12,
@@ -557,4 +561,5 @@
       7
     ]
   }
+}
 }

@@ -1,5 +1,9 @@
 {
-  "ADD9": {
+"name": "OmniChord: Fixed",
+"description": "Uses the real omnichord voicings, in their original octaves, and doesn't transpose.",
+"is_offset_file": false,
+"chords": {
+  "ADD_9": {
     "0": [
       55,
       60,
@@ -61,7 +65,7 @@
       64
     ]
   },
-  "AUG": {
+  "AUGMENTED": {
     "0": [
       56,
       60,
@@ -123,7 +127,7 @@
       65
     ]
   },
-  "DIM": {
+  "DIM_7": {
     "0": [
       57,
       60,
@@ -495,7 +499,7 @@
       60
     ]
   },
-  "SUS": {
+  "SUS_4": {
     "0": [
       55,
       60,
@@ -557,4 +561,5 @@
       64
     ]
   }
+}
 }
