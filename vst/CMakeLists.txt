@@ -26,7 +26,7 @@ juce_add_plugin(Omnify
     COPY_PLUGIN_AFTER_BUILD FALSE
     PLUGIN_MANUFACTURER_CODE "ALEV"
     PLUGIN_CODE "Omni"
-    FORMATS VST3)
+    FORMATS VST3 Standalone)
 
 # Collect all source files in the current directory
 file(GLOB OMNIFY_SOURCES
@@ -40,6 +40,8 @@ target_sources(Omnify
 target_link_libraries(Omnify
     PRIVATE
         juce::juce_audio_processors
+        juce::juce_audio_utils
+        juce::juce_audio_devices
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags

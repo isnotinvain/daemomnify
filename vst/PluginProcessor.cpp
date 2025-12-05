@@ -93,7 +93,7 @@ void OmnifyAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 
 //==============================================================================
 juce::AudioProcessorEditor* OmnifyAudioProcessor::createEditor() {
-    return new OmnifyAudioProcessorEditor(*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
