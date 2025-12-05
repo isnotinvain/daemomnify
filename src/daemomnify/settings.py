@@ -4,7 +4,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from daemomnify import chord_quality
+from daemomnify import chord_quality, vst_params
 from daemomnify.chord_voicings.file_style import FileStyle
 from daemomnify.chord_voicings.omni84_style import Omni84Style
 from daemomnify.chord_voicings.omnichord_strum_style import OmnichordStrumStyle
@@ -12,7 +12,6 @@ from daemomnify.chord_voicings.plain_ascending_strum_style import PlainAscending
 from daemomnify.chord_voicings.root_position_style import (
     RootPositionStyle,
 )
-from daemomnify import vst_params
 
 
 class NotePerChordQuality(BaseModel):
