@@ -7,7 +7,7 @@ from textwrap import dedent
 
 import mido
 
-from daemomnify.chords import ChordQuality
+from daemomnify.chord_quality import ChordQuality
 from daemomnify.settings import (
     DEFAULT_SETTINGS,
     CCPerChordQuality,

@@ -1,6 +1,7 @@
 from typing import ClassVar, Literal
 
-from daemomnify.chords import ChordQuality, ChordVoicingStyle
+from daemomnify.chord_quality import ChordQuality
+from daemomnify.chord_voicings.chord_voicing_style import ChordVoicingStyle
 
 
 class Omni84Style(ChordVoicingStyle):

@@ -2,8 +2,7 @@
   "midi_device_name": "Launchkey Mini MK3 MIDI Port",
   "chord_voicing_style": {
     "type": "FileStyle",
-    "path": "src/daemomnify/reified_voicing_styles/om_108_chord_voicing_offsets.json",
-    "contains_offsets": true
+    "path": "src/daemomnify/chord_voicings/chord_voicing_files/om_108_chord_voicing_offsets.json"
   },
   "chord_channel": 1,
   "strum_channel": 2,

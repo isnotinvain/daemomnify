@@ -4,19 +4,19 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
-from daemomnify import chords
-from daemomnify.FileStyle import FileStyle
-from daemomnify.Omni84Style import Omni84Style
-from daemomnify.OmnichordStrumStyle import OmnichordStrumStyle
-from daemomnify.PlainAscendingStrumStyle import PlainAscendingStrumStyle
-from daemomnify.RootPositionStyle import (
+from daemomnify import chord_quality
+from daemomnify.chord_voicings.file_style import FileStyle
+from daemomnify.chord_voicings.omni84_style import Omni84Style
+from daemomnify.chord_voicings.omnichord_strum_style import OmnichordStrumStyle
+from daemomnify.chord_voicings.plain_ascending_strum_style import PlainAscendingStrumStyle
+from daemomnify.chord_voicings.root_position_style import (
     RootPositionStyle,
 )
 
 
 class NotePerChordQuality(BaseModel):
     type: Literal["NotePerChordQuality"] = "NotePerChordQuality"
-    note_mapping: dict[int, chords.ChordQuality]
+    note_mapping: dict[int, chord_quality.ChordQuality]
 
     def handles_message(self, msg):
         if msg.type == "note_on" and msg.note in self.note_mapping:
@@ -26,7 +26,7 @@ class NotePerChordQuality(BaseModel):
 
 class CCPerChordQuality(BaseModel):
     type: Literal["CCPerChordQuality"] = "CCPerChordQuality"
-    cc_mapping: dict[int, chords.ChordQuality]
+    cc_mapping: dict[int, chord_quality.ChordQuality]
 
     def handles_message(self, msg):
         if msg.type == "control_change" and msg.control in self.cc_mapping:
@@ -40,8 +40,8 @@ class CCRangePerChordQuality(BaseModel):
 
     def handles_message(self, msg):
         if msg.type == "control_change" and msg.control == self.cc:
-            chord_index = min(int(msg.value / chords.ChordQuality.chord_region_size), len(chords.ChordQuality.all) - 1)
-            return chords.ChordQuality.all[chord_index]
+            chord_index = min(int(msg.value / chord_quality.ChordQuality.chord_region_size), len(chord_quality.ChordQuality.all) - 1)
+            return chord_quality.ChordQuality.all[chord_index]
         return None
 
 
@@ -144,9 +144,9 @@ DEFAULT_SETTINGS: DaemomnifySettings = DaemomnifySettings(
     strum_gate_time_secs=0.5,  # TODO: use cc
     chord_quality_selection_style=NotePerChordQuality(
         note_mapping={
-            0: chords.ChordQuality.MAJOR,
-            1: chords.ChordQuality.MINOR,
-            2: chords.ChordQuality.DOM_7,
+            0: chord_quality.ChordQuality.MAJOR,
+            1: chord_quality.ChordQuality.MINOR,
+            2: chord_quality.ChordQuality.DOM_7,
         }
     ),
     strum_plate_cc=1,

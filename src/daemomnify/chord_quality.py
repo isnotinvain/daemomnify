@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from pydantic import BaseModel
 from pydantic_core import core_schema
 
 
@@ -34,15 +33,3 @@ class ChordQuality(Enum):
 
 ChordQuality.all = list(ChordQuality)
 ChordQuality.chord_region_size = 128 / len(ChordQuality.all)
-
-
-class ChordVoicingStyle(BaseModel):
-    """
-    Interface for constructing a chord given a quality and root note.
-    Some styles will return notes below the root, that's fine, think of
-    the root as the "anchor" of the chord. Styles can choose to use fixed octaves
-    or be relative to the root.
-    """
-
-    def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        raise NotImplementedError

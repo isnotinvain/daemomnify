@@ -2,7 +2,7 @@ import time
 
 import mido
 
-from daemomnify.chords import ChordQuality
+from daemomnify.chord_quality import ChordQuality
 from daemomnify.event_dispatcher import EventDispatcher
 from daemomnify.message_scheduler import MessageScheduler
 from daemomnify.settings import ButtonAction, DaemomnifySettings
@@ -78,9 +78,7 @@ class Omnify:
             # we'll allow it, we've crossed into the next strumming area or it's been long enough
 
             # find the note within the arp sequence for this given root
-            note_to_play = self.settings.strum_voicing_style.construct_chord(self.current_chord_quality, self.current_root)[
-                strum_plate_zone
-            ]
+            note_to_play = self.settings.strum_voicing_style.construct_chord(self.current_chord_quality, self.current_root)[strum_plate_zone]
 
             # create the note on event
             events.append(mido.Message("note_on", note=note_to_play, velocity=velocity, channel=self.settings.strum_channel - 1))

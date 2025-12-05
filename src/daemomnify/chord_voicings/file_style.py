@@ -2,7 +2,8 @@ from typing import Literal
 
 from pydantic import BaseModel, PrivateAttr
 
-from daemomnify.chords import ChordQuality, ChordVoicingStyle
+from daemomnify.chord_quality import ChordQuality
+from daemomnify.chord_voicings.chord_voicing_style import ChordVoicingStyle
 
 
 class ChordFile(BaseModel):
@@ -19,7 +20,6 @@ class FileStyle(ChordVoicingStyle):
 
     type: Literal["FileStyle"] = "FileStyle"
     path: str
-    contains_offsets: bool
     _data: ChordFile | None = PrivateAttr(default=None)
 
     @staticmethod
@@ -33,10 +33,11 @@ class FileStyle(ChordVoicingStyle):
         return self._data
 
     def construct_chord(self, quality: ChordQuality, root: int) -> list[int]:
-        lookup = self._get_data().chords[quality]
+        data = self._get_data()
+        lookup = data.chords[quality]
         note_class = root % 12
         offsets_or_notes = lookup[note_class]
-        if self.contains_offsets:
+        if data.is_offset_file:
             return [root + x for x in offsets_or_notes]
         else:
             return offsets_or_notes
