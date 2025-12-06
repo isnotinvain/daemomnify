@@ -19,7 +19,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$DEBUG" = true ]; then
-    open "$SCRIPT_DIR/build/Omnify_artefacts/Debug/Standalone/Omnify.app"
+    "$SCRIPT_DIR/build/Omnify_artefacts/Debug/Standalone/Omnify.app/Contents/MacOS/Omnify"
 else
-    open "$SCRIPT_DIR/build/Omnify_artefacts/Standalone/Omnify.app"
+    "$SCRIPT_DIR/build/Omnify_artefacts/Standalone/Omnify.app/Contents/MacOS/Omnify"
 fi
