@@ -1,5 +1,7 @@
 #include "MidiLearnComponent.h"
 
+#include "../LcarsColors.h"
+
 MidiLearnComponent::MidiLearnComponent() {
     setWantsKeyboardFocus(true);
 }
@@ -94,16 +96,16 @@ void MidiLearnComponent::paint(juce::Graphics& g) {
     boxBounds = bounds.removeFromLeft(boxWidth);
 
     if (isLearning.load()) {
-        g.setColour(juce::Colours::yellow.withAlpha(0.3f));
+        g.setColour(LcarsColors::yellow.withAlpha(0.3f));
     } else {
-        g.setColour(juce::Colours::black);
+        g.setColour(LcarsColors::grey.darker());
     }
     g.fillRect(boxBounds);
 
-    g.setColour(isLearning.load() ? juce::Colours::yellow : juce::Colours::grey);
-    g.drawRect(boxBounds, 1);
+    g.setColour(isLearning.load() ? LcarsColors::yellow : LcarsColors::purple);
+    g.drawRect(boxBounds, 2);
 
-    g.setColour(juce::Colours::white);
+    g.setColour(LcarsColors::yellow);
     g.drawText(getDisplayText(), boxBounds, juce::Justification::centred);
 }
 
