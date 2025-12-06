@@ -31,9 +31,11 @@ juce_add_plugin(Omnify
     PLUGIN_CODE "Omni"
     FORMATS VST3 Standalone)
 
-# Collect all source files in the current directory
+# Collect all source files (excluding submodules JUCE and foleys_gui_magic)
 file(GLOB OMNIFY_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ui/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/ui/components/*.cpp"
 )
 
 target_sources(Omnify
