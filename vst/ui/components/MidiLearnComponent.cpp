@@ -17,11 +17,6 @@ void MidiLearnComponent::broadcastMidi(const juce::MidiBuffer& buffer) {
     }
 }
 
-void MidiLearnComponent::setCaption(const juce::String& newCaption) {
-    caption = newCaption;
-    repaint();
-}
-
 void MidiLearnComponent::setLearnedValue(MidiLearnedValue val) {
     learnedType.store(val.type);
     learnedValue.store(val.value);
@@ -32,14 +27,21 @@ MidiLearnedValue MidiLearnComponent::getLearnedValue() const {
     return {learnedType.load(), learnedValue.load()};
 }
 
+void MidiLearnComponent::setAcceptMode(MidiAcceptMode mode) {
+    acceptMode = mode;
+}
+
 void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
     if (!isLearning.load()) {
         return;
     }
 
+    bool acceptNotes = acceptMode == MidiAcceptMode::NotesOnly || acceptMode == MidiAcceptMode::Both;
+    bool acceptCCs = acceptMode == MidiAcceptMode::CCsOnly || acceptMode == MidiAcceptMode::Both;
+
     for (const auto& metadata : buffer) {
         auto msg = metadata.getMessage();
-        if (msg.isNoteOn() and msg.getVelocity() > 0) {
+        if (acceptNotes && msg.isNoteOn() && msg.getVelocity() > 0) {
             learnedType.store(MidiLearnedType::Note);
             learnedValue.store(msg.getNoteNumber());
             isLearning.store(false);
@@ -51,7 +53,7 @@ void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
                 onValueChanged({MidiLearnedType::Note, msg.getNoteNumber()});
             }
             return;
-        } else if (msg.isController()) {
+        } else if (acceptCCs && msg.isController()) {
             learnedType.store(MidiLearnedType::CC);
             learnedValue.store(msg.getControllerNumber());
             isLearning.store(false);
@@ -87,20 +89,9 @@ juce::String MidiLearnComponent::getDisplayText() const {
 }
 
 void MidiLearnComponent::paint(juce::Graphics& g) {
-    auto bounds = getLocalBounds();
-
-    g.setColour(juce::Colours::white);
-    auto font = g.getCurrentFont();
-    juce::GlyphArrangement glyphs;
-    glyphs.addLineOfText(font, caption + ": ", 0, 0);
-    auto captionWidth = static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth());
-
-    auto captionBounds = bounds.removeFromLeft(captionWidth + 5);
-    g.drawText(caption + ":", captionBounds, juce::Justification::centredRight);
-
-    auto reducedBounds = bounds.reduced(2);
-    int boxWidth = static_cast<int>(reducedBounds.getHeight() * 2.5f);
-    boxBounds = reducedBounds.removeFromLeft(boxWidth);
+    auto bounds = getLocalBounds().reduced(2);
+    int boxWidth = static_cast<int>(bounds.getHeight() * 2.5f);
+    boxBounds = bounds.removeFromLeft(boxWidth);
 
     if (isLearning.load()) {
         g.setColour(juce::Colours::yellow.withAlpha(0.3f));

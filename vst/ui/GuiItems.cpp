@@ -2,7 +2,7 @@
 
 #include "../PluginProcessor.h"
 
-const juce::Identifier MidiLearnItem::pCaption{"caption"};
+const juce::Identifier MidiLearnItem::pAcceptMode{"accept-mode"};
 
 MidiLearnItem::MidiLearnItem(foleys::MagicGUIBuilder& builder, const juce::ValueTree& node)
     : foleys::GuiItem(builder, node) {
@@ -10,9 +10,13 @@ MidiLearnItem::MidiLearnItem(foleys::MagicGUIBuilder& builder, const juce::Value
 }
 
 void MidiLearnItem::update() {
-    auto captionText = magicBuilder.getStyleProperty(pCaption, configNode).toString();
-    if (captionText.isNotEmpty()) {
-        midiLearnComponent.setCaption(captionText);
+    auto acceptModeText = magicBuilder.getStyleProperty(pAcceptMode, configNode).toString();
+    if (acceptModeText == "Notes Only") {
+        midiLearnComponent.setAcceptMode(MidiAcceptMode::NotesOnly);
+    } else if (acceptModeText == "CCs Only") {
+        midiLearnComponent.setAcceptMode(MidiAcceptMode::CCsOnly);
+    } else {
+        midiLearnComponent.setAcceptMode(MidiAcceptMode::Both);
     }
 }
 
@@ -20,7 +24,8 @@ juce::Component* MidiLearnItem::getWrappedComponent() { return &midiLearnCompone
 
 std::vector<foleys::SettableProperty> MidiLearnItem::getSettableProperties() const {
     std::vector<foleys::SettableProperty> props;
-    props.push_back({configNode, pCaption, foleys::SettableProperty::Text, {}, {}});
+    props.push_back({configNode, pAcceptMode, foleys::SettableProperty::Choice, pAcceptModes[2],
+                     magicBuilder.createChoicesMenuLambda(pAcceptModes)});
     return props;
 }
 

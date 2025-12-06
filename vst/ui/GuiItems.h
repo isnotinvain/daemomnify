@@ -11,7 +11,8 @@ class MidiLearnItem : public foleys::GuiItem {
    public:
     FOLEYS_DECLARE_GUI_FACTORY(MidiLearnItem)
 
-    static const juce::Identifier pCaption;
+    static const juce::Identifier pAcceptMode;
+    static inline const juce::StringArray pAcceptModes{"Notes Only", "CCs Only", "Both"};
 
     MidiLearnItem(foleys::MagicGUIBuilder& builder, const juce::ValueTree& node);
 

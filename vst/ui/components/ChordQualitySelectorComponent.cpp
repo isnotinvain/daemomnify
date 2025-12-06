@@ -3,7 +3,6 @@
 ChordQualitySelectorComponent::ChordQualitySelectorComponent() {
     for (size_t i = 0; i < NUM_QUALITIES; ++i) {
         learners[i] = std::make_unique<MidiLearnComponent>();
-        learners[i]->setCaption("");
         addAndMakeVisible(learners[i].get());
     }
 }

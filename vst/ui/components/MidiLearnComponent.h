@@ -9,6 +9,8 @@
 
 enum class MidiLearnedType { None, Note, CC };
 
+enum class MidiAcceptMode { NotesOnly, CCsOnly, Both };
+
 struct MidiLearnedValue {
     MidiLearnedType type = MidiLearnedType::None;
     int value = -1;  // Note number or CC number
@@ -21,9 +23,9 @@ class MidiLearnComponent : public juce::Component, private juce::AsyncUpdater {
 
     static void broadcastMidi(const juce::MidiBuffer& buffer);
 
-    void setCaption(const juce::String& caption);
     void setLearnedValue(MidiLearnedValue val);
     MidiLearnedValue getLearnedValue() const;
+    void setAcceptMode(MidiAcceptMode mode);
 
     void processNextMidiBuffer(const juce::MidiBuffer& buffer);
 
@@ -43,10 +45,10 @@ class MidiLearnComponent : public juce::Component, private juce::AsyncUpdater {
 
     static inline std::atomic<MidiLearnComponent*> currentlyLearning{nullptr};
 
-    juce::String caption{"Learn"};
     std::atomic<MidiLearnedType> learnedType{MidiLearnedType::None};
     std::atomic<int> learnedValue{-1};
     std::atomic<bool> isLearning{false};
+    MidiAcceptMode acceptMode{MidiAcceptMode::Both};
 
     juce::Rectangle<int> boxBounds;
 
