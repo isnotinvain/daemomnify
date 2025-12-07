@@ -64,7 +64,7 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
 
         // Draw outline
         g.setColour(box.findColour(juce::ComboBox::outlineColourId));
-        g.drawRoundedRectangle(bounds.toFloat().reduced(0.5f, 0.5f), 4.0f, 1.0f);
+        g.drawRoundedRectangle(bounds.toFloat().reduced(1.0f), 4.0f, 2.0f);
 
         // Draw a single filled downward-pointing triangle
         const float arrowSize = 6.0f;
