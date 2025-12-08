@@ -17,7 +17,8 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
         // Default popup menu colors (can be overridden via XML)
         setColour(juce::PopupMenu::backgroundColourId, juce::Colour(0xFF1A1A2E));
         setColour(juce::PopupMenu::textColourId, LcarsColors::sunflower);
-        setColour(juce::PopupMenu::highlightedBackgroundColourId, LcarsColors::orange.withAlpha(0.3f));
+        setColour(juce::PopupMenu::highlightedBackgroundColourId,
+                  LcarsColors::orange.withAlpha(0.3f));
         setColour(juce::PopupMenu::highlightedTextColourId, LcarsColors::spaceWhite);
     }
 
@@ -29,6 +30,16 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
     }
 
     juce::Font getLabelFont(juce::Label& label) override {
+        if (auto* comboBox = dynamic_cast<juce::ComboBox*>(label.getParentComponent())) {
+            if (auto* guiItem = dynamic_cast<foleys::GuiItem*>(comboBox->getParentComponent())) {
+                auto captionSize =
+                    static_cast<float>(guiItem->getProperty(foleys::IDs::captionSize));
+                if (captionSize > 0) {
+                    return getOrbitronFont(captionSize * 0.8f);
+                }
+            }
+            return getOrbitronFont(comboBox->getHeight() * 0.85f);  // fallback
+        }
         return getOrbitronFont(label.getFont().getHeight());
     }
 
@@ -40,7 +51,30 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
         return getOrbitronFont(juce::jmin(15.0f, buttonHeight * 0.6f));
     }
 
-    juce::Font getPopupMenuFont() override { return getOrbitronFont(15.0f); }
+    juce::Font getPopupMenuFont() override { return getOrbitronFont(40.0f); }
+
+    void getIdealPopupMenuItemSizeWithOptions(const juce::String& text, bool isSeparator,
+                                              int standardMenuItemHeight, int& idealWidth,
+                                              int& idealHeight,
+                                              const juce::PopupMenu::Options& options) override {
+        if (isSeparator) {
+            idealWidth = 50;
+            idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight / 10 : 10;
+        } else {
+            float fontSize = 15.0f;  // fallback
+            if (auto* target = options.getTargetComponent()) {
+                if (auto* guiItem = dynamic_cast<foleys::GuiItem*>(target->getParentComponent())) {
+                    auto captionSize =
+                        static_cast<float>(guiItem->getProperty(foleys::IDs::captionSize));
+                    if (captionSize > 0)
+                        fontSize = captionSize * 0.8f;
+                }
+            }
+            idealHeight = static_cast<int>(fontSize * 1.3f);
+            auto font = getOrbitronFont(fontSize);
+            idealWidth = font.getStringWidth(text) + idealHeight * 2;
+        }
+    }
 
     juce::Font getMenuBarFont(juce::MenuBarComponent&, int, const juce::String&) override {
         return getOrbitronFont(15.0f);
