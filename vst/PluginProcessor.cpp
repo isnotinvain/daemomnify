@@ -52,6 +52,7 @@ void OmnifyAudioProcessor::initialiseBuilder(foleys::MagicGUIBuilder& builder) {
 
     builder.registerFactory("OmnifyMidiLearn", &MidiLearnItem::factory);
     builder.registerFactory("ChordQualitySelector", &ChordQualitySelectorItem::factory);
+    builder.registerFactory("LcarsSettings", &LcarsSettingsItem::factory);
 }
 
 //==============================================================================
