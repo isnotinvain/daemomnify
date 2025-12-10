@@ -1,0 +1,8 @@
+TODO:
+
+1) Maybe make MidiLearner connect to parameters
+2) Cleanup auto-gen parameters
+3) MidiLearner needs to stop right aligning everywhere
+4) Style the sliders and checkboxes
+5) Possibly swap drop downs for radio buttons
+6) Make the midilearn boxes capsules again
