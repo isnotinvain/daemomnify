@@ -44,10 +44,10 @@ if [[ "$FILE_PATH" =~ \.(cpp|h|hpp)$ ]]; then
     # Note: We target arm64 specifically since universal builds create multiple compiler jobs
     SDK_PATH=$(xcrun --show-sdk-path)
 
-    # Find the build directory relative to the file being processed
-    # The file is in vst/, so the build dir is vst/build
-    FILE_DIR="$(dirname "$TIDY_TARGET")"
-    BUILD_DIR="$FILE_DIR/build"
+    # Find the build directory - it's always at vst/build regardless of where the source file is
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    REPO_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+    BUILD_DIR="$REPO_ROOT/vst/build"
 
     /opt/homebrew/opt/llvm/bin/clang-tidy "$TIDY_TARGET" \
         -p "$BUILD_DIR" \

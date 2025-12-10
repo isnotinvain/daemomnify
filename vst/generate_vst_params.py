@@ -225,7 +225,7 @@ def generate_params_cpp(params: list[dict]) -> str:
                 f"    auto {var} = std::make_unique<juce::AudioParameterFloat>(\n"
                 f'        juce::ParameterID("{param_id}", 1),\n'
                 f'        "{p["label"]}",\n'
-                f"        {p['min']}f, {p['max']}f, {default}f);"
+                f"        {p['min']}F, {p['max']}F, {default}F);"
             )
         elif p["type"] == "bool":
             default = "true" if p.get("default") else "false"
@@ -545,17 +545,24 @@ def generate_additional_settings_cpp(additional_settings_class: type[BaseModel])
     # Generate to_json/from_json for each struct
     for struct in unique_structs:
         struct_name = struct["struct_name"]
+        has_fields = len(struct["fields"]) > 0
 
-        # to_json
-        lines.append(f"void to_json(nlohmann::json& j, const {struct_name}& s) {{")
+        # to_json - use [[maybe_unused]] for structs with no fields
+        if has_fields:
+            lines.append(f"void to_json(nlohmann::json& j, const {struct_name}& s) {{")
+        else:
+            lines.append(f"void to_json(nlohmann::json& j, [[maybe_unused]] const {struct_name}& s) {{")
         lines.append(f'    j["type"] = {struct_name}::TYPE;')
         for field in struct["fields"]:
             lines.append(f'    j["{field["name"]}"] = s.{field["name"]};')
         lines.append("}")
         lines.append("")
 
-        # from_json
-        lines.append(f"void from_json(const nlohmann::json& j, {struct_name}& s) {{")
+        # from_json - use [[maybe_unused]] for structs with no fields
+        if has_fields:
+            lines.append(f"void from_json(const nlohmann::json& j, {struct_name}& s) {{")
+        else:
+            lines.append(f"void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] {struct_name}& s) {{")
         for field in struct["fields"]:
             lines.append(f'    j.at("{field["name"]}").get_to(s.{field["name"]});')
         lines.append("}")

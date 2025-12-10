@@ -53,7 +53,7 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
     juce::Typeface::Ptr orbitronTypeface;
 
     juce::Font getOrbitronFont(float height) const {
-        return juce::Font(orbitronTypeface).withHeight(height);
+        return juce::Font(juce::FontOptions(orbitronTypeface).withHeight(height));
     }
 
     juce::Font getLabelFont(juce::Label& label) override {
@@ -63,29 +63,29 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
                     static_cast<float>(guiItem->getProperty(foleys::IDs::captionSize));
                 if (captionSize > 0) {
                     return getOrbitronFont(captionSize *
-                                           getSetting("combobox-label-font-multiplier", 0.8f));
+                                           getSetting("combobox-label-font-multiplier", 0.8F));
                 }
             }
             return getOrbitronFont(comboBox->getHeight() *
-                                   getSetting("combobox-font-multiplier", 0.85f));
+                                   getSetting("combobox-font-multiplier", 0.85F));
         }
         return getOrbitronFont(label.getFont().getHeight());
     }
 
     juce::Font getComboBoxFont(juce::ComboBox& box) override {
         return getOrbitronFont(
-            juce::jmin(getSetting("popup-menu-font-size", 15.0f),
-                       (float)box.getHeight() * getSetting("combobox-font-multiplier", 0.85f)));
+            juce::jmin(getSetting("popup-menu-font-size", 15.0F),
+                       (float)box.getHeight() * getSetting("combobox-font-multiplier", 0.85F)));
     }
 
     juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override {
         return getOrbitronFont(
-            juce::jmin(getSetting("popup-menu-font-size", 15.0f),
-                       buttonHeight * getSetting("text-button-font-multiplier", 0.6f)));
+            juce::jmin(getSetting("popup-menu-font-size", 15.0F),
+                       buttonHeight * getSetting("text-button-font-multiplier", 0.6F)));
     }
 
     juce::Font getPopupMenuFont() override {
-        return getOrbitronFont(getSetting("popup-menu-font-size", 15.0f));
+        return getOrbitronFont(getSetting("popup-menu-font-size", 15.0F));
     }
 
     void getIdealPopupMenuItemSizeWithOptions(const juce::String& text, bool isSeparator,
@@ -96,48 +96,56 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
             idealWidth = 50;
             idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight / 10 : 10;
         } else {
-            float fontSize = getSetting("popup-menu-font-size", 15.0f);
+            float fontSize = getSetting("popup-menu-font-size", 15.0F);
             if (auto* target = options.getTargetComponent()) {
                 if (auto* guiItem = dynamic_cast<foleys::GuiItem*>(target->getParentComponent())) {
                     auto captionSize =
                         static_cast<float>(guiItem->getProperty(foleys::IDs::captionSize));
                     if (captionSize > 0) {
                         fontSize =
-                            captionSize * getSetting("popup-menu-item-font-multiplier", 0.8f);
+                            captionSize * getSetting("popup-menu-item-font-multiplier", 0.8F);
                     }
                 }
             }
             idealHeight =
-                static_cast<int>(fontSize * getSetting("popup-menu-item-height-multiplier", 1.3f));
+                static_cast<int>(fontSize * getSetting("popup-menu-item-height-multiplier", 1.3F));
             auto font = getOrbitronFont(fontSize);
             idealWidth = font.getStringWidth(text) + idealHeight * 2;
         }
     }
 
     juce::Font getMenuBarFont(juce::MenuBarComponent&, int, const juce::String&) override {
-        return getOrbitronFont(getSetting("menu-bar-font-size", 15.0f));
+        return getOrbitronFont(getSetting("menu-bar-font-size", 15.0F));
     }
 
-    juce::Font getAlertWindowTitleFont() override { return juce::Font(orbitronTypeface); }
+    juce::Font getAlertWindowTitleFont() override {
+        return juce::Font(juce::FontOptions(orbitronTypeface));
+    }
 
-    juce::Font getAlertWindowMessageFont() override { return juce::Font(orbitronTypeface); }
+    juce::Font getAlertWindowMessageFont() override {
+        return juce::Font(juce::FontOptions(orbitronTypeface));
+    }
 
-    juce::Font getAlertWindowFont() override { return juce::Font(orbitronTypeface); }
+    juce::Font getAlertWindowFont() override {
+        return juce::Font(juce::FontOptions(orbitronTypeface));
+    }
 
-    juce::Font getSliderPopupFont(juce::Slider&) override { return juce::Font(orbitronTypeface); }
+    juce::Font getSliderPopupFont(juce::Slider&) override {
+        return juce::Font(juce::FontOptions(orbitronTypeface));
+    }
 
     juce::Font getTabButtonFont(juce::TabBarButton&, float height) override {
-        return getOrbitronFont(height * getSetting("tab-button-font-multiplier", 0.6f));
+        return getOrbitronFont(height * getSetting("tab-button-font-multiplier", 0.6F));
     }
 
     juce::Font getSidePanelTitleFont(juce::SidePanel&) override {
-        return juce::Font(orbitronTypeface);
+        return juce::Font(juce::FontOptions(orbitronTypeface));
     }
 
-    void drawComboBox(juce::Graphics& g, int width, int height, bool isButtonDown, int buttonX,
-                      int buttonY, int buttonW, int buttonH, juce::ComboBox& box) override {
+    void drawComboBox(juce::Graphics& g, int width, int height, bool, int, int, int, int,
+                      juce::ComboBox& box) override {
         auto bounds = juce::Rectangle<int>(0, 0, width, height);
-        const float borderRadius = getSetting("combobox-border-radius", 4.0f);
+        const float borderRadius = getSetting("combobox-border-radius", 4.0F);
 
         // Draw background
         g.setColour(box.findColour(juce::ComboBox::backgroundColourId));
@@ -145,30 +153,29 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
 
         // Draw outline
         g.setColour(box.findColour(juce::ComboBox::outlineColourId));
-        g.drawRoundedRectangle(bounds.toFloat().reduced(1.0f), borderRadius, 2.0f);
+        g.drawRoundedRectangle(bounds.toFloat().reduced(1.0F), borderRadius, 2.0F);
 
         // Draw a single filled downward-pointing triangle
-        const float arrowSize = getSetting("combobox-arrow-size", 6.0f);
-        const float arrowPadding = getSetting("combobox-arrow-padding", 8.0f);
+        const float arrowSize = getSetting("combobox-arrow-size", 6.0F);
+        const float arrowPadding = getSetting("combobox-arrow-padding", 8.0F);
         const float arrowX = (float)width - arrowSize - arrowPadding;
-        const float arrowY = (float)height * 0.5f;
+        const float arrowY = (float)height * 0.5F;
 
         juce::Path path;
-        path.addTriangle(arrowX - arrowSize, arrowY - arrowSize * 0.5f,  // top left
-                         arrowX + arrowSize, arrowY - arrowSize * 0.5f,  // top right
-                         arrowX, arrowY + arrowSize * 0.5f);             // bottom center
+        path.addTriangle(arrowX - arrowSize, arrowY - arrowSize * 0.5F,  // top left
+                         arrowX + arrowSize, arrowY - arrowSize * 0.5F,  // top right
+                         arrowX, arrowY + arrowSize * 0.5F);             // bottom center
 
         g.setColour(
-            box.findColour(juce::ComboBox::arrowColourId).withAlpha(box.isEnabled() ? 0.9f : 0.2f));
+            box.findColour(juce::ComboBox::arrowColourId).withAlpha(box.isEnabled() ? 0.9F : 0.2F));
         g.fillPath(path);
     }
 
     int getPopupMenuBorderSize() override {
-        return static_cast<int>(getSetting("popup-menu-border-size", 2.0f));
+        return static_cast<int>(getSetting("popup-menu-border-size", 2.0F));
     }
 
-    void drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool isMouseOver,
-                       bool isMouseDown) override {
+    void drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool, bool) override {
         const auto activeArea = button.getActiveArea();
 
         if (button.getToggleState()) {
@@ -179,28 +186,29 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
         g.fillRect(activeArea);
 
         g.setColour(getSettingColour("tab-text-color", juce::Colours::black));
-        g.setFont(getOrbitronFont(getSetting("tab-font-size", 14.0f)));
+        g.setFont(getOrbitronFont(getSetting("tab-font-size", 14.0F)));
         g.drawText(button.getButtonText(), activeArea, juce::Justification::centred);
     }
 
     int getTabButtonBestWidth(juce::TabBarButton& button, int tabDepth) override {
-        auto font = getOrbitronFont(getSetting("tab-font-size", 14.0f));
+        auto font = getOrbitronFont(getSetting("tab-font-size", 14.0F));
         int width = font.getStringWidth(button.getButtonText().trim()) + tabDepth;
 
-        if (auto* extraComponent = button.getExtraComponent())
+        if (auto* extraComponent = button.getExtraComponent()) {
             width += button.getTabbedButtonBar().isVertical() ? extraComponent->getHeight()
                                                               : extraComponent->getWidth();
+        }
 
         return juce::jmax(tabDepth * 2, width);
     }
 
-    void drawTabAreaBehindFrontButton(juce::TabbedButtonBar& bar, juce::Graphics& g, int w,
+    void drawTabAreaBehindFrontButton(juce::TabbedButtonBar&, juce::Graphics& g, int w,
                                       int h) override {
         g.setColour(getSettingColour("tab-underline-color", LcarsColors::orange));
         juce::Path line;
-        line.startNewSubPath(1.0f, h - 1.0f);
-        line.lineTo(w - 1.0f, h - 1.0f);
-        g.strokePath(line, juce::PathStrokeType(2.0f, juce::PathStrokeType::curved,
-                                                 juce::PathStrokeType::rounded));
+        line.startNewSubPath(1.0F, h - 1.0F);
+        line.lineTo(w - 1.0F, h - 1.0F);
+        g.strokePath(line, juce::PathStrokeType(2.0F, juce::PathStrokeType::curved,
+                                                juce::PathStrokeType::rounded));
     }
 };

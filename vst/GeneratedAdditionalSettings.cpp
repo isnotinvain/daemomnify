@@ -17,11 +17,11 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ChordQuality, {
     {ChordQuality::ADD_9, "ADD_9"},
 })
 
-void to_json(nlohmann::json& j, const RootPositionStyle& s) {
+void to_json(nlohmann::json& j, [[maybe_unused]] const RootPositionStyle& s) {
     j["type"] = RootPositionStyle::TYPE;
 }
 
-void from_json(const nlohmann::json& j, RootPositionStyle& s) {
+void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] RootPositionStyle& s) {
 }
 
 void to_json(nlohmann::json& j, const FileStyle& s) {
@@ -33,25 +33,25 @@ void from_json(const nlohmann::json& j, FileStyle& s) {
     j.at("path").get_to(s.path);
 }
 
-void to_json(nlohmann::json& j, const Omni84Style& s) {
+void to_json(nlohmann::json& j, [[maybe_unused]] const Omni84Style& s) {
     j["type"] = Omni84Style::TYPE;
 }
 
-void from_json(const nlohmann::json& j, Omni84Style& s) {
+void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] Omni84Style& s) {
 }
 
-void to_json(nlohmann::json& j, const PlainAscendingStrumStyle& s) {
+void to_json(nlohmann::json& j, [[maybe_unused]] const PlainAscendingStrumStyle& s) {
     j["type"] = PlainAscendingStrumStyle::TYPE;
 }
 
-void from_json(const nlohmann::json& j, PlainAscendingStrumStyle& s) {
+void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] PlainAscendingStrumStyle& s) {
 }
 
-void to_json(nlohmann::json& j, const OmnichordStrumStyle& s) {
+void to_json(nlohmann::json& j, [[maybe_unused]] const OmnichordStrumStyle& s) {
     j["type"] = OmnichordStrumStyle::TYPE;
 }
 
-void from_json(const nlohmann::json& j, OmnichordStrumStyle& s) {
+void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] OmnichordStrumStyle& s) {
 }
 
 void to_json(nlohmann::json& j, const NotePerChordQuality& s) {

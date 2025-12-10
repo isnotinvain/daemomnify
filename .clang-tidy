@@ -8,16 +8,25 @@ Checks: >
   performance-*,
   bugprone-*,
   -bugprone-pointer-arithmetic-on-polymorphic-object,
+  -bugprone-narrowing-conversions,
+  -clang-diagnostic-implicit-int-float-conversion,
   -modernize-use-trailing-return-type,
+  -modernize-return-braced-init-list,
   -readability-identifier-length,
   -readability-magic-numbers,
   -readability-function-cognitive-complexity,
-  -readability-identifier-naming
+  -readability-identifier-naming,
+  -readability-implicit-bool-conversion,
+  -readability-named-parameter,
+  -readability-math-missing-parentheses,
+  readability-uppercase-literal-suffix
 
 WarningsAsErrors: ''
 HeaderFilterRegex: ''
 FormatStyle: file
 CheckOptions:
+  - key: readability-uppercase-literal-suffix.NewSuffixes
+    value: 'F;L;U;UL;ULL;LL;LU;LLU'
   - key: modernize-use-auto.MinTypeNameLength
     value: '5'
   - key: modernize-use-auto.RemoveStars
