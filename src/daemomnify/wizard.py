@@ -158,7 +158,7 @@ def run_wizard():
                         else:
                             note_mapping[note] = chord
                             break
-                new_settings.chord_quality_selection_style = settings.NotePerChordQuality(note_mapping=note_mapping)
+                new_settings.additional_settings.chord_quality_selection_style = settings.NotePerChordQuality(note_mapping=note_mapping)
             case 2:
                 cc_mapping = {}
                 for chord in ChordQuality:
@@ -170,16 +170,16 @@ def run_wizard():
                         else:
                             cc_mapping[cc] = chord
                             break
-                new_settings.chord_quality_selection_style = settings.CCPerChordQuality(cc_mapping=cc_mapping)
+                new_settings.additional_settings.chord_quality_selection_style = settings.CCPerChordQuality(cc_mapping=cc_mapping)
             case 3:
                 print("Please press / slide / wiggle the controller to use for all chords:")
                 cc = get_next_cc(inport)
-                new_settings.chord_quality_selection_style = settings.CCRangePerChordQuality(cc=cc)
+                new_settings.additional_settings.chord_quality_selection_style = settings.CCRangePerChordQuality(cc=cc)
 
         print("Now we need to configure how you will switch between latch / unlatched chord mode.")
-        new_settings.latch_toggle_button = select_midi_button(inport)
+        new_settings.additional_settings.latch_toggle_button = select_midi_button(inport)
         print("Now we need to configure how you will silence any ongoing chords.")
-        new_settings.stop_button = select_midi_button(inport)
+        new_settings.additional_settings.stop_button = select_midi_button(inport)
 
         validated = settings.DaemomnifySettings(**new_settings.model_dump())
         settings.save_settings(validated)

@@ -6,16 +6,6 @@
 
 namespace GeneratedParams {
 
-// Chord quality definitions from Python ChordQuality enum
-namespace ChordQualities {
-inline constexpr int NUM_QUALITIES = 9;
-inline const char* NAMES[NUM_QUALITIES] = {"Major",     "Minor",         "Dominant 7th",
-                                           "Major 7th", "Minor 7th",     "Diminished 7th",
-                                           "Augmented", "Suspended 4th", "Add 9"};
-inline const char* ENUM_NAMES[NUM_QUALITIES] = {"MAJOR", "MINOR",     "DOM_7", "MAJOR_7", "MINOR_7",
-                                                "DIM_7", "AUGMENTED", "SUS_4", "ADD_9"};
-}  // namespace ChordQualities
-
 namespace ChordChannelChoices {
 inline const juce::StringArray choices = {"1", "2",  "3",  "4",  "5",  "6",  "7",  "8",
                                           "9", "10", "11", "12", "13", "14", "15", "16"};
@@ -26,96 +16,24 @@ inline const juce::StringArray choices = {"1", "2",  "3",  "4",  "5",  "6",  "7"
                                           "9", "10", "11", "12", "13", "14", "15", "16"};
 }  // namespace StrumChannelChoices
 
-namespace ChordVoicingStyleChoices {
-inline const juce::StringArray labels = {"Root Position", "File", "Omni-84"};
-inline const juce::StringArray values = {"RootPositionChordStyle", "FileStyle", "Omni84Style"};
-}  // namespace ChordVoicingStyleChoices
+namespace ParamIDs {
+inline constexpr const char* MIDI_DEVICE_NAME = "midi_device_name";
+inline constexpr const char* CHORD_CHANNEL = "chord_channel";
+inline constexpr const char* STRUM_CHANNEL = "strum_channel";
+inline constexpr const char* STRUM_COOLDOWN_SECS = "strum_cooldown_secs";
+inline constexpr const char* STRUM_GATE_TIME_SECS = "strum_gate_time_secs";
+inline constexpr const char* STRUM_PLATE_CC = "strum_plate_cc";
+}  // namespace ParamIDs
 
-namespace StrumVoicingStyleChoices {
-inline const juce::StringArray labels = {"Plain Ascending", "Omnichord"};
-inline const juce::StringArray values = {"PlainAscendingStrumStyle", "OmnichordStrumStyle"};
-}  // namespace StrumVoicingStyleChoices
-
-namespace ChordQualitySelectionStyleChoices {
-inline const juce::StringArray labels = {"Note Per Quality", "CC Per Quality", "CC Range"};
-inline const juce::StringArray values = {"NotePerChordQuality", "CCPerChordQuality",
-                                         "CCRangePerChordQuality"};
-}  // namespace ChordQualitySelectionStyleChoices
-
-namespace LatchToggleButtonChoices {
-inline const juce::StringArray labels = {"Note", "CC"};
-inline const juce::StringArray values = {"MidiNoteButton", "MidiCCButton"};
-}  // namespace LatchToggleButtonChoices
-
-namespace StopButtonChoices {
-inline const juce::StringArray labels = {"Note", "CC"};
-inline const juce::StringArray values = {"MidiNoteButton", "MidiCCButton"};
-}  // namespace StopButtonChoices
-
-// Cached parameter pointers
 struct Params {
+    juce::AudioParameterChoice* midi_device_name = nullptr;
     juce::AudioParameterChoice* chord_channel = nullptr;
     juce::AudioParameterChoice* strum_channel = nullptr;
     juce::AudioParameterFloat* strum_cooldown_secs = nullptr;
     juce::AudioParameterFloat* strum_gate_time_secs = nullptr;
     juce::AudioParameterInt* strum_plate_cc = nullptr;
-    struct ChordVoicingStyleParams {
-        juce::AudioParameterChoice* chord_voicing_style = nullptr;
-    } chord_voicing_style;
-    struct StrumVoicingStyleParams {
-        juce::AudioParameterChoice* strum_voicing_style = nullptr;
-    } strum_voicing_style;
-    struct ChordQualitySelectionStyleParams {
-        juce::AudioParameterChoice* chord_quality_selection_style = nullptr;
-        struct NoteperchordqualityParams {
-            juce::AudioParameterInt* note_mapping_major = nullptr;
-            juce::AudioParameterInt* note_mapping_minor = nullptr;
-            juce::AudioParameterInt* note_mapping_dom_7 = nullptr;
-            juce::AudioParameterInt* note_mapping_major_7 = nullptr;
-            juce::AudioParameterInt* note_mapping_minor_7 = nullptr;
-            juce::AudioParameterInt* note_mapping_dim_7 = nullptr;
-            juce::AudioParameterInt* note_mapping_augmented = nullptr;
-            juce::AudioParameterInt* note_mapping_sus_4 = nullptr;
-            juce::AudioParameterInt* note_mapping_add_9 = nullptr;
-        } NotePerChordQuality;
-        struct CcperchordqualityParams {
-            juce::AudioParameterInt* cc_mapping_major = nullptr;
-            juce::AudioParameterInt* cc_mapping_minor = nullptr;
-            juce::AudioParameterInt* cc_mapping_dom_7 = nullptr;
-            juce::AudioParameterInt* cc_mapping_major_7 = nullptr;
-            juce::AudioParameterInt* cc_mapping_minor_7 = nullptr;
-            juce::AudioParameterInt* cc_mapping_dim_7 = nullptr;
-            juce::AudioParameterInt* cc_mapping_augmented = nullptr;
-            juce::AudioParameterInt* cc_mapping_sus_4 = nullptr;
-            juce::AudioParameterInt* cc_mapping_add_9 = nullptr;
-        } CCPerChordQuality;
-        struct CcrangeperchordqualityParams {
-            juce::AudioParameterInt* cc = nullptr;
-        } CCRangePerChordQuality;
-    } chord_quality_selection_style;
-    struct LatchToggleButtonParams {
-        juce::AudioParameterChoice* latch_toggle_button = nullptr;
-        struct MidinotebuttonParams {
-            juce::AudioParameterInt* note = nullptr;
-        } MidiNoteButton;
-        struct MidiccbuttonParams {
-            juce::AudioParameterInt* cc = nullptr;
-            juce::AudioParameterBool* is_toggle = nullptr;
-        } MidiCCButton;
-    } latch_toggle_button;
-    struct StopButtonParams {
-        juce::AudioParameterChoice* stop_button = nullptr;
-        struct MidinotebuttonParams {
-            juce::AudioParameterInt* note = nullptr;
-        } MidiNoteButton;
-        struct MidiccbuttonParams {
-            juce::AudioParameterInt* cc = nullptr;
-            juce::AudioParameterBool* is_toggle = nullptr;
-        } MidiCCButton;
-    } stop_button;
 };
 
-// Create the parameter layout and populate the Params struct
 juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(Params& params);
 
 }  // namespace GeneratedParams

@@ -62,6 +62,7 @@ target_link_libraries(Omnify
 
 target_include_directories(Omnify PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann"
 )
 
 target_compile_definitions(Omnify PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)

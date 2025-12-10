@@ -9,11 +9,15 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
     : foleys::MagicProcessor(BusesProperties()
                                  .withInput("Input", juce::AudioChannelSet::stereo(), true)
                                  .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
-      parameters(*this, nullptr, "PARAMETERS", GeneratedParams::createParameterLayout(params)) {
+      parameters(*this, nullptr, "PARAMETERS", GeneratedParams::createParameterLayout(params)),
+      additionalSettings(GeneratedAdditionalSettings::Settings::defaults()) {
     FOLEYS_SET_SOURCE_PATH(__FILE__);
 
     // Update parameter map after APVTS is created so Foleys can see the parameters
     magicState.updateParameterMap();
+
+    // Load additional settings from ValueTree if present
+    loadAdditionalSettingsFromValueTree();
 
     // Load the GUI layout - from file in debug mode for hot reload, from binary data in release
 #if JUCE_DEBUG
@@ -53,6 +57,29 @@ void OmnifyAudioProcessor::initialiseBuilder(foleys::MagicGUIBuilder& builder) {
     builder.registerFactory("OmnifyMidiLearn", &MidiLearnItem::factory);
     builder.registerFactory("ChordQualitySelector", &ChordQualitySelectorItem::factory);
     builder.registerFactory("LcarsSettings", &LcarsSettingsItem::factory);
+}
+
+//==============================================================================
+void OmnifyAudioProcessor::setAdditionalSettings(const GeneratedAdditionalSettings::Settings& settings) {
+    additionalSettings = settings;
+    saveAdditionalSettingsToValueTree();
+}
+
+void OmnifyAudioProcessor::loadAdditionalSettingsFromValueTree() {
+    auto jsonString = parameters.state.getProperty(ADDITIONAL_SETTINGS_KEY, "").toString();
+    if (jsonString.isNotEmpty()) {
+        try {
+            additionalSettings = GeneratedAdditionalSettings::fromJson(jsonString.toStdString());
+        } catch (...) {
+            // If parsing fails, keep defaults
+            additionalSettings = GeneratedAdditionalSettings::Settings::defaults();
+        }
+    }
+}
+
+void OmnifyAudioProcessor::saveAdditionalSettingsToValueTree() {
+    auto jsonString = GeneratedAdditionalSettings::toJson(additionalSettings);
+    parameters.state.setProperty(ADDITIONAL_SETTINGS_KEY, juce::String(jsonString), nullptr);
 }
 
 //==============================================================================

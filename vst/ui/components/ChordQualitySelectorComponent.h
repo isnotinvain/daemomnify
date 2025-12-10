@@ -6,12 +6,12 @@
 #include <array>
 #include <memory>
 
-#include "../../GeneratedParams.h"
+#include "../../GeneratedAdditionalSettings.h"
 #include "MidiLearnComponent.h"
 
 class ChordQualitySelectorComponent : public juce::Component {
    public:
-    static constexpr int NUM_QUALITIES = GeneratedParams::ChordQualities::NUM_QUALITIES;
+    static constexpr int NUM_QUALITIES = GeneratedAdditionalSettings::ChordQualities::NUM_QUALITIES;
 
     ChordQualitySelectorComponent();
 

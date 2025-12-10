@@ -85,6 +85,15 @@ class VSTChordQualityMap(VSTParam):
     label_prefix: str | None = None
 
 
+@dataclass
+class VSTJsonBlob(VSTParam):
+    """
+    Marks a field to be serialized as part of a JSON blob parameter.
+    The generator will introspect the type and generate C++ structs + JSON serialization.
+    """
+    label: str | None = None
+
+
 def get_vst_param(field_info) -> VSTParam | None:
     """Extract VSTParam metadata from a pydantic FieldInfo if present."""
     if field_info.json_schema_extra and isinstance(field_info.json_schema_extra, dict):

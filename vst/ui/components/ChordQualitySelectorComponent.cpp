@@ -30,7 +30,7 @@ void ChordQualitySelectorComponent::paint(juce::Graphics& g) {
 
         g.setColour(LcarsColors::orange);
         g.setFont(getLookAndFeel().getPopupMenuFont().withHeight(fontSize));
-        g.drawText(GeneratedParams::ChordQualities::NAMES[i], labelBounds.reduced(5),
+        g.drawText(GeneratedAdditionalSettings::ChordQualities::NAMES[i], labelBounds.reduced(5),
                    juce::Justification::centredLeft);
     }
 }
