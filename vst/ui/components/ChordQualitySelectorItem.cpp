@@ -70,6 +70,7 @@ juce::Component* ChordQualitySelectorItem::getWrappedComponent() {
 std::vector<foleys::SettableProperty> ChordQualitySelectorItem::getSettableProperties() const {
     std::vector<foleys::SettableProperty> props;
     props.push_back({configNode, pFontSize, foleys::SettableProperty::Number, 14.0F, {}});
+    props.push_back({configNode, pLabelColor, foleys::SettableProperty::Colour, "FFFFFFFF", {}});
     props.push_back({configNode, pMidiLearnWidth, foleys::SettableProperty::Number, 80.0F, {}});
     props.push_back({configNode, pRowSpacing, foleys::SettableProperty::Number, 2.0F, {}});
     return props;
