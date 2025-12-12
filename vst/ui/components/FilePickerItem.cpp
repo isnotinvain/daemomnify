@@ -17,7 +17,6 @@ void FilePickerItem::createSubComponents() {
     }
 
     if (getButton() == nullptr) {
-        DBG("FilePickerItem: No TextButton found as first child!");
         return;
     }
 
@@ -26,7 +25,6 @@ void FilePickerItem::createSubComponents() {
     if (myId.isNotEmpty()) {
         getMagicState().addTrigger("filepicker_" + myId, [this]() { openFileChooser(); });
         selectedPath = getMagicState().getValueTree().getProperty("filepath_" + myId, "").toString();
-        DBG("FilePickerItem::createSubComponents() - initial path from ValueTree: '" << selectedPath << "'");
     }
 
     updateButtonText();
@@ -40,7 +38,6 @@ void FilePickerItem::update() {
     if (myId.isNotEmpty()) {
         auto newPath = getMagicState().getValueTree().getProperty("filepath_" + myId, "").toString();
         if (newPath != selectedPath) {
-            DBG("FilePickerItem::update() - path changed from '" << selectedPath << "' to '" << newPath << "'");
             selectedPath = newPath;
             updateButtonText();
         }
@@ -86,7 +83,6 @@ void FilePickerItem::openFileChooser() {
 
 void FilePickerItem::updateButtonText() {
     if (buttonItem == nullptr) {
-        DBG("FilePickerItem::updateButtonText() - buttonItem is null!");
         return;
     }
 
@@ -94,11 +90,7 @@ void FilePickerItem::updateButtonText() {
     static const juce::Identifier pText{"text"};
     juce::String newText = selectedPath.isEmpty() ? "Browse..." : juce::File(selectedPath).getFileName();
 
-    // The button's config node is a child of our configNode
-    // Find the first child (the TextButton node) and set its text property
     if (configNode.getNumChildren() > 0) {
-        auto buttonNode = configNode.getChild(0);
-        buttonNode.setProperty(pText, newText, nullptr);
-        DBG("FilePickerItem::updateButtonText() - set text property to '" << newText << "'");
+        configNode.getChild(0).setProperty(pText, newText, nullptr);
     }
 }

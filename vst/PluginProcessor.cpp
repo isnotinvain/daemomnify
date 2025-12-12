@@ -119,14 +119,10 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
         saveAdditionalSettingsToValueTree();
     } else if (value.refersToSameSourceAs(chordVoicingFilePathValue)) {
         auto path = chordVoicingFilePathValue.getValue().toString().toStdString();
-        DBG("valueChanged(filepath): path = " << path);
         // Update path in FileStyle if that's the current variant
         if (auto* fileStyle = std::get_if<GeneratedAdditionalSettings::FileStyle>(&additionalSettings.chord_voicing_style)) {
             fileStyle->path = path;
             saveAdditionalSettingsToValueTree();
-            DBG("valueChanged(filepath): saved to additionalSettings");
-        } else {
-            DBG("valueChanged(filepath): FileStyle not active, path not saved to additionalSettings");
         }
     }
 }
@@ -140,7 +136,6 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
 
     // Write file path from FileStyle if that's the active variant
     if (auto* fileStyle = std::get_if<GeneratedAdditionalSettings::FileStyle>(&additionalSettings.chord_voicing_style)) {
-        DBG("pushVariantIndexesToValueTree: FileStyle path = " << fileStyle->path);
         magicState.getValueTree().setProperty("filepath_chord_voicing_file",
                                               juce::String(fileStyle->path), nullptr);
     }
@@ -148,7 +143,6 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
 
 void OmnifyAudioProcessor::loadAdditionalSettingsFromValueTree() {
     auto jsonString = magicState.getValueTree().getProperty(ADDITIONAL_SETTINGS_KEY, "").toString();
-    DBG("loadAdditionalSettingsFromValueTree: JSON = " << jsonString);
     if (jsonString.isNotEmpty()) {
         try {
             additionalSettings = GeneratedAdditionalSettings::fromJson(jsonString.toStdString());
