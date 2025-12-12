@@ -79,13 +79,11 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
     }
 
     juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override {
-        return getOrbitronFont(
-            juce::jmin(getSetting("popup-menu-font-size", 15.0F),
-                       buttonHeight * getSetting("text-button-font-multiplier", 0.6F)));
+        return getOrbitronFont(buttonHeight * getSetting("text-button-font-multiplier", 0.6F));
     }
 
     juce::Font getPopupMenuFont() override {
-        return getOrbitronFont(getSetting("popup-menu-font-size", 15.0F));
+        return getOrbitronFont(getSetting("popup-menu-font-size", 40.0F));
     }
 
     void getIdealPopupMenuItemSizeWithOptions(const juce::String& text, bool isSeparator,
@@ -112,7 +110,8 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
             auto font = getOrbitronFont(fontSize);
             juce::GlyphArrangement glyphs;
             glyphs.addLineOfText(font, text, 0, 0);
-            idealWidth = static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + idealHeight * 2;
+            idealWidth =
+                static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + idealHeight * 2;
         }
     }
 
@@ -214,5 +213,63 @@ class LcarsLookAndFeel : public foleys::LookAndFeel {
         line.lineTo(w - 1.0F, h - 1.0F);
         g.strokePath(line, juce::PathStrokeType(2.0F, juce::PathStrokeType::curved,
                                                 juce::PathStrokeType::rounded));
+    }
+
+    void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour&,
+                              bool shouldDrawButtonAsHighlighted,
+                              bool shouldDrawButtonAsDown) override {
+        auto bounds = button.getLocalBounds().toFloat();
+        const float borderThickness = getSetting("button-border-thickness", 2.0F);
+
+        // Capsule radius is half the height for full pill shape
+        const float radius = bounds.getHeight() * 0.5F;
+
+        // Determine background color based on state
+        // Hover/down use LcarsSettings; normal uses foleys per-component (button-color / button-on-color)
+        juce::Colour bgColour;
+        if (shouldDrawButtonAsDown) {
+            bgColour = getSettingColour("button-down-color", LcarsColors::africanViolet);
+        } else if (shouldDrawButtonAsHighlighted) {
+            bgColour = getSettingColour("button-hover-color", LcarsColors::moonlitViolet);
+        } else {
+            bgColour = button.findColour(button.getToggleState()
+                ? juce::TextButton::buttonOnColourId
+                : juce::TextButton::buttonColourId);
+        }
+
+        // Border uses LcarsSettings (button-border-color)
+        juce::Colour borderColour = getSettingColour("button-border-color", LcarsColors::orange);
+
+        g.setColour(bgColour);
+        g.fillRoundedRectangle(bounds.reduced(borderThickness * 0.5F), radius);
+
+        g.setColour(borderColour);
+        g.drawRoundedRectangle(bounds.reduced(borderThickness * 0.5F), radius, borderThickness);
+    }
+
+    void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool) override {
+        auto font = getTextButtonFont(button, button.getHeight());
+
+        const int textPadding = static_cast<int>(button.getHeight() * 0.3F);
+        auto textBounds = button.getLocalBounds().reduced(textPadding, 0);
+
+        // Shrink font if text doesn't fit
+        juce::GlyphArrangement glyphs;
+        glyphs.addLineOfText(font, button.getButtonText(), 0, 0);
+        float textWidth = glyphs.getBoundingBox(0, -1, false).getWidth();
+        if (textWidth > textBounds.getWidth()) {
+            float scale = textBounds.getWidth() / textWidth;
+            font = font.withHeight(font.getHeight() * scale);
+        }
+
+        g.setFont(font);
+
+        // Text color uses foleys per-component (button-off-text / button-on-text)
+        juce::Colour textColour = button.findColour(button.getToggleState()
+            ? juce::TextButton::textColourOnId
+            : juce::TextButton::textColourOffId);
+        g.setColour(textColour);
+
+        g.drawText(button.getButtonText(), textBounds, juce::Justification::centred, false);
     }
 };
