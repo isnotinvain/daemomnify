@@ -47,8 +47,10 @@ def run_message_loop(device_name, event_dispatcher, scheduler, virtual_output):
             time.sleep(0.001)
 
 
-def main():
+def main(osc_port: int | None = None):
     print("=== Welcome to Daemomnify. Let's Omnify some instruments! ===")
+    if osc_port:
+        print(f"OSC port: {osc_port}")
 
     settings = load_settings()
     if not settings:

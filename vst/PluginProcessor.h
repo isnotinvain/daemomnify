@@ -2,6 +2,7 @@
 
 #include <foleys_gui_magic/foleys_gui_magic.h>
 
+#include "DaemonManager.h"
 #include "GeneratedAdditionalSettings.h"
 #include "GeneratedParams.h"
 #include "ui/components/MidiLearnComponent.h"
@@ -47,6 +48,9 @@ class OmnifyAudioProcessor : public foleys::MagicProcessor, private juce::Value:
 
     // Write variant indexes to ValueTree (for UI to read on rebuild)
     void pushVariantIndexesToValueTree();
+
+    // Python daemon process manager
+    DaemonManager daemonManager;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OmnifyAudioProcessor)
 };

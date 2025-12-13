@@ -29,6 +29,9 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
 #endif
 
     setupValueListeners();
+
+    // Start the Python daemon
+    daemonManager.start();
 }
 
 OmnifyAudioProcessor::~OmnifyAudioProcessor() {
