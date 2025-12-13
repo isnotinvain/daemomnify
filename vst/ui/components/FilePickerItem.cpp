@@ -3,52 +3,54 @@
 const juce::Identifier FilePickerItem::pFileFilter{"file-filter"};
 
 FilePickerItem::FilePickerItem(foleys::MagicGUIBuilder& builder, const juce::ValueTree& node)
-    : foleys::Container(builder, node) {
-    // createSubComponents() is called by our DECLARE_CONTAINER_FACTORY
+    : foleys::GuiItem(builder, node) {
+
+    // Set up the container with our components
+    container.addAndMakeVisible(pathLabel);
+    container.addAndMakeVisible(browseButton);
+
+    // Style the label
+    pathLabel.setColour(juce::Label::outlineColourId, juce::Colour(0xFFFF8800));  // lcars-orange
+    pathLabel.setColour(juce::Label::textColourId, juce::Colour(0xFFFF8800));
+    pathLabel.setJustificationType(juce::Justification::centredLeft);
+
+    // Style the button
+    browseButton.setColour(juce::TextButton::buttonColourId, juce::Colour(0xFFFF8800));
+    browseButton.setColour(juce::TextButton::textColourOffId, juce::Colours::black);
+
+    browseButton.onClick = [this]() { openFileChooser(); };
+
+    addAndMakeVisible(container);
 }
 
-void FilePickerItem::createSubComponents() {
-    foleys::Container::createSubComponents();
+void FilePickerItem::resized() {
+    foleys::GuiItem::resized();
+    auto bounds = getLocalBounds();
+    container.setBounds(bounds);
 
-    // Get the first child as our button
-    auto it = begin();
-    if (it != end()) {
-        buttonItem = it->get();
-    }
-
-    if (getButton() == nullptr) {
-        return;
-    }
-
-    // Register a trigger for this specific FilePicker using its id
-    auto myId = configNode.getProperty(foleys::IDs::id, "").toString();
-    if (myId.isNotEmpty()) {
-        getMagicState().addTrigger("filepicker_" + myId, [this]() { openFileChooser(); });
-        selectedPath = getMagicState().getValueTree().getProperty("filepath_" + myId, "").toString();
-    }
-
-    updateButtonText();
+    // Layout children within container
+    auto inner = container.getLocalBounds();
+    browseButton.setBounds(inner.removeFromRight(80));
+    pathLabel.setBounds(inner.reduced(2));
 }
 
 void FilePickerItem::update() {
-    foleys::Container::update();
-
-    // Re-read path from ValueTree in case it changed externally
-    auto myId = configNode.getProperty(foleys::IDs::id, "").toString();
-    if (myId.isNotEmpty()) {
-        auto newPath = getMagicState().getValueTree().getProperty("filepath_" + myId, "").toString();
-        if (newPath != selectedPath) {
-            selectedPath = newPath;
-            updateButtonText();
-        }
-    }
+    updateLabelFromState();
 }
 
-juce::TextButton* FilePickerItem::getButton() const {
-    if (buttonItem == nullptr) {
-        return nullptr;
-    }
-    return dynamic_cast<juce::TextButton*>(buttonItem->getWrappedComponent());
+void FilePickerItem::updateLabelFromState() {
+    auto path = getMagicState().getPropertyAsValue("chords_json_file").toString();
+    pathLabel.setText(path, juce::dontSendNotification);
+}
+
+juce::Component* FilePickerItem::getWrappedComponent() {
+    return &container;
+}
+
+std::vector<foleys::SettableProperty> FilePickerItem::getSettableProperties() const {
+    std::vector<foleys::SettableProperty> props;
+    props.push_back({configNode, pFileFilter, foleys::SettableProperty::Text, {}, {}});
+    return props;
 }
 
 void FilePickerItem::openFileChooser() {
@@ -57,8 +59,9 @@ void FilePickerItem::openFileChooser() {
         filterPattern = "*";
     }
 
-    auto startDir = selectedPath.isNotEmpty()
-                        ? juce::File(selectedPath).getParentDirectory()
+    auto currentPath = getMagicState().getPropertyAsValue("chords_json_file").toString();
+    auto startDir = currentPath.isNotEmpty()
+                        ? juce::File(currentPath).getParentDirectory()
                         : juce::File::getSpecialLocation(juce::File::userDocumentsDirectory);
 
     fileChooser = std::make_unique<juce::FileChooser>("Select a file", startDir, filterPattern);
@@ -68,29 +71,9 @@ void FilePickerItem::openFileChooser() {
         [this](const juce::FileChooser& fc) {
             auto result = fc.getResult();
             if (result.existsAsFile()) {
-                selectedPath = result.getFullPathName();
-                updateButtonText();
-
-                // Save to ValueTree using our id
-                auto myId = configNode.getProperty(foleys::IDs::id, "").toString();
-                if (myId.isNotEmpty()) {
-                    getMagicState().getValueTree().setProperty("filepath_" + myId, selectedPath,
-                                                               nullptr);
-                }
+                auto newPath = result.getFullPathName();
+                getMagicState().getPropertyAsValue("chords_json_file").setValue(newPath);
+                pathLabel.setText(newPath, juce::dontSendNotification);
             }
         });
-}
-
-void FilePickerItem::updateButtonText() {
-    if (buttonItem == nullptr) {
-        return;
-    }
-
-    // Set the "text" property on the button's config node so Foleys applies it during update()
-    static const juce::Identifier pText{"text"};
-    juce::String newText = selectedPath.isEmpty() ? "Browse..." : juce::File(selectedPath).getFileName();
-
-    if (configNode.getNumChildren() > 0) {
-        configNode.getChild(0).setProperty(pText, newText, nullptr);
-    }
 }

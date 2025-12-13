@@ -76,7 +76,7 @@ void OmnifyAudioProcessor::postSetStateInformation() {
 void OmnifyAudioProcessor::setupValueListeners() {
     chordVoicingStyleValue.referTo(magicState.getValueTree().getPropertyAsValue("variant_chord_voicing_style", nullptr));
     strumVoicingStyleValue.referTo(magicState.getValueTree().getPropertyAsValue("variant_strum_voicing_style", nullptr));
-    chordVoicingFilePathValue.referTo(magicState.getValueTree().getPropertyAsValue("filepath_chord_voicing_file", nullptr));
+    chordVoicingFilePathValue.referTo(magicState.getPropertyAsValue("chords_json_file"));
 
     chordVoicingStyleValue.addListener(this);
     strumVoicingStyleValue.addListener(this);
@@ -93,11 +93,8 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
                 break;
             case 1: {
                 GeneratedAdditionalSettings::FileStyle fs;
-                // Restore path from ValueTree property (persists across variant switches)
-                fs.path = magicState.getValueTree()
-                              .getProperty("filepath_chord_voicing_file", "")
-                              .toString()
-                              .toStdString();
+                // Restore path from state property (persists across variant switches)
+                fs.path = magicState.getPropertyAsValue("chords_json_file").toString().toStdString();
                 additionalSettings.chord_voicing_style = fs;
                 break;
             }
@@ -136,8 +133,7 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
 
     // Write file path from FileStyle if that's the active variant
     if (auto* fileStyle = std::get_if<GeneratedAdditionalSettings::FileStyle>(&additionalSettings.chord_voicing_style)) {
-        magicState.getValueTree().setProperty("filepath_chord_voicing_file",
-                                              juce::String(fileStyle->path), nullptr);
+        magicState.getPropertyAsValue("chords_json_file").setValue(juce::String(fileStyle->path));
     }
 }
 
