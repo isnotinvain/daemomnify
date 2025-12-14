@@ -4,7 +4,8 @@
     "**/.venv": true,
     "**/.ruff_cache": true,
     "vst/build": true,
-    "**/JUCE/**": true
+    "**/JUCE/**": true,
+    ".pytest_cache": true
   },
   "files.associations": {
     "__bit_reference": "cpp",
