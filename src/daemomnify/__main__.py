@@ -7,13 +7,13 @@ from multiprocessing import Process
 from daemomnify.daemomnify import EXIT_CODE_QUIT, main
 
 
-def run_forever(osc_port: int | None = None):
+def run_forever(osc_port: int | None = None, temp_dir: str | None = None):
     crash_times = []
     max_crashes = 5
     window_seconds = 60
 
     while True:
-        p = Process(target=main, args=(osc_port,))
+        p = Process(target=main, args=(osc_port, temp_dir))
         p.start()
         try:
             p.join()
@@ -44,5 +44,6 @@ def run_forever(osc_port: int | None = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Daemomnify - Transform MIDI instruments into omnichords")
     parser.add_argument("--osc-port", type=int, default=None, help="OSC port to listen on for settings from VST")
+    parser.add_argument("--temp-dir", type=str, default=None, help="Temp directory for ready file (must match VST)")
     args = parser.parse_args()
-    run_forever(osc_port=args.osc_port)
+    run_forever(osc_port=args.osc_port, temp_dir=args.temp_dir)

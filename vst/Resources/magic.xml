@@ -23,9 +23,9 @@
               id="Chord Settings">
           <Label text="Chord Settings" font-size="30" flex-align-self="stretch"
                  max-height="40" label-text="$lcars-africanViolet" id="title"/>
-          <ComboBox flex-align-self="stretch" caption-placement="centred-left" caption="Midi Channel "
-                    parameter="chord_channel" min-height="" min-width="" max-width="230"
-                    max-height="50"/>
+          <IntComboBox flex-align-self="stretch" caption-placement="centred-left" caption="Midi Channel "
+                       property="chord_channel" min-value="1" max-value="16" max-width="230"
+                       max-height="50"/>
           <VariantSelector id="chord_voicing_style" flex-align-self="stretch" max-height="200"
                            flex-direction="column">
             <ComboBox/>
@@ -48,9 +48,9 @@
               id="Strum Settings">
           <Label text="Strum Settings" font-size="30" flex-align-self="stretch"
                  max-height="40" label-text="$lcars-africanViolet" id="title"/>
-          <ComboBox flex-align-self="stretch" caption-placement="centred-left" caption="Midi Channel "
-                    parameter="strum_channel" min-height="" min-width="" max-width="230"
-                    max-height="50"/>
+          <IntComboBox flex-align-self="stretch" caption-placement="centred-left" caption="Midi Channel "
+                       property="strum_channel" min-value="1" max-value="16" max-width="230"
+                       max-height="50"/>
           <VariantSelector id="strum_voicing_style" flex-align-self="stretch" max-height="80">
             <ComboBox/>
             <View tab-caption="Plain Ascending"/>
@@ -106,6 +106,11 @@
                   combo-menu-background="$lcars-bluey" combo-menu-text="FF000000"
                   combo-menu-background-highlight="$lcars-butterscotch" combo-menu-text-highlight="FF000000"
                   lookAndFeel="Lcars" margin="3" caption-gap="8" caption-size="30"/>
+        <IntComboBox max-height="50" combo-text="$lcars-orange" combo-background="00000000"
+                     background-color="00000000" caption-color="$lcars-orange" combo-outline="$lcars-orange"
+                     combo-menu-background="$lcars-bluey" combo-menu-text="FF000000"
+                     combo-menu-background-highlight="$lcars-butterscotch" combo-menu-text-highlight="FF000000"
+                     lookAndFeel="Lcars" margin="3" caption-gap="8" caption-size="30"/>
         <ChordQualitySelector lookAndFeel="Lcars" background-color="00000000"/>
         <OmnifyMidiLearn lookAndFeel="Lcars" background-color="00000000" caption-size="30"
                          caption-color="$lcars-orange" margin="0" padding="0" aspect-ratio="2"/>

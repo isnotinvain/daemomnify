@@ -2,8 +2,6 @@
 
 #include <juce_core/juce_core.h>
 
-#include <iostream>
-
 // Socket headers still needed for findFreePort()
 #if JUCE_MAC || JUCE_LINUX
 #include <netinet/in.h>
@@ -70,30 +68,45 @@ juce::File DaemonManager::getProjectRoot() {
 }
 
 std::pair<juce::String, juce::StringArray> DaemonManager::getLaunchCommand() const {
+    // Use launcher script to redirect stdout/stderr to log file
+    // This avoids pipe buffer blocking issues with ChildProcess
+    juce::StringArray args;
+    auto tempDir = juce::File::getSpecialLocation(juce::File::tempDirectory).getFullPathName();
+
 #if JUCE_DEBUG
     // Development: use uv run from project root
     auto projectRoot = getProjectRoot();
-    juce::StringArray args;
+    auto launcherScript = projectRoot.getChildFile("vst/Resources/launch_daemon.sh");
+
+    args.add(tempDir);
+    args.add(juce::String(oscPort));
+    args.add("uv");
     args.add("run");
     args.add("python");
     args.add("-m");
     args.add("daemomnify");
     args.add("--osc-port");
     args.add(juce::String(oscPort));
+    args.add("--temp-dir");
+    args.add(tempDir);
 
-    return {"uv", args};
+    return {launcherScript.getFullPathName(), args};
 #else
     // Release: use bundled executable
-    // Look for it relative to the plugin binary
     auto pluginFile = juce::File::getSpecialLocation(juce::File::currentExecutableFile);
     auto resourcesDir = pluginFile.getParentDirectory().getParentDirectory().getChildFile("Resources");
+    auto launcherScript = resourcesDir.getChildFile("launch_daemon.sh");
     auto daemonExe = resourcesDir.getChildFile("daemomnify");
 
-    juce::StringArray args;
+    args.add(tempDir);
+    args.add(juce::String(oscPort));
+    args.add(daemonExe.getFullPathName());
     args.add("--osc-port");
     args.add(juce::String(oscPort));
+    args.add("--temp-dir");
+    args.add(tempDir);
 
-    return {daemonExe.getFullPathName(), args};
+    return {launcherScript.getFullPathName(), args};
 #endif
 }
 
@@ -111,6 +124,10 @@ bool DaemonManager::start() {
 
     DBG("DaemonManager: Starting daemon on OSC port " << oscPort);
 
+    // Delete any stale ready file before starting
+    getReadyFile().deleteFile();
+    readyFired = false;
+
     auto [command, args] = getLaunchCommand();
 
     // Build full command string for ChildProcess
@@ -119,23 +136,13 @@ bool DaemonManager::start() {
         fullCommand += " " + arg;
     }
 
-#if JUCE_DEBUG
-    // Set working directory to project root for uv to find pyproject.toml
-    auto projectRoot = getProjectRoot();
-    DBG("DaemonManager: Working directory: " << projectRoot.getFullPathName());
     DBG("DaemonManager: Running: " << fullCommand);
 
-    // Use start() with working directory
-    if (!process->start(fullCommand, juce::ChildProcess::wantStdOut | juce::ChildProcess::wantStdErr)) {
+    // Don't capture stdout/stderr - launcher script redirects to log file
+    if (!process->start(fullCommand, 0)) {
         DBG("DaemonManager: Failed to start process");
         return false;
     }
-#else
-    if (!process->start(fullCommand)) {
-        DBG("DaemonManager: Failed to start process");
-        return false;
-    }
-#endif
 
     // Start the output reader thread
     startThread();
@@ -150,45 +157,35 @@ bool DaemonManager::start() {
 }
 
 void DaemonManager::run() {
-    // Read and forward daemon output (stdout + stderr interleaved) to stdout
-    // Also watch for the ready marker to trigger settings dump
-    juce::String outputBuffer;
-    bool readyFired = false;
+    // Poll for ready file to trigger daemonReady callback
+    // Daemon stdout/stderr is redirected to log file by launch_daemon.sh
+    auto readyFile = getReadyFile();
 
     while (!threadShouldExit() && process && process->isRunning()) {
-        char buffer[1024];
-        auto bytesRead = process->readProcessOutput(buffer, sizeof(buffer) - 1);
-        if (bytesRead > 0) {
-            buffer[bytesRead] = '\0';
-            std::cout << buffer << std::flush;
-
-            // Check for ready marker if we haven't fired yet
-            if (!readyFired && listener) {
-                outputBuffer += buffer;
-                if (outputBuffer.contains(READY_MARKER)) {
-                    readyFired = true;
-                    // Call listener on message thread to avoid threading issues
-                    juce::MessageManager::callAsync([this]() {
-                        if (listener) {
-                            listener->daemonReady();
-                        }
-                    });
-                    outputBuffer.clear();  // No longer need to buffer
+        // Check for ready file if we haven't fired yet
+        if (!readyFired && listener && readyFile.existsAsFile()) {
+            readyFired = true;
+            DBG("DaemonManager: Ready file detected");
+            // Call listener on message thread to avoid threading issues
+            juce::MessageManager::callAsync([this]() {
+                if (listener) {
+                    listener->daemonReady();
                 }
-                // Prevent unbounded growth while waiting for marker
-                if (outputBuffer.length() > 4096) {
-                    outputBuffer = outputBuffer.substring(outputBuffer.length() - 1024);
-                }
-            }
-        } else {
-            // No data available, sleep briefly
-            Thread::sleep(10);
+            });
         }
+
+        // Sleep briefly to avoid spinning CPU
+        Thread::sleep(50);
     }
 }
 
 void DaemonManager::sendOscQuit() {
     oscSender.send("/quit");
+}
+
+juce::File DaemonManager::getReadyFile() const {
+    return juce::File::getSpecialLocation(juce::File::tempDirectory)
+        .getChildFile("daemomnify-" + juce::String(oscPort) + ".ready");
 }
 
 void DaemonManager::stop() {

@@ -64,10 +64,12 @@ class DaemonManager : private juce::Thread {
     /** Send OSC /quit message to daemon for graceful shutdown. */
     void sendOscQuit();
 
-    static constexpr const char* READY_MARKER = "<DAEMOMNIFY_OSC_SERVER_READY>";
+    /** Get the path to the ready file for this port. */
+    juce::File getReadyFile() const;
 
     std::unique_ptr<juce::ChildProcess> process;
     juce::OSCSender oscSender;
     Listener* listener = nullptr;
     int oscPort = 0;
+    bool readyFired = false;
 };

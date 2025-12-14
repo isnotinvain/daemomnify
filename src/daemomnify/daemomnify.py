@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 
+import atexit
 import sys
+import tempfile
 import threading
 import time
 import traceback
+from pathlib import Path
 
 import mido
 from pythonosc.dispatcher import Dispatcher
@@ -28,8 +31,11 @@ _omnify: Omnify | None = None
 # Exit code to signal graceful shutdown (don't restart)
 EXIT_CODE_QUIT = 42
 
-# Magic string to signal OSC server is ready (VST watches stdout for this)
-OSC_READY_MARKER = "<DAEMOMNIFY_OSC_SERVER_READY>"
+
+def _get_ready_file_path(port: int, temp_dir: str | None = None) -> Path:
+    """Get the path to the ready file for this port."""
+    base_dir = Path(temp_dir) if temp_dir else Path(tempfile.gettempdir())
+    return base_dir / f"daemomnify-{port}.ready"
 
 
 def _handle_quit(address, *args):
@@ -65,7 +71,7 @@ def _handle_strum_cooldown(address, value):
         _omnify.set_strum_cooldown(value)
 
 
-def _start_osc_server(port: int) -> BlockingOSCUDPServer:
+def _start_osc_server(port: int, temp_dir: str | None = None) -> BlockingOSCUDPServer:
     """Start OSC server in a background thread."""
     dispatcher = Dispatcher()
     dispatcher.map("/quit", _handle_quit)
@@ -77,8 +83,13 @@ def _start_osc_server(port: int) -> BlockingOSCUDPServer:
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     print(f"OSC server listening on 127.0.0.1:{port}")
-    # Signal to VST that we're ready to receive settings
-    print(OSC_READY_MARKER, flush=True)
+
+    # Create ready file to signal VST we're ready
+    ready_file = _get_ready_file_path(port, temp_dir)
+    ready_file.touch()
+    atexit.register(lambda: ready_file.unlink(missing_ok=True))
+    print(f"Created ready file: {ready_file}")
+
     return server
 
 
@@ -116,13 +127,13 @@ def run_message_loop(device_name, event_dispatcher, scheduler, virtual_output):
             time.sleep(0.001)
 
 
-def main(osc_port: int | None = None):
+def main(osc_port: int | None = None, temp_dir: str | None = None):
     global _received_settings
     print("=== Welcome to Daemomnify. Let's Omnify some instruments! ===")
 
     # Start OSC server if port specified (for VST control)
     if osc_port:
-        _start_osc_server(osc_port)
+        _start_osc_server(osc_port, temp_dir)
 
         # Wait for settings from VST
         print("Waiting for settings from VST...")

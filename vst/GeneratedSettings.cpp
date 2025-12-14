@@ -5,6 +5,7 @@
 namespace GeneratedSettings {
 
 // ChordQuality JSON conversion
+// NOLINTBEGIN(modernize-avoid-c-arrays,modernize-type-traits)
 NLOHMANN_JSON_SERIALIZE_ENUM(ChordQuality, {
                                                {ChordQuality::MAJOR, "MAJOR"},
                                                {ChordQuality::MINOR, "MINOR"},
@@ -16,6 +17,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(ChordQuality, {
                                                {ChordQuality::SUS_4, "SUS_4"},
                                                {ChordQuality::ADD_9, "ADD_9"},
                                            })
+// NOLINTEND(modernize-avoid-c-arrays,modernize-type-traits)
 
 void to_json(nlohmann::json& j, [[maybe_unused]] const RootPositionStyle& s) {
     j["type"] = RootPositionStyle::TYPE;
@@ -51,8 +53,14 @@ void from_json([[maybe_unused]] const nlohmann::json& j, [[maybe_unused]] Omnich
 
 void to_json(nlohmann::json& j, const ButtonPerChordQuality& s) {
     j["type"] = ButtonPerChordQuality::TYPE;
-    j["notes"] = s.notes;
-    j["ccs"] = s.ccs;
+    j["notes"] = nlohmann::json::object();
+    for (const auto& [key, val] : s.notes) {
+        j["notes"][std::to_string(key)] = val;
+    }
+    j["ccs"] = nlohmann::json::object();
+    for (const auto& [key, val] : s.ccs) {
+        j["ccs"][std::to_string(key)] = val;
+    }
 }
 
 void from_json(const nlohmann::json& j, ButtonPerChordQuality& s) {
@@ -199,22 +207,34 @@ bool isValidJson(const std::string& json) {
 }
 
 DaemomnifySettings DaemomnifySettings::defaults() {
-    return DaemomnifySettings{
-        .midi_device_name = "Launchkey Mini MK3 MIDI Port",
-        .chord_channel = 1,
-        .strum_channel = 2,
-        .strum_cooldown_secs = 0.3,
-        .strum_gate_time_secs = 0.5,
-        .strum_plate_cc = 1,
-        .chord_voicing_style = RootPositionStyle{},
-        .strum_voicing_style = PlainAscendingStrumStyle{},
-        .chord_quality_selection_style = ButtonPerChordQuality{.notes = {{0, ChordQuality::MAJOR},
-                                                                         {1, ChordQuality::MINOR},
-                                                                         {2, ChordQuality::DOM_7}},
-                                                               .ccs = {}},
-        .latch_toggle_button = MidiCCButton{.cc = 102, .is_toggle = true},
-        .stop_button = MidiCCButton{.cc = 103, .is_toggle = false},
-    };
+    DaemomnifySettings s;
+    s.midi_device_name = "Launchkey Mini MK3 MIDI Port";
+    s.chord_channel = 1;
+    s.strum_channel = 2;
+    s.strum_cooldown_secs = 0.3;
+    s.strum_gate_time_secs = 0.5;
+    s.strum_plate_cc = 1;
+    s.chord_voicing_style = RootPositionStyle{};
+    s.strum_voicing_style = PlainAscendingStrumStyle{};
+    s.chord_quality_selection_style = []() {
+        ButtonPerChordQuality x;
+        x.notes = {{0, ChordQuality::MAJOR}, {1, ChordQuality::MINOR}, {2, ChordQuality::DOM_7}};
+        x.ccs = {};
+        return x;
+    }();
+    s.latch_toggle_button = []() {
+        MidiCCButton x;
+        x.cc = 102;
+        x.is_toggle = true;
+        return x;
+    }();
+    s.stop_button = []() {
+        MidiCCButton x;
+        x.cc = 103;
+        x.is_toggle = false;
+        return x;
+    }();
+    return s;
 }
 
 }  // namespace GeneratedSettings

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include <foleys_gui_magic/foleys_gui_magic.h>
 
 #include "DaemonManager.h"
@@ -68,11 +70,20 @@ class OmnifyAudioProcessor : public foleys::MagicProcessor,
     // Send all current settings to daemon via OSC
     void sendSettingsToDaemon();
 
+    // Try to send initial settings (called when either condition becomes true)
+    void trySendInitialSettings();
+
     // Send realtime parameter updates via OSC
     void sendRealtimeParam(const juce::String& address, float value);
 
     // Python daemon process manager
     DaemonManager daemonManager;
+
+    // Mutex-protected flags for thread-safe initialization sequencing
+    std::mutex initMutex;
+    bool daemonIsReady = false;
+    bool settingsAreLoaded = false;
+    bool initialSettingsSent = false;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OmnifyAudioProcessor)
 };

@@ -306,10 +306,12 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
 
     # ChordQuality JSON conversion
     lines.append("// ChordQuality JSON conversion")
+    lines.append("// NOLINTBEGIN(modernize-avoid-c-arrays,modernize-type-traits)")
     lines.append("NLOHMANN_JSON_SERIALIZE_ENUM(ChordQuality, {")
     for q in ChordQuality:
         lines.append(f'    {{ChordQuality::{q.name}, "{q.name}"}},')
     lines.append("})")
+    lines.append("// NOLINTEND(modernize-avoid-c-arrays,modernize-type-traits)")
     lines.append("")
 
     # Collect types
@@ -341,7 +343,14 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
             lines.append(f"void to_json(nlohmann::json& j, [[maybe_unused]] const {struct_name}& s) {{")
         lines.append(f'    j["type"] = {struct_name}::TYPE;')
         for field in struct["fields"]:
-            lines.append(f'    j["{field["name"]}"] = s.{field["name"]};')
+            # Special handling for std::map<int, ...> - serialize as JSON object with string keys
+            if field["cpp_type"].startswith("std::map<int,"):
+                lines.append(f'    j["{field["name"]}"] = nlohmann::json::object();')
+                lines.append(f'    for (const auto& [key, val] : s.{field["name"]}) {{')
+                lines.append(f'        j["{field["name"]}"][std::to_string(key)] = val;')
+                lines.append("    }")
+            else:
+                lines.append(f'    j["{field["name"]}"] = s.{field["name"]};')
         lines.append("}")
         lines.append("")
 
@@ -354,7 +363,7 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
             # Special handling for std::map<int, ...> - JSON has string keys
             if field["cpp_type"].startswith("std::map<int,"):
                 value_type = field["cpp_type"].split(",", 1)[1].strip().rstrip(">")
-                lines.append(f'    for (auto& [key, val] : j.at("{field["name"]}").items()) {{')
+                lines.append(f'    for (const auto& [key, val] : j.at("{field["name"]}").items()) {{')
                 lines.append(f'        s.{field["name"]}[std::stoi(key)] = val.get<{value_type}>();')
                 lines.append("    }")
             else:
@@ -428,9 +437,9 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
     lines.append("}")
     lines.append("")
 
-    # defaults() function
+    # defaults() function - use C++17 aggregate initialization (positional, not designated)
     lines.append("DaemomnifySettings DaemomnifySettings::defaults() {")
-    lines.append("    return DaemomnifySettings{")
+    lines.append("    DaemomnifySettings s;")
 
     # Import default values from Python
     from daemomnify.settings import DEFAULT_SETTINGS
@@ -439,9 +448,9 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
     for field_name in settings_class.model_fields:
         field_value = getattr(settings, field_name)
         cpp_init = python_value_to_cpp_init(field_value)
-        lines.append(f"        .{field_name} = {cpp_init},")
+        lines.append(f"    s.{field_name} = {cpp_init};")
 
-    lines.append("    };")
+    lines.append("    return s;")
     lines.append("}")
     lines.append("")
 
@@ -453,28 +462,20 @@ def generate_settings_cpp(settings_class: type[BaseModel]) -> str:
     return "\n".join(lines)
 
 
-def python_value_to_cpp_init(value) -> str:
-    """Convert a Python value to C++ initializer syntax."""
+def python_value_to_cpp_init(value, var_name: str = None) -> str | list[str]:
+    """Convert a Python value to C++ initializer syntax.
+
+    If var_name is provided, returns a list of assignment statements.
+    Otherwise returns a single expression string.
+    """
     # Check for ChordQuality first (before model_dump which serializes it to string)
     if isinstance(value, ChordQuality):
         return f"ChordQuality::{value.name}"
 
     if hasattr(value, "model_dump"):
-        # It's a Pydantic model - iterate over actual fields, not serialized values
+        # It's a Pydantic model - use helper function for inline initialization
         class_name = value.__class__.__name__
-
-        fields = []
-        for fname in value.__class__.model_fields:
-            if fname == "type":
-                continue
-            fval = getattr(value, fname)
-            cpp_val = python_value_to_cpp_init(fval)
-            fields.append(f".{fname} = {cpp_val}")
-
-        if fields:
-            return f"{class_name}{{{', '.join(fields)}}}"
-        else:
-            return f"{class_name}{{}}"
+        return python_model_to_cpp_inline(value, class_name)
     elif isinstance(value, dict):
         items = []
         for k, v in value.items():
@@ -495,6 +496,24 @@ def python_value_to_cpp_init(value) -> str:
         return f"ChordQuality::{value.name}"
     else:
         return "{}"
+
+
+def python_model_to_cpp_inline(value, class_name: str) -> str:
+    """Convert a Pydantic model to C++17-compatible inline initialization using a lambda."""
+    # For models with no fields (other than 'type'), just return empty init
+    fields_to_init = [fname for fname in value.__class__.model_fields if fname != "type"]
+
+    if not fields_to_init:
+        return f"{class_name}{{}}"
+
+    # Use an immediately-invoked lambda to allow assignment-style init
+    lines = [f"[]() {{ {class_name} x;"]
+    for fname in fields_to_init:
+        fval = getattr(value, fname)
+        cpp_val = python_value_to_cpp_init(fval)
+        lines.append(f" x.{fname} = {cpp_val};")
+    lines.append(" return x; }()")
+    return "".join(lines)
 
 
 def main():

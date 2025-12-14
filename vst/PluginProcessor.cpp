@@ -82,6 +82,14 @@ OmnifyAudioProcessor::~OmnifyAudioProcessor() {
 //==============================================================================
 void OmnifyAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(sampleRate, samplesPerBlock);
+
+    // prepareToPlay is called after state restoration (if any), so settings are now finalized
+    DBG("OmnifyAudioProcessor: Settings loaded in prepareToPlay");
+    {
+        std::lock_guard<std::mutex> lock(initMutex);
+        settingsAreLoaded = true;
+    }
+    trySendInitialSettings();
 }
 
 void OmnifyAudioProcessor::releaseResources() {}
@@ -107,6 +115,7 @@ void OmnifyAudioProcessor::initialiseBuilder(foleys::MagicGUIBuilder& builder) {
     builder.registerFactory("LcarsSettings", &LcarsSettingsItem::factory);
     builder.registerFactory("FilePicker", &FilePickerItem::factory);
     builder.registerFactory("MidiDeviceSelector", &MidiDeviceSelectorItem::factory);
+    builder.registerFactory("IntComboBox", &IntComboBoxItem::factory);
 }
 
 //==============================================================================
@@ -190,7 +199,11 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
 
     if (settingsChanged) {
         saveSettingsToValueTree();
-        sendSettingsToDaemon();
+        // Only send to daemon after initial settings have been sent
+        // (avoids spamming during initialization when properties are being set up)
+        if (initialSettingsSent) {
+            sendSettingsToDaemon();
+        }
     }
 }
 
@@ -278,8 +291,22 @@ void OmnifyAudioProcessor::loadDefaultSettings() {
 
 //==============================================================================
 void OmnifyAudioProcessor::daemonReady() {
-    DBG("OmnifyAudioProcessor: Daemon ready, sending settings");
-    sendSettingsToDaemon();
+    DBG("OmnifyAudioProcessor: Daemon ready");
+    {
+        std::lock_guard<std::mutex> lock(initMutex);
+        daemonIsReady = true;
+    }
+    trySendInitialSettings();
+}
+
+void OmnifyAudioProcessor::trySendInitialSettings() {
+    // Send initial settings when both conditions are met (exactly once)
+    std::lock_guard<std::mutex> lock(initMutex);
+    if (daemonIsReady && settingsAreLoaded && !initialSettingsSent) {
+        initialSettingsSent = true;
+        DBG("OmnifyAudioProcessor: Sending initial settings");
+        sendSettingsToDaemon();
+    }
 }
 
 void OmnifyAudioProcessor::sendSettingsToDaemon() {
