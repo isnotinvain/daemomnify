@@ -63,12 +63,10 @@
   "cmake.sourceDirectory": "/Users/alexlevenson/Documents/code/daemomnify/vst",
   "editor.formatOnSave": true,
   "files.watcherExclude": {
-    "**/foleys_gui_magic/**": true,
     "**/JUCE/**": true
   },
   "editor.formatOnSaveMode": "file",
   "clang-format.excludeDirectories": [
-    "**/foleys_gui_magic/**",
     "**/JUCE/**"
   ]
 }

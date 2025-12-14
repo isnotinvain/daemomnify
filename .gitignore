@@ -65,8 +65,6 @@ JuceLibraryCode/
 *.vst3/
 *.component/
 
-# Foleys GUI Magic autosave
-autosave.sav.xml
 
 # =============================================================================
 # Python

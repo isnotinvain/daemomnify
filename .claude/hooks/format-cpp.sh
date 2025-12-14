@@ -19,7 +19,7 @@ for arg in "$@"; do
 done
 
 # Skip files in submodules
-if [[ "$FILE_PATH" == *"/foleys_gui_magic/"* ]] || [[ "$FILE_PATH" == *"/JUCE/"* ]]; then
+if [[ "$FILE_PATH" == *"/JUCE/"* ]]; then
     exit 0
 fi
 

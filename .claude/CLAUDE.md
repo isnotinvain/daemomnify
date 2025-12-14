@@ -6,20 +6,19 @@ Transforms any MIDI instrument into an omnichord (autoharp-style instrument). Tw
 
 ## Architecture
 - Python core in `src/daemomnify/` - Pydantic settings, MIDI processing, chord voicing logic
-- VST plugin in `vst/` - C++17 with JUCE + Foleys GUI Magic
+- VST plugin in `vst/` - C++17 with JUCE
 - Code generation bridges Python↔C++: `vst/generate_vst_params.py` introspects Pydantic models to generate `GeneratedParams.h/cpp` and `GeneratedAdditionalSettings.h/cpp` (don't edit these directly)
 
 ## C++ Dependencies
-- Both JUCE and Foleys GUI Magic are git submodules in vst/
-- We are free to add bugfixes and features to JUCE or Foleys as needed
-- You can explore these codebases for debugging as well
+- JUCE is a git submodule in vst/
+- We are free to add bugfixes and features to JUCE as needed
+- You can explore this codebase for debugging as well
 
 ## Key Files
 - `src/daemomnify/settings.py` - All configuration (Pydantic models with VST param annotations)
 - `src/daemomnify/omnify.py` - Core state machine (chord generation, strum logic)
 - `vst/PluginProcessor.cpp` - Main VST plugin logic
-- `vst/ui/GuiItems.h` - Custom Foleys GUI item factories
-- `vst/Resources/magic.xml` - GUI layout (Foleys GUI Magic)
+- `vst/PluginEditor.cpp` - VST UI
 
 ## Patterns
 - Complex nested settings stored as JSON blob in VST (simpler than exposing every field)
