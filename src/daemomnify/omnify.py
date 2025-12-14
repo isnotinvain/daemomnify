@@ -12,6 +12,7 @@ from daemomnify.util import clamp_note
 class Omnify:
     def __init__(self, scheduler: MessageScheduler, event_dispatcher: EventDispatcher, settings: DaemomnifySettings):
         self.scheduler = scheduler
+        self.event_dispatcher = event_dispatcher
         self.settings = settings
 
         # we need this for when the user queues up a new chord quality, but hasn't started a new chord yet.
@@ -25,15 +26,25 @@ class Omnify:
         self.last_strum_zone = -1
         self.latch = False
 
+        self._register_handlers()
+
+    def _register_handlers(self):
+        """Register all event handlers based on current settings."""
         # Buttons and control signals first so that they don't get treated as normal notes etc
-        event_dispatcher.register_handler(self.settings.chord_quality_selection_style.handles_message, self.on_chord_quality_change)
-        event_dispatcher.register_handler(self.settings.stop_button.handles_message, self.on_stop_button)
-        event_dispatcher.register_handler(self.settings.latch_toggle_button.handles_message, self.on_latch_button)
+        self.event_dispatcher.register_handler(self.settings.chord_quality_selection_style.handles_message, self.on_chord_quality_change)
+        self.event_dispatcher.register_handler(self.settings.stop_button.handles_message, self.on_stop_button)
+        self.event_dispatcher.register_handler(self.settings.latch_toggle_button.handles_message, self.on_latch_button)
 
         # now these guys don't have to filter out things that belong to the guys above
-        event_dispatcher.register_handler(self.is_chord_note_on, self.on_chord_note_on)
-        event_dispatcher.register_handler(self.is_chord_note_off, self.on_chord_note_off)
-        event_dispatcher.register_handler(self.is_strum, self.on_strum)
+        self.event_dispatcher.register_handler(self.is_chord_note_on, self.on_chord_note_on)
+        self.event_dispatcher.register_handler(self.is_chord_note_off, self.on_chord_note_off)
+        self.event_dispatcher.register_handler(self.is_strum, self.on_strum)
+
+    def update_settings(self, settings: DaemomnifySettings):
+        """Update settings and re-register handlers."""
+        self.settings = settings
+        self.event_dispatcher.clear_handlers()
+        self._register_handlers()
 
     def on_chord_quality_change(self, chord):
         self.enqueued_chord_quality = chord

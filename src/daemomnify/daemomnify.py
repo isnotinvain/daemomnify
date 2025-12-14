@@ -47,11 +47,16 @@ def _handle_quit(address, *args):
 def _handle_settings(address, json_str):
     """OSC handler for /settings - receives full settings dump from VST."""
     global _received_settings
-    print(f"Received /settings OSC message")
+    print("Received /settings OSC message")
     try:
         _received_settings = DaemomnifySettings.model_validate_json(json_str)
         print(f"Settings parsed successfully: {_received_settings.midi_device_name}")
         _settings_received.set()
+
+        # If Omnify already exists, update its settings
+        if _omnify is not None:
+            print("Updating Omnify with new settings...")
+            _omnify.update_settings(_received_settings)
     except Exception as e:
         print(f"Error parsing settings: {e}")
         traceback.print_exc()

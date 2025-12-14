@@ -8,6 +8,10 @@ class EventDispatcher:
     def register_handler(self, matcher, callback):
         self.handlers.append((matcher, callback))
 
+    def clear_handlers(self):
+        """Clear all registered handlers."""
+        self.handlers.clear()
+
     def handle(self, msg):
         for matcher, callback in self.handlers:
             # TODO: is this pattern acceptable ducktyping or crazytowne?
