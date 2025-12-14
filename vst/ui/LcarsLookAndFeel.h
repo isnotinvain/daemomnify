@@ -11,8 +11,21 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
         orbitronTypeface = juce::Typeface::createSystemTypefaceFor(
             BinaryData::OrbitronRegular_ttf, BinaryData::OrbitronRegular_ttfSize);
 
+        // Tab colors
         setColour(juce::TabbedButtonBar::tabTextColourId, juce::Colours::black);
         setColour(juce::TabbedButtonBar::frontTextColourId, juce::Colours::black);
+
+        // ComboBox colors
+        setColour(juce::ComboBox::backgroundColourId, juce::Colours::black);
+        setColour(juce::ComboBox::outlineColourId, LcarsColors::orange);
+        setColour(juce::ComboBox::arrowColourId, LcarsColors::orange);
+        setColour(juce::ComboBox::textColourId, LcarsColors::orange);
+
+        // PopupMenu colors (for ComboBox dropdowns)
+        setColour(juce::PopupMenu::backgroundColourId, juce::Colours::black);
+        setColour(juce::PopupMenu::textColourId, LcarsColors::orange);
+        setColour(juce::PopupMenu::highlightedBackgroundColourId, LcarsColors::africanViolet);
+        setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::black);
     }
 
    private:

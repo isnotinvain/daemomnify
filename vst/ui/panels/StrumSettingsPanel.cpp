@@ -18,11 +18,11 @@ StrumSettingsPanel::StrumSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     addAndMakeVisible(channelComboBox);
 
     // Voicing Style Selector
+    // Note: addVariantNotOwned adds components as children of the VariantSelector,
+    // so we don't addAndMakeVisible them separately
     voicingStyleSelector.addVariantNotOwned("Plain Ascending", &plainAscendingView);
     voicingStyleSelector.addVariantNotOwned("Omnichord", &omnichordView);
     addAndMakeVisible(voicingStyleSelector);
-    addAndMakeVisible(plainAscendingView);
-    addAndMakeVisible(omnichordView);
 
     // Strum Plate CC
     strumPlateLabel.setColour(juce::Label::textColourId, LcarsColors::orange);

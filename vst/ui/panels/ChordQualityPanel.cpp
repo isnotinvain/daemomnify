@@ -8,25 +8,24 @@ ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
     titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
     addAndMakeVisible(titleLabel);
 
-    // Style selector (One Button Each vs One CC for All)
-    styleSelector.addVariantNotOwned("One Button Each", &qualityGrid);
-    styleSelector.addVariantNotOwned("One CC for All", &singleCcContainer);
-    addAndMakeVisible(styleSelector);
-
-    // Quality grid
+    // Quality grid (configure before adding to selector)
     qualityGrid.setFontSize(20.0f);
     qualityGrid.setLabelColor(LcarsColors::orange);
     qualityGrid.setMidiLearnAspectRatio(2.0f);
-    addAndMakeVisible(qualityGrid);
 
-    // Single CC container
+    // Single CC container (configure before adding to selector)
     singleCcLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
     singleCcLabel.setJustificationType(juce::Justification::centred);
     singleCcContainer.addAndMakeVisible(singleCcLabel);
-
     singleCcLearn.setAcceptMode(MidiAcceptMode::CCsOnly);
     singleCcContainer.addAndMakeVisible(singleCcLearn);
-    addAndMakeVisible(singleCcContainer);
+
+    // Style selector (One Button Each vs One CC for All)
+    // Note: addVariantNotOwned adds components as children of the VariantSelector,
+    // so we don't addAndMakeVisible them separately
+    styleSelector.addVariantNotOwned("One Button Each", &qualityGrid);
+    styleSelector.addVariantNotOwned("One CC for All", &singleCcContainer);
+    addAndMakeVisible(styleSelector);
 
     // Set up value bindings
     setupValueBindings();
@@ -84,10 +83,9 @@ void ChordQualityPanel::resized() {
 
     styleSelector.setBounds(bounds);
 
-    // Layout for single CC container
+    // Layout for single CC container - must be done after styleSelector.setBounds
+    // because VariantSelector::resized() sets the container's bounds
     auto containerBounds = singleCcContainer.getLocalBounds();
-    if (containerBounds.getHeight() > 0) {
-        singleCcLabel.setBounds(containerBounds.removeFromTop(30));
-        singleCcLearn.setBounds(containerBounds.reduced(20));
-    }
+    singleCcLabel.setBounds(containerBounds.removeFromTop(30));
+    singleCcLearn.setBounds(containerBounds.reduced(20, 10));
 }

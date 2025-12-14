@@ -5,7 +5,7 @@
 ChordSettingsPanel::ChordSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     // Title
     titleLabel.setFont(juce::Font(juce::FontOptions(24.0f)));
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
     addAndMakeVisible(titleLabel);
 
     // MIDI Channel
@@ -18,13 +18,12 @@ ChordSettingsPanel::ChordSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     addAndMakeVisible(channelComboBox);
 
     // Voicing Style Selector
+    // Note: addVariantNotOwned adds components as children of the VariantSelector,
+    // so we don't addAndMakeVisible them separately
     voicingStyleSelector.addVariantNotOwned("Root Position", &rootPositionView);
     voicingStyleSelector.addVariantNotOwned("From File", &filePicker);
     voicingStyleSelector.addVariantNotOwned("Omni-84", &omni84View);
     addAndMakeVisible(voicingStyleSelector);
-    addAndMakeVisible(rootPositionView);
-    addAndMakeVisible(filePicker);
-    addAndMakeVisible(omni84View);
 
     filePicker.setFileFilter("*.json");
 
