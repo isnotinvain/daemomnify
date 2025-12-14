@@ -1,10 +1,11 @@
 #include "ChordQualitySelector.h"
 
+#include "../LcarsLookAndFeel.h"
+
 ChordQualitySelector::ChordQualitySelector() {
     for (size_t i = 0; i < NUM_QUALITIES; ++i) {
         auto& row = rows[i];
         row.label.setText(GeneratedSettings::ChordQualities::NAMES[i], juce::dontSendNotification);
-        row.label.setFont(juce::Font(juce::FontOptions(fontSize)));
         row.label.setColour(juce::Label::textColourId, labelColor);
         addAndMakeVisible(row.label);
         addAndMakeVisible(row.midiLearn);
@@ -46,13 +47,6 @@ void ChordQualitySelector::bindToValueTree(juce::ValueTree& tree) {
     updateComponentsFromValues();
 }
 
-void ChordQualitySelector::setFontSize(float size) {
-    fontSize = size;
-    for (auto& row : rows) {
-        row.label.setFont(juce::Font(juce::FontOptions(fontSize)));
-    }
-}
-
 void ChordQualitySelector::setLabelColor(juce::Colour color) {
     labelColor = color;
     for (auto& row : rows) {
@@ -68,6 +62,14 @@ void ChordQualitySelector::setMidiLearnAspectRatio(float ratio) {
 }
 
 void ChordQualitySelector::resized() {
+    // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        auto font = laf->getOrbitronFont(LcarsLookAndFeel::fontSizeMedium);
+        for (auto& row : rows) {
+            row.label.setFont(font);
+        }
+    }
+
     auto bounds = getLocalBounds();
     int totalSpacing = rowSpacing * (NUM_QUALITIES - 1);
     int rowHeight = (bounds.getHeight() - totalSpacing) / NUM_QUALITIES;

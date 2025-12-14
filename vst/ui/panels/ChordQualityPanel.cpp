@@ -1,15 +1,15 @@
 #include "ChordQualityPanel.h"
 
 #include "../../PluginProcessor.h"
+#include "../LcarsLookAndFeel.h"
 
 ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
-    // Title
-    titleLabel.setFont(juce::Font(juce::FontOptions(24.0f)));
+    // Title - font will be set in resized() after LookAndFeel is available
     titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
     addAndMakeVisible(titleLabel);
 
     // Quality grid (configure before adding to selector)
-    qualityGrid.setFontSize(20.0f);
+    // Font size will be set in resized() after LookAndFeel is available
     qualityGrid.setLabelColor(LcarsColors::orange);
     qualityGrid.setMidiLearnAspectRatio(2.0f);
 
@@ -76,6 +76,11 @@ void ChordQualityPanel::paint(juce::Graphics& g) {
 }
 
 void ChordQualityPanel::resized() {
+    // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+    }
+
     auto bounds = getLocalBounds().reduced(10);
 
     titleLabel.setBounds(bounds.removeFromTop(30));

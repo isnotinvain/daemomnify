@@ -1,10 +1,10 @@
 #include "ChordSettingsPanel.h"
 
 #include "../../PluginProcessor.h"
+#include "../LcarsLookAndFeel.h"
 
 ChordSettingsPanel::ChordSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
-    // Title
-    titleLabel.setFont(juce::Font(juce::FontOptions(24.0f)));
+    // Title - font will be set in resized() after LookAndFeel is available
     titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
     addAndMakeVisible(titleLabel);
 
@@ -170,6 +170,11 @@ void ChordSettingsPanel::resized() {
     fb.items.add(juce::FlexItem(stopButtonLearn).withHeight(40.0f).withMargin(4));
 
     fb.performLayout(getLocalBounds().reduced(6));
+
+    // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+    }
 
     // Manual layout for nested rows since FlexBox doesn't nest well in performLayout
     auto bounds = getLocalBounds().reduced(10);

@@ -1,10 +1,10 @@
 #include "StrumSettingsPanel.h"
 
 #include "../../PluginProcessor.h"
+#include "../LcarsLookAndFeel.h"
 
 StrumSettingsPanel::StrumSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
-    // Title
-    titleLabel.setFont(juce::Font(juce::FontOptions(24.0f)));
+    // Title - font will be set in resized() after LookAndFeel is available
     titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
     addAndMakeVisible(titleLabel);
 
@@ -111,6 +111,11 @@ void StrumSettingsPanel::paint(juce::Graphics& g) {
 }
 
 void StrumSettingsPanel::resized() {
+    // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+    }
+
     auto bounds = getLocalBounds().reduced(10);
 
     titleLabel.setBounds(bounds.removeFromTop(30));

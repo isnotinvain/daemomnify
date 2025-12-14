@@ -1,6 +1,7 @@
 #include "MidiLearnComponent.h"
 
 #include "../LcarsColors.h"
+#include "../LcarsLookAndFeel.h"
 
 MidiLearnComponent::MidiLearnComponent() { setWantsKeyboardFocus(true); }
 
@@ -123,6 +124,9 @@ void MidiLearnComponent::paint(juce::Graphics& g) {
     g.drawRoundedRectangle(bounds.reduced(borderThickness * 0.5F), radius, borderThickness);
 
     // Text
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        g.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+    }
     g.setColour(LcarsColors::orange);
     g.drawText(getDisplayText(), boxBounds, juce::Justification::centred);
 }

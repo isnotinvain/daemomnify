@@ -7,6 +7,11 @@
 
 class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
    public:
+    // Standard font sizes - use these for consistency across the UI
+    static constexpr float fontSizeSmall = 14.0f;
+    static constexpr float fontSizeMedium = 18.0f;
+    static constexpr float fontSizeLarge = 24.0f;
+
     LcarsLookAndFeel() {
         orbitronTypeface = juce::Typeface::createSystemTypefaceFor(
             BinaryData::OrbitronRegular_ttf, BinaryData::OrbitronRegular_ttfSize);
@@ -28,46 +33,30 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
         setColour(juce::PopupMenu::highlightedTextColourId, juce::Colours::black);
     }
 
+    // Public font getter for components that need to set fonts directly
+    juce::Font getOrbitronFont(float height) const {
+        return juce::Font(juce::FontOptions(orbitronTypeface).withHeight(height));
+    }
+
    private:
     juce::Typeface::Ptr orbitronTypeface;
 
-    // Hard-coded settings (values from magic.xml LcarsSettings)
-    static constexpr float tabFontSize = 18.0f;
-    static constexpr float comboboxLabelFontMultiplier = 0.9f;
-    static constexpr float comboboxFontMultiplier = 0.85f;
-    static constexpr float textButtonFontMultiplier = 0.6f;
-    static constexpr float tabButtonFontMultiplier = 0.6f;
-    static constexpr float popupMenuFontSize = 15.0f;
-    static constexpr float popupMenuItemFontMultiplier = 1.0f;
-    static constexpr float popupMenuItemHeightMultiplier = 1.3f;
+    // Drawing constants
     static constexpr float comboboxBorderRadius = 4.0f;
     static constexpr float comboboxArrowSize = 6.0f;
     static constexpr float comboboxArrowPadding = 8.0f;
     static constexpr float popupMenuBorderSize = 2.0f;
     static constexpr float buttonBorderThickness = 2.0f;
 
-    juce::Font getOrbitronFont(float height) const {
-        return juce::Font(juce::FontOptions(orbitronTypeface).withHeight(height));
-    }
-
     juce::Font getLabelFont(juce::Label& label) override {
-        // For combo box labels, scale based on height
-        if (dynamic_cast<juce::ComboBox*>(label.getParentComponent()) != nullptr) {
-            return getOrbitronFont(label.getHeight() * comboboxLabelFontMultiplier);
-        }
         return getOrbitronFont(label.getFont().getHeight());
     }
 
-    juce::Font getComboBoxFont(juce::ComboBox& box) override {
-        return getOrbitronFont(
-            juce::jmin(popupMenuFontSize, static_cast<float>(box.getHeight()) * comboboxFontMultiplier));
+    juce::Font getComboBoxFont(juce::ComboBox&) override {
+        return getOrbitronFont(fontSizeSmall);
     }
 
-    juce::Font getTextButtonFont(juce::TextButton&, int buttonHeight) override {
-        return getOrbitronFont(static_cast<float>(buttonHeight) * textButtonFontMultiplier);
-    }
-
-    juce::Font getPopupMenuFont() override { return getOrbitronFont(popupMenuFontSize); }
+    juce::Font getPopupMenuFont() override { return getOrbitronFont(fontSizeSmall); }
 
     void getIdealPopupMenuItemSizeWithOptions(const juce::String& text, bool isSeparator,
                                               int standardMenuItemHeight, int& idealWidth,
@@ -77,42 +66,13 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
             idealWidth = 50;
             idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight / 10 : 10;
         } else {
-            float fontSize = popupMenuFontSize;
-            idealHeight = static_cast<int>(fontSize * popupMenuItemHeightMultiplier);
-            auto font = getOrbitronFont(fontSize);
+            idealHeight = static_cast<int>(fontSizeMedium);
+            auto font = getOrbitronFont(fontSizeSmall);
             juce::GlyphArrangement glyphs;
             glyphs.addLineOfText(font, text, 0, 0);
             idealWidth =
                 static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + idealHeight * 2;
         }
-    }
-
-    juce::Font getMenuBarFont(juce::MenuBarComponent&, int, const juce::String&) override {
-        return getOrbitronFont(15.0f);
-    }
-
-    juce::Font getAlertWindowTitleFont() override {
-        return juce::Font(juce::FontOptions(orbitronTypeface));
-    }
-
-    juce::Font getAlertWindowMessageFont() override {
-        return juce::Font(juce::FontOptions(orbitronTypeface));
-    }
-
-    juce::Font getAlertWindowFont() override {
-        return juce::Font(juce::FontOptions(orbitronTypeface));
-    }
-
-    juce::Font getSliderPopupFont(juce::Slider&) override {
-        return juce::Font(juce::FontOptions(orbitronTypeface));
-    }
-
-    juce::Font getTabButtonFont(juce::TabBarButton&, float height) override {
-        return getOrbitronFont(height * tabButtonFontMultiplier);
-    }
-
-    juce::Font getSidePanelTitleFont(juce::SidePanel&) override {
-        return juce::Font(juce::FontOptions(orbitronTypeface));
     }
 
     void drawComboBox(juce::Graphics& g, int width, int height, bool, int, int, int, int,
@@ -154,12 +114,12 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
         g.fillRect(activeArea);
 
         g.setColour(juce::Colours::black);
-        g.setFont(getOrbitronFont(tabFontSize));
+        g.setFont(getOrbitronFont(fontSizeMedium));
         g.drawText(button.getButtonText(), activeArea, juce::Justification::centred);
     }
 
     int getTabButtonBestWidth(juce::TabBarButton& button, int tabDepth) override {
-        auto font = getOrbitronFont(tabFontSize);
+        auto font = getOrbitronFont(fontSizeMedium);
         juce::GlyphArrangement glyphs;
         glyphs.addLineOfText(font, button.getButtonText().trim(), 0, 0);
         int width = static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + tabDepth;
@@ -212,28 +172,14 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
     }
 
     void drawButtonText(juce::Graphics& g, juce::TextButton& button, bool, bool) override {
-        auto font = getTextButtonFont(button, button.getHeight());
-
-        const int textPadding = static_cast<int>(button.getHeight() * 0.3f);
-        auto textBounds = button.getLocalBounds().reduced(textPadding, 0);
-
-        // Shrink font if text doesn't fit
-        juce::GlyphArrangement glyphs;
-        glyphs.addLineOfText(font, button.getButtonText(), 0, 0);
-        float textWidth = glyphs.getBoundingBox(0, -1, false).getWidth();
-        if (textWidth > textBounds.getWidth()) {
-            float scale = static_cast<float>(textBounds.getWidth()) / textWidth;
-            font = font.withHeight(font.getHeight() * scale);
-        }
-
-        g.setFont(font);
+        g.setFont(getOrbitronFont(fontSizeSmall));
 
         juce::Colour textColour = button.findColour(button.getToggleState()
                                                         ? juce::TextButton::textColourOnId
                                                         : juce::TextButton::textColourOffId);
         g.setColour(textColour);
 
-        g.drawText(button.getButtonText(), textBounds, juce::Justification::centred, false);
+        g.drawText(button.getButtonText(), button.getLocalBounds(), juce::Justification::centred, false);
     }
 
     void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool /*shouldDrawButtonAsHighlighted*/,
@@ -258,7 +204,7 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
 
         // Draw text
         g.setColour(button.findColour(juce::ToggleButton::textColourId));
-        g.setFont(getOrbitronFont(bounds.getHeight() * 0.6f));
+        g.setFont(getOrbitronFont(fontSizeSmall));
         g.drawText(button.getButtonText(), bounds.toNearestInt(), juce::Justification::centredLeft);
     }
 };

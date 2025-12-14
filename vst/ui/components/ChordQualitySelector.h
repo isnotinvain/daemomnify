@@ -20,7 +20,6 @@ class ChordQualitySelector : public juce::Component, private juce::Value::Listen
     void bindToValueTree(juce::ValueTree& tree);
 
     // Styling
-    void setFontSize(float size);
     void setLabelColor(juce::Colour color);
     void setMidiLearnAspectRatio(float ratio);
 
@@ -39,7 +38,6 @@ class ChordQualitySelector : public juce::Component, private juce::Value::Listen
     };
     std::array<Row, NUM_QUALITIES> rows;
 
-    float fontSize = 14.0f;
     juce::Colour labelColor = LcarsColors::orange;
     float midiLearnAspectRatio = 2.0f;
     int rowSpacing = 2;
