@@ -7,7 +7,7 @@ VariantSelector::VariantSelector() {
         int index = comboBox.getSelectedItemIndex();
 
         // Update bound value if we have one
-        if (boundValue.getValue().isVoid() == false) {
+        if (!boundValue.getValue().isVoid()) {
             boundValue.setValue(index);
         }
 
@@ -39,9 +39,7 @@ void VariantSelector::addVariantNotOwned(const juce::String& caption, juce::Comp
     }
 }
 
-int VariantSelector::getSelectedIndex() const {
-    return comboBox.getSelectedItemIndex();
-}
+int VariantSelector::getSelectedIndex() const { return comboBox.getSelectedItemIndex(); }
 
 void VariantSelector::setSelectedIndex(int index, juce::NotificationType notification) {
     comboBox.setSelectedItemIndex(index, notification);

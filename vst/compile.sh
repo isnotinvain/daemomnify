@@ -6,6 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Parse command line arguments
 INSTALL=false
 DEBUG=false
+FORMAT=false
 while [[ $# -gt 0 ]]; do
     case $1 in
         -i|--install)
@@ -16,9 +17,13 @@ while [[ $# -gt 0 ]]; do
             DEBUG=true
             shift
             ;;
+        -f|--format)
+            FORMAT=true
+            shift
+            ;;
         *)
             echo "Unknown option: $1"
-            echo "Usage: $0 [--install|-i] [--debug|-d]"
+            echo "Usage: $0 [--install|-i] [--debug|-d] [--format|-f]"
             exit 1
             ;;
     esac
@@ -30,9 +35,13 @@ echo "Starting compilation..."
 echo "Generating settings code..."
 uv run python "$SCRIPT_DIR/generate_settings.py"
 
-# Format generated C++ files
-"$(dirname "$SCRIPT_DIR")/.claude/hooks/format-cpp.sh" "$SCRIPT_DIR/GeneratedSettings.h"
-"$(dirname "$SCRIPT_DIR")/.claude/hooks/format-cpp.sh" "$SCRIPT_DIR/GeneratedSettings.cpp"
+# Format all C++ files (if requested)
+if [ "$FORMAT" = true ]; then
+    echo "Formatting C++ files..."
+    find "$SCRIPT_DIR" -type f \( -name "*.cpp" -o -name "*.h" \) ! -path "*/JUCE/*" ! -path "*/build/*" ! -path "*/nlohmann/*" | while read -r file; do
+        "$(dirname "$SCRIPT_DIR")/.claude/hooks/format-cpp.sh" "$file"
+    done
+fi
 
 # Determine build type
 if [ "$DEBUG" = true ]; then

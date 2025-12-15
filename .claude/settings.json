@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/format-cpp.sh \"$CLAUDE_FILE_PATH\"",
+            "matcher": "*.cpp|*.h|*.hpp"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <array>
-#include <mutex>
-
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_processors/juce_audio_processors.h>
+
+#include <array>
+#include <mutex>
 
 #include "DaemonManager.h"
 #include "GeneratedSettings.h"
@@ -96,7 +96,8 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     juce::Value chordQualityCcTypeValue;
     juce::Value chordQualityCcNumberValue;
 
-    // Chord quality selection style variant index (0 = ButtonPerChordQuality, 1 = CCRangePerChordQuality)
+    // Chord quality selection style variant index (0 = ButtonPerChordQuality, 1 =
+    // CCRangePerChordQuality)
     juce::Value chordQualitySelectionStyleValue;
 
     void valueChanged(juce::Value& value) override;

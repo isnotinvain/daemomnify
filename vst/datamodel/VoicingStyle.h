@@ -15,8 +15,7 @@ template <VoicingFor T>
 class VoicingStyle;
 
 template <VoicingFor T>
-using VoicingStyleFactory =
-    std::function<std::shared_ptr<VoicingStyle<T>>(const nlohmann::json&)>;
+using VoicingStyleFactory = std::function<std::shared_ptr<VoicingStyle<T>>(const nlohmann::json&)>;
 
 template <VoicingFor T>
 struct VoicingStyleEntry {

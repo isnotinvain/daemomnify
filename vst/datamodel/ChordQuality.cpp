@@ -33,9 +33,7 @@ ChordQuality chordQualityFromName(std::string_view name) {
     throw std::runtime_error("Unknown ChordQuality: " + std::string(name));
 }
 
-void to_json(nlohmann::json& j, ChordQuality q) {
-    j = getChordQualityData(q).name;
-}
+void to_json(nlohmann::json& j, ChordQuality q) { j = getChordQualityData(q).name; }
 
 void from_json(const nlohmann::json& j, ChordQuality& q) {
     q = chordQualityFromName(j.get<std::string_view>());

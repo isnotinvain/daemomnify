@@ -55,7 +55,8 @@ void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
                 onValueChanged({MidiLearnedType::Note, msg.getNoteNumber()});
             }
             return;
-        } else if (acceptCCs && msg.isController()) {
+        }
+        if (acceptCCs && msg.isController()) {
             learnedType.store(MidiLearnedType::CC);
             learnedValue.store(msg.getControllerNumber());
             isLearning.store(false);
@@ -85,9 +86,8 @@ juce::String MidiLearnComponent::getDisplayText() const {
 
     if (type == MidiLearnedType::Note) {
         return noteNumberToName(value);
-    } else {
-        return "CC" + juce::String(value);
     }
+    return "CC" + juce::String(value);
 }
 
 void MidiLearnComponent::paint(juce::Graphics& g) {

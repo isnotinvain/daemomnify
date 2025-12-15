@@ -5,10 +5,11 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
-#include "../datamodel/VoicingStyle.h"
 #include "../ResourcesPath.h"
+#include "../datamodel/VoicingStyle.h"
 
 struct ChordFile {
     std::string name;
@@ -23,9 +24,9 @@ inline void from_json(const nlohmann::json& j, ChordFile& cf) {
     j.at("description").get_to(cf.description);
     j.at("is_offset_file").get_to(cf.isOffsetFile);
 
-    for (auto& [qualityName, rootMap] : j.at("chords").items()) {
+    for (const auto& [qualityName, rootMap] : j.at("chords").items()) {
         ChordQuality quality = chordQualityFromName(qualityName);
-        for (auto& [rootStr, notes] : rootMap.items()) {
+        for (const auto& [rootStr, notes] : rootMap.items()) {
             int root = std::stoi(rootStr);
             cf.chords[quality][root] = notes.get<std::vector<int>>();
         }
@@ -35,7 +36,7 @@ inline void from_json(const nlohmann::json& j, ChordFile& cf) {
 template <VoicingFor T>
 class FromFile : public VoicingStyle<T> {
    public:
-    explicit FromFile(const std::string& path) : path(path) {}
+    explicit FromFile(std::string path) : path(std::move(path)) {}
 
     std::string displayName() const override { return "File"; }
 

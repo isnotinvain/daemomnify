@@ -1,5 +1,7 @@
 #include "ChordQualitySelector.h"
 
+#include <algorithm>
+
 #include "../LcarsLookAndFeel.h"
 
 ChordQualitySelector::ChordQualitySelector() {
@@ -35,7 +37,8 @@ void ChordQualitySelector::bindToValueTree(juce::ValueTree& tree) {
         row.numberValue.removeListener(this);
 
         // Property names use enum name: chord_quality_MAJOR_type, chord_quality_MINOR_number, etc.
-        auto prefix = juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[i];
+        auto prefix =
+            juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[i];
         row.typeValue.referTo(tree.getPropertyAsValue(prefix + "_type", nullptr));
         row.numberValue.referTo(tree.getPropertyAsValue(prefix + "_number", nullptr));
 
@@ -79,9 +82,7 @@ void ChordQualitySelector::resized() {
 
         // Calculate MIDI learn width based on aspect ratio
         int midiLearnWidth = static_cast<int>(rowHeight * midiLearnAspectRatio);
-        if (midiLearnWidth > rowBounds.getWidth() / 2) {
-            midiLearnWidth = rowBounds.getWidth() / 2;
-        }
+        midiLearnWidth = std::min(midiLearnWidth, rowBounds.getWidth() / 2);
 
         row.midiLearn.setBounds(rowBounds.removeFromRight(midiLearnWidth));
         row.label.setBounds(rowBounds);
@@ -117,8 +118,9 @@ void ChordQualitySelector::updateComponentsFromValues() {
 }
 
 void ChordQualitySelector::onMidiLearnChanged(size_t qualityIndex, MidiLearnedValue val) {
-    if (qualityIndex >= NUM_QUALITIES)
+    if (qualityIndex >= NUM_QUALITIES) {
         return;
+    }
 
     auto& row = rows[qualityIndex];
 

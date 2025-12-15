@@ -12,6 +12,7 @@ Checks: >
   -clang-diagnostic-implicit-int-float-conversion,
   -modernize-use-trailing-return-type,
   -modernize-return-braced-init-list,
+  -modernize-use-nodiscard,
   -readability-identifier-length,
   -readability-magic-numbers,
   -readability-function-cognitive-complexity,

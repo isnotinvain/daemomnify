@@ -14,12 +14,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
     auto gateParam = std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID("strum_gate_time_secs", 1), "Strum Gate Time", 0.0f, 5.0f, 0.5f);
+        juce::ParameterID("strum_gate_time_secs", 1), "Strum Gate Time", 0.0F, 5.0F, 0.5F);
     strumGateTimeParam = gateParam.get();
     layout.add(std::move(gateParam));
 
     auto cooldownParam = std::make_unique<juce::AudioParameterFloat>(
-        juce::ParameterID("strum_cooldown_secs", 1), "Strum Cooldown", 0.0f, 5.0f, 0.3f);
+        juce::ParameterID("strum_cooldown_secs", 1), "Strum Cooldown", 0.0F, 5.0F, 0.3F);
     strumCooldownParam = cooldownParam.get();
     layout.add(std::move(cooldownParam));
 
@@ -83,7 +83,7 @@ void OmnifyAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     // prepareToPlay is called after state restoration (if any), so settings are now finalized
     DBG("OmnifyAudioProcessor: Settings loaded in prepareToPlay");
     {
-        std::lock_guard<std::mutex> lock(initMutex);
+        std::scoped_lock lock(initMutex);
         settingsAreLoaded = true;
     }
     trySendInitialSettings();
@@ -145,13 +145,17 @@ void OmnifyAudioProcessor::setupValueListeners() {
     midiDeviceNameValue.referTo(stateTree.getPropertyAsValue("midi_device_name", nullptr));
     chordChannelValue.referTo(stateTree.getPropertyAsValue("chord_channel", nullptr));
     strumChannelValue.referTo(stateTree.getPropertyAsValue("strum_channel", nullptr));
-    chordVoicingStyleValue.referTo(stateTree.getPropertyAsValue("variant_chord_voicing_style", nullptr));
-    strumVoicingStyleValue.referTo(stateTree.getPropertyAsValue("variant_strum_voicing_style", nullptr));
+    chordVoicingStyleValue.referTo(
+        stateTree.getPropertyAsValue("variant_chord_voicing_style", nullptr));
+    strumVoicingStyleValue.referTo(
+        stateTree.getPropertyAsValue("variant_strum_voicing_style", nullptr));
     chordVoicingFilePathValue.referTo(stateTree.getPropertyAsValue("chord_voicing_file", nullptr));
 
     // MidiLearn bindings
-    latchToggleButtonTypeValue.referTo(stateTree.getPropertyAsValue("latch_toggle_button_type", nullptr));
-    latchToggleButtonNumberValue.referTo(stateTree.getPropertyAsValue("latch_toggle_button_number", nullptr));
+    latchToggleButtonTypeValue.referTo(
+        stateTree.getPropertyAsValue("latch_toggle_button_type", nullptr));
+    latchToggleButtonNumberValue.referTo(
+        stateTree.getPropertyAsValue("latch_toggle_button_number", nullptr));
     latchIsToggleValue.referTo(stateTree.getPropertyAsValue("latch_is_toggle", nullptr));
     stopButtonTypeValue.referTo(stateTree.getPropertyAsValue("stop_button_type", nullptr));
     stopButtonNumberValue.referTo(stateTree.getPropertyAsValue("stop_button_number", nullptr));
@@ -175,16 +179,19 @@ void OmnifyAudioProcessor::setupValueListeners() {
 
     // Chord quality selector bindings - use enum names for stability
     for (size_t i = 0; i < NUM_CHORD_QUALITIES; ++i) {
-        auto prefix = juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[i];
+        auto prefix =
+            juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[i];
         chordQualityTypeValues[i].referTo(stateTree.getPropertyAsValue(prefix + "_type", nullptr));
-        chordQualityNumberValues[i].referTo(stateTree.getPropertyAsValue(prefix + "_number", nullptr));
+        chordQualityNumberValues[i].referTo(
+            stateTree.getPropertyAsValue(prefix + "_number", nullptr));
         chordQualityTypeValues[i].addListener(this);
         chordQualityNumberValues[i].addListener(this);
     }
 
     // "One CC for All" chord quality selection (CCRangePerChordQuality)
     chordQualityCcTypeValue.referTo(stateTree.getPropertyAsValue("chord_quality_cc_type", nullptr));
-    chordQualityCcNumberValue.referTo(stateTree.getPropertyAsValue("chord_quality_cc_number", nullptr));
+    chordQualityCcNumberValue.referTo(
+        stateTree.getPropertyAsValue("chord_quality_cc_number", nullptr));
     chordQualityCcTypeValue.addListener(this);
     chordQualityCcNumberValue.addListener(this);
 
@@ -243,7 +250,8 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
         settingsChanged = true;
     } else if (value.refersToSameSourceAs(chordVoicingFilePathValue)) {
         auto path = chordVoicingFilePathValue.getValue().toString().toStdString();
-        if (auto* fileStyle = std::get_if<GeneratedSettings::FileStyle>(&settings.chord_voicing_style)) {
+        if (auto* fileStyle =
+                std::get_if<GeneratedSettings::FileStyle>(&settings.chord_voicing_style)) {
             fileStyle->path = path;
             settingsChanged = true;
         }
@@ -381,10 +389,11 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
     constexpr int numBundled = GeneratedSettings::BundledChordVoicings::NUM_BUNDLED;
     int chordVoicingUiIndex = 0;
 
-    if (std::holds_alternative<GeneratedSettings::RootPositionStyle>(settings.chord_voicing_style)) {
+    if (std::holds_alternative<GeneratedSettings::RootPositionStyle>(
+            settings.chord_voicing_style)) {
         chordVoicingUiIndex = 0;
-    } else if (auto* bundledStyle =
-                   std::get_if<GeneratedSettings::BundledFileStyle>(&settings.chord_voicing_style)) {
+    } else if (auto* bundledStyle = std::get_if<GeneratedSettings::BundledFileStyle>(
+                   &settings.chord_voicing_style)) {
         // Find which bundled file this is
         for (int i = 0; i < numBundled; ++i) {
             if (bundledStyle->filename == GeneratedSettings::BundledChordVoicings::FILENAMES[i]) {
@@ -394,7 +403,8 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
         }
     } else if (std::holds_alternative<GeneratedSettings::FileStyle>(settings.chord_voicing_style)) {
         chordVoicingUiIndex = 1 + numBundled;
-    } else if (std::holds_alternative<GeneratedSettings::Omni84Style>(settings.chord_voicing_style)) {
+    } else if (std::holds_alternative<GeneratedSettings::Omni84Style>(
+                   settings.chord_voicing_style)) {
         chordVoicingUiIndex = 2 + numBundled;
     }
 
@@ -402,10 +412,12 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
     stateTree.setProperty("variant_strum_voicing_style",
                           static_cast<int>(settings.strum_voicing_style.index()), nullptr);
     stateTree.setProperty("variant_chord_quality_selection_style",
-                          static_cast<int>(settings.chord_quality_selection_style.index()), nullptr);
+                          static_cast<int>(settings.chord_quality_selection_style.index()),
+                          nullptr);
 
     // Write file path from FileStyle if that's the active variant
-    if (auto* fileStyle = std::get_if<GeneratedSettings::FileStyle>(&settings.chord_voicing_style)) {
+    if (auto* fileStyle =
+            std::get_if<GeneratedSettings::FileStyle>(&settings.chord_voicing_style)) {
         stateTree.setProperty("chord_voicing_file", juce::String(fileStyle->path), nullptr);
     }
 
@@ -443,8 +455,8 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
 
     // Chord quality selector - handle both variants
     // First clear all chord quality properties (use enum names for stability)
-    for (size_t i = 0; i < NUM_CHORD_QUALITIES; ++i) {
-        auto prefix = juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[i];
+    for (auto& i : GeneratedSettings::ChordQualities::ENUM_NAMES) {
+        auto prefix = juce::String("chord_quality_") + i;
         stateTree.setProperty(prefix + "_type", "", nullptr);
         stateTree.setProperty(prefix + "_number", -1, nullptr);
     }
@@ -458,14 +470,16 @@ void OmnifyAudioProcessor::pushVariantIndexesToValueTree() {
         // Write note mappings
         for (const auto& [noteNum, quality] : bpq->notes) {
             int qualityIdx = static_cast<int>(quality);
-            auto prefix = juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[qualityIdx];
+            auto prefix = juce::String("chord_quality_") +
+                          GeneratedSettings::ChordQualities::ENUM_NAMES[qualityIdx];
             stateTree.setProperty(prefix + "_type", "note", nullptr);
             stateTree.setProperty(prefix + "_number", noteNum, nullptr);
         }
         // Write CC mappings
         for (const auto& [ccNum, quality] : bpq->ccs) {
             int qualityIdx = static_cast<int>(quality);
-            auto prefix = juce::String("chord_quality_") + GeneratedSettings::ChordQualities::ENUM_NAMES[qualityIdx];
+            auto prefix = juce::String("chord_quality_") +
+                          GeneratedSettings::ChordQualities::ENUM_NAMES[qualityIdx];
             stateTree.setProperty(prefix + "_type", "cc", nullptr);
             stateTree.setProperty(prefix + "_number", ccNum, nullptr);
         }
@@ -485,12 +499,12 @@ void OmnifyAudioProcessor::loadSettingsFromValueTree() {
 
             // Sync APVTS params from loaded settings
             if (strumGateTimeParam) {
-                strumGateTimeParam->setValueNotifyingHost(
-                    strumGateTimeParam->convertTo0to1(static_cast<float>(settings.strum_gate_time_secs)));
+                strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(
+                    static_cast<float>(settings.strum_gate_time_secs)));
             }
             if (strumCooldownParam) {
-                strumCooldownParam->setValueNotifyingHost(
-                    strumCooldownParam->convertTo0to1(static_cast<float>(settings.strum_cooldown_secs)));
+                strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(
+                    static_cast<float>(settings.strum_cooldown_secs)));
             }
         } catch (...) {
             settings = GeneratedSettings::DaemomnifySettings::defaults();
@@ -506,17 +520,18 @@ void OmnifyAudioProcessor::saveSettingsToValueTree() {
 void OmnifyAudioProcessor::loadDefaultSettings() {
     try {
         // Parse the bundled default_settings.json (now flat structure)
-        juce::String jsonStr(BinaryData::default_settings_json, BinaryData::default_settings_jsonSize);
+        juce::String jsonStr(BinaryData::default_settings_json,
+                             BinaryData::default_settings_jsonSize);
         settings = GeneratedSettings::fromJson(jsonStr.toStdString());
 
         // Sync APVTS params from loaded settings
         if (strumGateTimeParam) {
-            strumGateTimeParam->setValueNotifyingHost(
-                strumGateTimeParam->convertTo0to1(static_cast<float>(settings.strum_gate_time_secs)));
+            strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(
+                static_cast<float>(settings.strum_gate_time_secs)));
         }
         if (strumCooldownParam) {
-            strumCooldownParam->setValueNotifyingHost(
-                strumCooldownParam->convertTo0to1(static_cast<float>(settings.strum_cooldown_secs)));
+            strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(
+                static_cast<float>(settings.strum_cooldown_secs)));
         }
 
         // Push all settings to ValueTree properties
@@ -533,7 +548,7 @@ void OmnifyAudioProcessor::loadDefaultSettings() {
 void OmnifyAudioProcessor::daemonReady() {
     DBG("OmnifyAudioProcessor: Daemon ready");
     {
-        std::lock_guard<std::mutex> lock(initMutex);
+        std::scoped_lock lock(initMutex);
         daemonIsReady = true;
     }
     trySendInitialSettings();
@@ -541,7 +556,7 @@ void OmnifyAudioProcessor::daemonReady() {
 
 void OmnifyAudioProcessor::trySendInitialSettings() {
     // Send initial settings when both conditions are met (exactly once)
-    std::lock_guard<std::mutex> lock(initMutex);
+    std::scoped_lock lock(initMutex);
     if (daemonIsReady && settingsAreLoaded && !initialSettingsSent) {
         initialSettingsSent = true;
         DBG("OmnifyAudioProcessor: Sending initial settings");

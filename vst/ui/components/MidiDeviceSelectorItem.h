@@ -27,7 +27,7 @@ class MidiDeviceSelectorComponent : public juce::Component, private juce::Timer 
     void timerCallback() override;
     void updateComboBoxFromValue();
 
-    void enableMidiDeviceInStandalone(const juce::String& deviceName);
+    static void enableMidiDeviceInStandalone(const juce::String& deviceName);
 
     juce::ComboBox comboBox;
     juce::Label captionLabel;

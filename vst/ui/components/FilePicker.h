@@ -44,8 +44,9 @@ class FilePicker : public juce::Component, private juce::Value::Listener {
                 while (truncated.length() > 4) {
                     glyphs.clear();
                     glyphs.addLineOfText(font, truncated, 0, 0);
-                    if (glyphs.getBoundingBox(0, -1, false).getWidth() <= textBounds.getWidth())
+                    if (glyphs.getBoundingBox(0, -1, false).getWidth() <= textBounds.getWidth()) {
                         break;
+                    }
                     truncated = "..." + truncated.substring(4);  // Remove char after "..."
                 }
                 text = truncated;

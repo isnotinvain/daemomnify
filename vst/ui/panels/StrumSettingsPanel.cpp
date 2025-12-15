@@ -64,13 +64,15 @@ void StrumSettingsPanel::setupValueBindings() {
 
     // MIDI Channel
     strumChannelValue.referTo(stateTree.getPropertyAsValue("strum_channel", nullptr));
-    channelComboBox.setSelectedId(static_cast<int>(strumChannelValue.getValue()), juce::dontSendNotification);
+    channelComboBox.setSelectedId(static_cast<int>(strumChannelValue.getValue()),
+                                  juce::dontSendNotification);
     channelComboBox.onChange = [this]() {
         strumChannelValue.setValue(channelComboBox.getSelectedId());
     };
 
     // Voicing Style
-    strumVoicingStyleValue.referTo(stateTree.getPropertyAsValue("variant_strum_voicing_style", nullptr));
+    strumVoicingStyleValue.referTo(
+        stateTree.getPropertyAsValue("variant_strum_voicing_style", nullptr));
     voicingStyleSelector.bindToValue(strumVoicingStyleValue);
 
     // Strum Plate CC MIDI learn

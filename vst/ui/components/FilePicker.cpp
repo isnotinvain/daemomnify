@@ -55,7 +55,7 @@ void FilePicker::openFileChooser() {
         [this](const juce::FileChooser& fc) {
             auto result = fc.getResult();
             if (result.existsAsFile()) {
-                auto newPath = result.getFullPathName();
+                const auto& newPath = result.getFullPathName();
                 boundValue.setValue(newPath);
                 pathLabel.setText(newPath, juce::dontSendNotification);
             }

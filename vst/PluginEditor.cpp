@@ -15,7 +15,8 @@ OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
 
     // MIDI Device Selector
     midiDeviceSelector.setCaption("MIDI Device");
-    midiDeviceValue = omnifyProcessor.getStateTree().getPropertyAsValue("midi_device_name", nullptr);
+    midiDeviceValue =
+        omnifyProcessor.getStateTree().getPropertyAsValue("midi_device_name", nullptr);
     midiDeviceSelector.bindToValue(midiDeviceValue);
     addAndMakeVisible(midiDeviceSelector);
 
@@ -25,13 +26,9 @@ OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
     addAndMakeVisible(chordQualityPanel);
 }
 
-OmnifyAudioProcessorEditor::~OmnifyAudioProcessorEditor() {
-    setLookAndFeel(nullptr);
-}
+OmnifyAudioProcessorEditor::~OmnifyAudioProcessorEditor() { setLookAndFeel(nullptr); }
 
-void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) {
-    g.fillAll(juce::Colours::black);
-}
+void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) { g.fillAll(juce::Colours::black); }
 
 void OmnifyAudioProcessorEditor::resized() {
     auto bounds = getLocalBounds().reduced(6);
@@ -45,8 +42,8 @@ void OmnifyAudioProcessorEditor::resized() {
     // Main area: 3 equal columns using FlexBox
     juce::FlexBox fb;
     fb.flexDirection = juce::FlexBox::Direction::row;
-    fb.items.add(juce::FlexItem(chordSettings).withFlex(1.0f).withMargin(3));
-    fb.items.add(juce::FlexItem(strumSettings).withFlex(1.0f).withMargin(3));
-    fb.items.add(juce::FlexItem(chordQualityPanel).withFlex(1.0f).withMargin(3));
+    fb.items.add(juce::FlexItem(chordSettings).withFlex(1.0F).withMargin(3));
+    fb.items.add(juce::FlexItem(strumSettings).withFlex(1.0F).withMargin(3));
+    fb.items.add(juce::FlexItem(chordQualityPanel).withFlex(1.0F).withMargin(3));
     fb.performLayout(bounds);
 }
