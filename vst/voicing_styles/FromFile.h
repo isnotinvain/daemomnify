@@ -32,7 +32,8 @@ inline void from_json(const nlohmann::json& j, ChordFile& cf) {
     }
 }
 
-class FromFile : public VoicingStyle<VoicingFor::Chord> {
+template <VoicingFor T>
+class FromFile : public VoicingStyle<T> {
    public:
     explicit FromFile(const std::string& path) : path(path) {}
 
@@ -58,8 +59,8 @@ class FromFile : public VoicingStyle<VoicingFor::Chord> {
         j = nlohmann::json{{"type", "FromFile"}, {"path", path}};
     }
 
-    static std::shared_ptr<VoicingStyle<VoicingFor::Chord>> from_json(const nlohmann::json& j) {
-        return std::make_shared<FromFile>(j.at("path").get<std::string>());
+    static std::shared_ptr<VoicingStyle<T>> from_json(const nlohmann::json& j) {
+        return std::make_shared<FromFile<T>>(j.at("path").get<std::string>());
     }
 
    private:
