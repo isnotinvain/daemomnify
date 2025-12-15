@@ -32,6 +32,7 @@ juce_add_plugin(Omnify
 file(GLOB OMNIFY_SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/datamodel/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/voicing_styles/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ui/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ui/components/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ui/panels/*.cpp"
@@ -63,6 +64,7 @@ target_include_directories(Omnify PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/datamodel"
     "${CMAKE_CURRENT_SOURCE_DIR}/nlohmann"
+    "${CMAKE_CURRENT_SOURCE_DIR}/voicing_styles"
 )
 
 target_compile_definitions(Omnify PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)

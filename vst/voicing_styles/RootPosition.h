@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 
-#include "../datamodel/ChordVoicingStyle.h"
+#include "../datamodel/VoicingStyle.h"
 
-class RootPosition : public ChordVoicingStyle {
+class RootPosition : public VoicingStyle<VoicingFor::Chord> {
    public:
     RootPosition() = default;
 
@@ -23,7 +23,7 @@ class RootPosition : public ChordVoicingStyle {
 
     void to_json(nlohmann::json& j) const override { j = nlohmann::json{{"type", "RootPosition"}}; }
 
-    static std::shared_ptr<ChordVoicingStyle> from_json(const nlohmann::json&) {
+    static std::shared_ptr<VoicingStyle<VoicingFor::Chord>> from_json(const nlohmann::json&) {
         return std::make_shared<RootPosition>();
     }
 };

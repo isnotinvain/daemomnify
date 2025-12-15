@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "../datamodel/ChordVoicingStyle.h"
+#include "../datamodel/VoicingStyle.h"
 
-class Omni84 : public ChordVoicingStyle {
+class Omni84 : public VoicingStyle<VoicingFor::Chord> {
    public:
     static inline const std::map<ChordQuality, int> OCTAVE_BEGIN_MAP = {
         {ChordQuality::MAJOR, 36},
@@ -27,7 +27,7 @@ class Omni84 : public ChordVoicingStyle {
 
     void to_json(nlohmann::json& j) const override { j = nlohmann::json{{"type", "Omni84"}}; }
 
-    static std::shared_ptr<ChordVoicingStyle> from_json(const nlohmann::json&) {
+    static std::shared_ptr<VoicingStyle<VoicingFor::Chord>> from_json(const nlohmann::json&) {
         return std::make_shared<Omni84>();
     }
 };
