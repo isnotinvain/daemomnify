@@ -3,6 +3,7 @@
 #include <array>
 #include <mutex>
 
+#include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
 #include "DaemonManager.h"
@@ -13,7 +14,8 @@
 class OmnifyAudioProcessor : public juce::AudioProcessor,
                              private juce::Value::Listener,
                              private juce::AudioProcessorValueTreeState::Listener,
-                             private DaemonManager::Listener {
+                             private DaemonManager::Listener,
+                             private juce::MidiInputCallback {
    public:
     OmnifyAudioProcessor();
     ~OmnifyAudioProcessor() override;
@@ -131,6 +133,13 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     bool daemonIsReady = false;
     bool settingsAreLoaded = false;
     bool initialSettingsSent = false;
+
+    // Direct MIDI input for MIDI Learn (bypasses DAW routing)
+    std::unique_ptr<juce::MidiInput> midiLearnInput;
+    void openMidiLearnInput(const juce::String& deviceName);
+    void closeMidiLearnInput();
+    void handleIncomingMidiMessage(juce::MidiInput* source,
+                                   const juce::MidiMessage& message) override;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OmnifyAudioProcessor)
 };

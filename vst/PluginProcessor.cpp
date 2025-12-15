@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 
 #include "BinaryData.h"
+#include "OmnifyLogger.h"
 #include "PluginEditor.h"
 
 namespace {
@@ -49,6 +50,8 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
 }
 
 OmnifyAudioProcessor::~OmnifyAudioProcessor() {
+    closeMidiLearnInput();
+
     parameters.removeParameterListener("strum_gate_time_secs", this);
     parameters.removeParameterListener("strum_cooldown_secs", this);
 
@@ -90,8 +93,7 @@ void OmnifyAudioProcessor::releaseResources() {}
 
 void OmnifyAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                         juce::MidiBuffer& midiMessages) {
-    juce::ignoreUnused(buffer);
-    MidiLearnComponent::broadcastMidi(midiMessages);
+    juce::ignoreUnused(buffer, midiMessages);
 }
 
 //==============================================================================
@@ -196,7 +198,10 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
     bool settingsChanged = false;
 
     if (value.refersToSameSourceAs(midiDeviceNameValue)) {
-        settings.midi_device_name = midiDeviceNameValue.getValue().toString().toStdString();
+        auto deviceName = midiDeviceNameValue.getValue().toString();
+        settings.midi_device_name = deviceName.toStdString();
+        // Open MIDI input for MIDI Learn when device changes
+        openMidiLearnInput(deviceName);
         settingsChanged = true;
     } else if (value.refersToSameSourceAs(chordChannelValue)) {
         settings.chord_channel = static_cast<int>(chordChannelValue.getValue());
@@ -562,6 +567,49 @@ void OmnifyAudioProcessor::sendSettingsToDaemon() {
 
 void OmnifyAudioProcessor::sendRealtimeParam(const juce::String& address, float value) {
     daemonManager.getOscSender().send(address, value);
+}
+
+//==============================================================================
+// MIDI Learn input - direct from system MIDI device, bypasses DAW routing
+//==============================================================================
+void OmnifyAudioProcessor::openMidiLearnInput(const juce::String& deviceName) {
+    // Close existing input first
+    closeMidiLearnInput();
+
+    if (deviceName.isEmpty()) {
+        return;
+    }
+
+    // Find the device by name
+    auto devices = juce::MidiInput::getAvailableDevices();
+    for (const auto& device : devices) {
+        if (device.name == deviceName) {
+            midiLearnInput = juce::MidiInput::openDevice(device.identifier, this);
+            if (midiLearnInput) {
+                midiLearnInput->start();
+                OmnifyLogger::log("Opened MIDI input for MIDI Learn: " + deviceName);
+            }
+            return;
+        }
+    }
+
+    OmnifyLogger::log("MIDI device not found for MIDI Learn: " + deviceName);
+}
+
+void OmnifyAudioProcessor::closeMidiLearnInput() {
+    if (midiLearnInput) {
+        midiLearnInput->stop();
+        midiLearnInput.reset();
+        OmnifyLogger::log("Closed MIDI Learn input");
+    }
+}
+
+void OmnifyAudioProcessor::handleIncomingMidiMessage(juce::MidiInput* /*source*/,
+                                                     const juce::MidiMessage& message) {
+    // Create a MidiBuffer with just this message and broadcast to MIDI Learn components
+    juce::MidiBuffer buffer;
+    buffer.addEvent(message, 0);
+    MidiLearnComponent::broadcastMidi(buffer);
 }
 
 //==============================================================================
