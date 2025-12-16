@@ -39,12 +39,19 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
     // Load default settings from bundled JSON (first run, before any saved state is restored)
     loadDefaultSettings();
 
-    // Start the Python daemon and listen for ready signal
-    daemonManager.setListener(this);
-    daemonManager.start();
+    // Initialize C++ MIDI pipeline
+    midiScheduler = std::make_unique<MidiMessageScheduler>();
+    realtimeParams = std::make_shared<RealtimeParams>();
+    omnifySettings = std::make_shared<OmnifySettings>();
+    omnify = std::make_unique<Omnify>(*midiScheduler, omnifySettings, realtimeParams);
+    midiThread = std::make_unique<MidiThread>(*omnify, *midiScheduler, "Daemomnify");
+    midiThread->start();
 }
 
 OmnifyAudioProcessor::~OmnifyAudioProcessor() {
+    if (midiThread) {
+        midiThread->stop();
+    }
     closeMidiLearnInput();
 
     parameters.removeParameterListener("strum_gate_time_secs", this);
@@ -74,14 +81,6 @@ OmnifyAudioProcessor::~OmnifyAudioProcessor() {
 //==============================================================================
 void OmnifyAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock) {
     juce::ignoreUnused(sampleRate, samplesPerBlock);
-
-    // prepareToPlay is called after state restoration (if any), so settings are now finalized
-    DBG("OmnifyAudioProcessor: Settings loaded in prepareToPlay");
-    {
-        std::scoped_lock lock(initMutex);
-        settingsAreLoaded = true;
-    }
-    trySendInitialSettings();
 }
 
 void OmnifyAudioProcessor::releaseResources() {}
@@ -344,22 +343,21 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
 
     if (settingsChanged) {
         saveSettingsToValueTree();
-        // Only send to daemon after initial settings have been sent
-        // (avoids spamming during initialization when properties are being set up)
-        if (initialSettingsSent) {
-            sendSettingsToDaemon();
-        }
+        // TODO: update omnify with new settings
     }
 }
 
 void OmnifyAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue) {
-    // Realtime parameters - send dedicated OSC messages
     if (parameterID == "strum_gate_time_secs") {
         settings.strum_gate_time_secs = newValue;
-        sendRealtimeParam("/strum_gate", newValue);
+        if (realtimeParams) {
+            realtimeParams->strumGateTimeMs.store(static_cast<int>(newValue * 1000.0f));
+        }
     } else if (parameterID == "strum_cooldown_secs") {
         settings.strum_cooldown_secs = newValue;
-        sendRealtimeParam("/strum_cooldown", newValue);
+        if (realtimeParams) {
+            realtimeParams->strumCooldownMs.store(static_cast<int>(newValue * 1000.0f));
+        }
     }
 }
 
@@ -505,44 +503,6 @@ void OmnifyAudioProcessor::loadDefaultSettings() {
         DBG("OmnifyAudioProcessor: Failed to load default settings: " << e.what());
     }
 }
-
-//==============================================================================
-void OmnifyAudioProcessor::daemonReady() {
-    DBG("OmnifyAudioProcessor: Daemon ready");
-    {
-        std::scoped_lock lock(initMutex);
-        daemonIsReady = true;
-    }
-    trySendInitialSettings();
-}
-
-void OmnifyAudioProcessor::trySendInitialSettings() {
-    // Send initial settings when both conditions are met (exactly once)
-    std::scoped_lock lock(initMutex);
-    if (daemonIsReady && settingsAreLoaded && !initialSettingsSent) {
-        initialSettingsSent = true;
-        DBG("OmnifyAudioProcessor: Sending initial settings");
-        sendSettingsToDaemon();
-    }
-}
-
-void OmnifyAudioProcessor::sendSettingsToDaemon() {
-    // Sync realtime params from APVTS to settings struct before sending
-    if (strumGateTimeParam) {
-        settings.strum_gate_time_secs = strumGateTimeParam->get();
-    }
-    if (strumCooldownParam) {
-        settings.strum_cooldown_secs = strumCooldownParam->get();
-    }
-
-    // Send flat JSON structure
-    std::string jsonStr = GeneratedSettings::toJson(settings);
-    daemonManager.getOscSender().send("/settings", juce::String(jsonStr));
-
-    DBG("OmnifyAudioProcessor: Sent settings: " << jsonStr);
-}
-
-void OmnifyAudioProcessor::sendRealtimeParam(const juce::String& address, float value) { daemonManager.getOscSender().send(address, value); }
 
 //==============================================================================
 // MIDI Learn input - direct from system MIDI device, bypasses DAW routing

@@ -4,17 +4,18 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 
 #include <array>
-#include <mutex>
+#include <memory>
 
-#include "DaemonManager.h"
 #include "GeneratedSettings.h"
+#include "MidiMessageScheduler.h"
+#include "MidiThread.h"
+#include "Omnify.h"
 #include "ui/components/MidiLearnComponent.h"
 
 //==============================================================================
 class OmnifyAudioProcessor : public juce::AudioProcessor,
                              private juce::Value::Listener,
                              private juce::AudioProcessorValueTreeState::Listener,
-                             private DaemonManager::Listener,
                              private juce::MidiInputCallback {
    public:
     OmnifyAudioProcessor();
@@ -111,29 +112,13 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     // Load default settings from bundled JSON (called on first run)
     void loadDefaultSettings();
 
-    // Write variant indexes to ValueTree (for UI to read on rebuild)
     void pushVariantIndexesToValueTree();
 
-    // DaemonManager::Listener
-    void daemonReady() override;
-
-    // Send all current settings to daemon via OSC
-    void sendSettingsToDaemon();
-
-    // Try to send initial settings (called when either condition becomes true)
-    void trySendInitialSettings();
-
-    // Send realtime parameter updates via OSC
-    void sendRealtimeParam(const juce::String& address, float value);
-
-    // Python daemon process manager
-    DaemonManager daemonManager;
-
-    // Mutex-protected flags for thread-safe initialization sequencing
-    std::mutex initMutex;
-    bool daemonIsReady = false;
-    bool settingsAreLoaded = false;
-    bool initialSettingsSent = false;
+    std::unique_ptr<MidiMessageScheduler> midiScheduler;
+    std::shared_ptr<RealtimeParams> realtimeParams;
+    std::shared_ptr<OmnifySettings> omnifySettings;
+    std::unique_ptr<Omnify> omnify;
+    std::unique_ptr<MidiThread> midiThread;
 
     // Direct MIDI input for MIDI Learn (bypasses DAW routing)
     std::unique_ptr<juce::MidiInput> midiLearnInput;
