@@ -6,17 +6,22 @@
 #include <unordered_set>
 
 Omnify::Omnify(MidiMessageScheduler& scheduler, std::shared_ptr<OmnifySettings> settings, std::shared_ptr<RealtimeParams> realtimeParams)
-    : scheduler(scheduler), settings(std::move(settings)), realtimeParams(std::move(realtimeParams)) {}
+    : scheduler(scheduler), realtimeParams(std::move(realtimeParams)) {
+    updateSettings(std::move(settings), true);
+}
 
-void Omnify::updateSettings(std::shared_ptr<OmnifySettings> newSettings) {
-    realtimeParams->strumGateTimeMs.store(newSettings->strumGateTimeMs);
-    realtimeParams->strumCooldownMs.store(newSettings->strumCooldownMs);
+void Omnify::updateSettings(std::shared_ptr<OmnifySettings> newSettings, bool includeRealtime) {
+    if (includeRealtime) {
+        realtimeParams->strumGateTimeMs.store(newSettings->strumGateTimeMs);
+        realtimeParams->strumCooldownMs.store(newSettings->strumCooldownMs);
+    }
     std::atomic_store(&settings, std::move(newSettings));
 }
 
 void Omnify::syncRealtimeSettings() {
-    settings->strumGateTimeMs = realtimeParams->strumGateTimeMs.load();
-    settings->strumCooldownMs = realtimeParams->strumCooldownMs.load();
+    auto s = std::atomic_load(&settings);
+    s->strumGateTimeMs = realtimeParams->strumGateTimeMs.load();
+    s->strumCooldownMs = realtimeParams->strumCooldownMs.load();
 }
 
 std::vector<juce::MidiMessage> Omnify::handle(const juce::MidiMessage& msg) {

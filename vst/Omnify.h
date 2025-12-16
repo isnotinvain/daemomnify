@@ -23,12 +23,12 @@ class Omnify {
 
     std::vector<juce::MidiMessage> handle(const juce::MidiMessage& msg);
 
-    void updateSettings(std::shared_ptr<OmnifySettings> newSettings);
+    void updateSettings(std::shared_ptr<OmnifySettings> newSettings, bool includeRealtime = false);
     void syncRealtimeSettings();
 
    private:
     MidiMessageScheduler& scheduler;
-    std::shared_ptr<OmnifySettings> settings;
+    std::shared_ptr<OmnifySettings> settings;  // use std::atomic_load/store for thread safety
     std::shared_ptr<RealtimeParams> realtimeParams;
 
     // State
