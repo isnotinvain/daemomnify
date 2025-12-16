@@ -101,6 +101,23 @@ void StrumSettingsPanel::setupValueBindings() {
     cooldownAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "strum_cooldown_secs", cooldownSlider);
 }
 
+void StrumSettingsPanel::refreshFromSettings() {
+    auto settings = processor.getSettings();
+
+    // MIDI Channel
+    channelComboBox.setSelectedId(settings->strumChannel, juce::dontSendNotification);
+
+    // Strum Plate CC
+    MidiLearnedValue strumVal;
+    if (settings->strumPlateCC >= 0) {
+        strumVal.type = MidiLearnedType::CC;
+        strumVal.value = settings->strumPlateCC;
+    }
+    strumPlateCcLearn.setLearnedValue(strumVal);
+
+    // TODO: voicing style selector
+}
+
 void StrumSettingsPanel::paint(juce::Graphics& g) {
     g.setColour(LcarsColors::africanViolet);
     g.drawRect(getLocalBounds(), 2);

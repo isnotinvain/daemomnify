@@ -3,18 +3,18 @@
 #include <juce_audio_devices/juce_audio_devices.h>
 #include <juce_audio_processors/juce_audio_processors.h>
 
-#include <array>
+#include <functional>
 #include <memory>
 
-#include "GeneratedSettings.h"
 #include "MidiMessageScheduler.h"
 #include "MidiThread.h"
 #include "Omnify.h"
+#include "datamodel/ChordQuality.h"
+#include "datamodel/VoicingStyle.h"
 #include "ui/components/MidiLearnComponent.h"
 
 //==============================================================================
 class OmnifyAudioProcessor : public juce::AudioProcessor,
-                             private juce::Value::Listener,
                              private juce::AudioProcessorValueTreeState::Listener,
                              private juce::MidiInputCallback {
    public:
@@ -49,70 +49,31 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     void getStateInformation(juce::MemoryBlock& destData) override;
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    // Settings access
-    const GeneratedSettings::DaemomnifySettings& getSettings() const { return settings; }
+    std::shared_ptr<OmnifySettings> getSettings() const { return std::atomic_load(&omnifySettings); }
+    void modifySettings(std::function<void(OmnifySettings&)> mutator);
 
-    // State tree access for UI
-    juce::ValueTree& getStateTree() { return stateTree; }
     juce::AudioProcessorValueTreeState& getAPVTS() { return parameters; }
+    juce::ValueTree& getStateTree() { return stateTree; }  // TODO: remove once UI uses callbacks
+
+    const VoicingStyleRegistry<VoicingFor::Chord>& getChordVoicingRegistry() const { return chordVoicingRegistry; }
+    const VoicingStyleRegistry<VoicingFor::Strum>& getStrumVoicingRegistry() const { return strumVoicingRegistry; }
 
    private:
-    // State tree for UI properties (replaces magicState.getValueTree())
     juce::ValueTree stateTree{"OmnifyState"};
+    static constexpr const char* SETTINGS_JSON_KEY = "settings_v1";
 
-    // Only 2 APVTS params - for DAW automation of realtime controls
     juce::AudioProcessorValueTreeState parameters;
     juce::AudioParameterFloat* strumGateTimeParam = nullptr;
     juce::AudioParameterFloat* strumCooldownParam = nullptr;
 
-    // All settings stored in one flat struct
-    GeneratedSettings::DaemomnifySettings settings;
+    VoicingStyleRegistry<VoicingFor::Chord> chordVoicingRegistry;
+    VoicingStyleRegistry<VoicingFor::Strum> strumVoicingRegistry;
+    void initVoicingRegistries();
 
-    // ValueTree property key for JSON storage of full settings
-    static constexpr const char* SETTINGS_JSON_KEY = "settings_json";
-
-    // Value listeners for property-based settings
-    juce::Value midiDeviceNameValue;
-    juce::Value chordChannelValue;
-    juce::Value strumChannelValue;
-    juce::Value chordVoicingStyleValue;
-    juce::Value strumVoicingStyleValue;
-    juce::Value chordVoicingFilePathValue;
-
-    // MidiLearn values (type is "note" or "cc", number is the midi note/cc number)
-    juce::Value latchToggleButtonTypeValue;
-    juce::Value latchToggleButtonNumberValue;
-    juce::Value latchIsToggleValue;
-    juce::Value stopButtonTypeValue;
-    juce::Value stopButtonNumberValue;
-    juce::Value strumPlateCcTypeValue;
-    juce::Value strumPlateCcNumberValue;
-
-    // Chord quality selector values (9 qualities, each with type and number)
-    static constexpr size_t NUM_CHORD_QUALITIES = 9;
-    std::array<juce::Value, NUM_CHORD_QUALITIES> chordQualityTypeValues;
-    std::array<juce::Value, NUM_CHORD_QUALITIES> chordQualityNumberValues;
-
-    // "One CC for All" chord quality selection (CCRangePerChordQuality variant)
-    juce::Value chordQualityCcTypeValue;
-    juce::Value chordQualityCcNumberValue;
-
-    // Chord quality selection style variant index (0 = ButtonPerChordQuality, 1 =
-    // CCRangePerChordQuality)
-    juce::Value chordQualitySelectionStyleValue;
-
-    void valueChanged(juce::Value& value) override;
     void parameterChanged(const juce::String& parameterID, float newValue) override;
-    void setupValueListeners();
-
-    // Load/save settings from ValueTree
     void loadSettingsFromValueTree();
     void saveSettingsToValueTree();
-
-    // Load default settings from bundled JSON (called on first run)
     void loadDefaultSettings();
-
-    void pushVariantIndexesToValueTree();
 
     std::unique_ptr<MidiMessageScheduler> midiScheduler;
     std::shared_ptr<RealtimeParams> realtimeParams;

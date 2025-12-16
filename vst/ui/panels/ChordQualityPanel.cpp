@@ -1,6 +1,7 @@
 #include "ChordQualityPanel.h"
 
 #include "../../PluginProcessor.h"
+#include "../../datamodel/ChordQualitySelectionStyle.h"
 #include "../LcarsLookAndFeel.h"
 
 ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
@@ -67,6 +68,27 @@ void ChordQualityPanel::setupValueBindings() {
         }
         singleCcNumberValue.setValue(val.value);
     };
+}
+
+void ChordQualityPanel::refreshFromSettings() {
+    auto settings = processor.getSettings();
+    const auto& style = settings->chordQualitySelectionStyle;
+
+    // Set the variant selector based on which type is active
+    int variantIndex = std::holds_alternative<ButtonPerChordQuality>(style.value) ? 0 : 1;
+    styleSelector.setSelectedIndex(variantIndex);
+
+    if (std::holds_alternative<ButtonPerChordQuality>(style.value)) {
+        // TODO: refresh qualityGrid from ButtonPerChordQuality
+    } else if (std::holds_alternative<CCRangePerChordQuality>(style.value)) {
+        const auto& ccRange = std::get<CCRangePerChordQuality>(style.value);
+        MidiLearnedValue ccVal;
+        if (ccRange.cc >= 0) {
+            ccVal.type = MidiLearnedType::CC;
+            ccVal.value = ccRange.cc;
+        }
+        singleCcLearn.setLearnedValue(ccVal);
+    }
 }
 
 void ChordQualityPanel::paint(juce::Graphics& g) {

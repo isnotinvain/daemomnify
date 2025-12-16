@@ -1,18 +1,18 @@
 {
-  "midi_device_name": "Launchkey Mini MK3 MIDI Port",
-  "chord_channel": 1,
-  "strum_channel": 2,
-  "strum_cooldown_secs": 0.3,
-  "strum_gate_time_secs": 0.5,
-  "strum_plate_cc": 1,
-  "chord_voicing_style": {
-    "type": "BundledFileStyle",
-    "filename": "om_108_chord_voicing_offsets.json"
+  "midiDeviceName": "Launchkey Mini MK3 MIDI Port",
+  "chordChannel": 1,
+  "strumChannel": 2,
+  "strumCooldownMs": 300,
+  "strumGateTimeMs": 500,
+  "strumPlateCC": 1,
+  "chordVoicingStyle": {
+    "type": "FromFile",
+    "path": "om_108_chord_voicing_offsets.json"
   },
-  "strum_voicing_style": {
-    "type": "OmnichordStrumStyle"
+  "strumVoicingStyle": {
+    "type": "Omnichord"
   },
-  "chord_quality_selection_style": {
+  "chordQualitySelectionStyle": {
     "type": "ButtonPerChordQuality",
     "notes": {},
     "ccs": {
@@ -21,14 +21,14 @@
       "107": "DOM_7"
     }
   },
-  "latch_toggle_button": {
-    "type": "MidiCCButton",
+  "latchButton": {
+    "note": -1,
     "cc": 102,
-    "is_toggle": true
+    "ccIsToggle": true
   },
-  "stop_button": {
-    "type": "MidiCCButton",
+  "stopButton": {
+    "note": -1,
     "cc": 103,
-    "is_toggle": false
+    "ccIsToggle": false
   }
 }

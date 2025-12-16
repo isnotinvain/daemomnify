@@ -143,6 +143,40 @@ void ChordSettingsPanel::paint(juce::Graphics& g) {
     g.drawRect(getLocalBounds(), 2);
 }
 
+void ChordSettingsPanel::refreshFromSettings() {
+    auto settings = processor.getSettings();
+
+    // MIDI Channel
+    channelComboBox.setSelectedId(settings->chordChannel, juce::dontSendNotification);
+
+    // Latch button
+    const auto& latch = settings->latchButton;
+    MidiLearnedValue latchVal;
+    if (latch.note >= 0) {
+        latchVal.type = MidiLearnedType::Note;
+        latchVal.value = latch.note;
+    } else if (latch.cc >= 0) {
+        latchVal.type = MidiLearnedType::CC;
+        latchVal.value = latch.cc;
+    }
+    latchToggleLearn.setLearnedValue(latchVal);
+    latchIsToggle.setToggleState(latch.ccIsToggle, juce::dontSendNotification);
+
+    // Stop button
+    const auto& stop = settings->stopButton;
+    MidiLearnedValue stopVal;
+    if (stop.note >= 0) {
+        stopVal.type = MidiLearnedType::Note;
+        stopVal.value = stop.note;
+    } else if (stop.cc >= 0) {
+        stopVal.type = MidiLearnedType::CC;
+        stopVal.value = stop.cc;
+    }
+    stopButtonLearn.setLearnedValue(stopVal);
+
+    // TODO: voicing style selector
+}
+
 void ChordSettingsPanel::resized() {
     juce::FlexBox fb;
     fb.flexDirection = juce::FlexBox::Direction::column;

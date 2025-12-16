@@ -17,6 +17,7 @@ class OmnifyAudioProcessorEditor : public juce::AudioProcessorEditor {
 
     void paint(juce::Graphics&) override;
     void resized() override;
+    void refreshFromSettings();
 
    private:
     OmnifyAudioProcessor& omnifyProcessor;

@@ -23,6 +23,12 @@ OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
 
 OmnifyAudioProcessorEditor::~OmnifyAudioProcessorEditor() { setLookAndFeel(nullptr); }
 
+void OmnifyAudioProcessorEditor::refreshFromSettings() {
+    chordSettings.refreshFromSettings();
+    strumSettings.refreshFromSettings();
+    chordQualityPanel.refreshFromSettings();
+}
+
 void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) { g.fillAll(juce::Colours::black); }
 
 void OmnifyAudioProcessorEditor::resized() {
