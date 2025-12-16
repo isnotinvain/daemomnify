@@ -2,10 +2,10 @@
 
 #include <stdexcept>
 
-ButtonPerChordQuality::ButtonPerChordQuality(std::map<int, ChordQuality> notesIn, std::map<int, ChordQuality> ccsIn)
-    : notes(std::move(notesIn)), ccs(std::move(ccsIn)) {}
+ButtonPerChordQuality::ButtonPerChordQuality(std::map<int, ChordQuality> notes, std::map<int, ChordQuality> ccs)
+    : notes(std::move(notes)), ccs(std::move(ccs)) {}
 
-CCRangePerChordQuality::CCRangePerChordQuality(int ccIn) : cc(ccIn) {}
+CCRangePerChordQuality::CCRangePerChordQuality(int cc) : cc(cc) {}
 
 ChordQualitySelectionStyle::ChordQualitySelectionStyle(ButtonPerChordQuality v) : value(std::move(v)) {}
 

@@ -12,7 +12,7 @@ class ButtonPerChordQuality {
     std::map<int, ChordQuality> ccs;
 
     ButtonPerChordQuality() = default;
-    ButtonPerChordQuality(std::map<int, ChordQuality> notesIn, std::map<int, ChordQuality> ccsIn);
+    ButtonPerChordQuality(std::map<int, ChordQuality> notes, std::map<int, ChordQuality> ccs);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(ButtonPerChordQuality, notes, ccs)
 };
@@ -22,7 +22,7 @@ class CCRangePerChordQuality {
     int cc = 0;
 
     CCRangePerChordQuality() = default;
-    CCRangePerChordQuality(int ccIn);
+    CCRangePerChordQuality(int cc);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CCRangePerChordQuality, cc)
 };
