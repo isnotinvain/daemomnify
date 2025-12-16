@@ -68,3 +68,5 @@ target_include_directories(Omnify PUBLIC
 )
 
 target_compile_definitions(Omnify PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)
+
+target_compile_options(Omnify PRIVATE -Wno-unused-parameter)
