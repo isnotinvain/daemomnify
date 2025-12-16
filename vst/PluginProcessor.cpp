@@ -250,7 +250,7 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
         if (typeStr == "note") {
             settings.latch_toggle_button = GeneratedSettings::MidiNoteButton{number};
         } else if (typeStr == "cc") {
-            settings.latch_toggle_button = GeneratedSettings::MidiCCButton{number, isToggle};
+            settings.latch_toggle_button = GeneratedSettings::MidiCCButton{.cc = number, .is_toggle = isToggle};
         }
         settingsChanged = true;
     } else if (value.refersToSameSourceAs(stopButtonTypeValue) || value.refersToSameSourceAs(stopButtonNumberValue)) {
@@ -262,7 +262,7 @@ void OmnifyAudioProcessor::valueChanged(juce::Value& value) {
             settings.stop_button = GeneratedSettings::MidiNoteButton{number};
         } else if (typeStr == "cc") {
             // stop_button is never toggle mode
-            settings.stop_button = GeneratedSettings::MidiCCButton{number, false};
+            settings.stop_button = GeneratedSettings::MidiCCButton{.cc = number, .is_toggle = false};
         }
         settingsChanged = true;
     } else if (value.refersToSameSourceAs(strumPlateCcTypeValue) || value.refersToSameSourceAs(strumPlateCcNumberValue)) {

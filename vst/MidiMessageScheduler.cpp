@@ -1,7 +1,7 @@
 #include "MidiMessageScheduler.h"
 
 void MidiMessageScheduler::schedule(const juce::MidiMessage& msg, double currentTimeMs, double delayMs) {
-    queue.push(ScheduledMidiMessage{currentTimeMs + delayMs, msg});
+    queue.push(ScheduledMidiMessage{.sendTimeMs = currentTimeMs + delayMs, .message = msg});
 }
 
 void MidiMessageScheduler::sendOverdueMessages(double currentTimeMs, juce::MidiOutput& output) {

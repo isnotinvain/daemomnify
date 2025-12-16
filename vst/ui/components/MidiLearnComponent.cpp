@@ -24,7 +24,7 @@ void MidiLearnComponent::setLearnedValue(MidiLearnedValue val) {
     repaint();
 }
 
-MidiLearnedValue MidiLearnComponent::getLearnedValue() const { return {learnedType.load(), learnedValue.load()}; }
+MidiLearnedValue MidiLearnComponent::getLearnedValue() const { return {.type = learnedType.load(), .value = learnedValue.load()}; }
 
 void MidiLearnComponent::setAcceptMode(MidiAcceptMode mode) { acceptMode = mode; }
 
@@ -49,7 +49,7 @@ void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
             }
             triggerAsyncUpdate();
             if (onValueChanged) {
-                onValueChanged({MidiLearnedType::Note, msg.getNoteNumber()});
+                onValueChanged({.type = MidiLearnedType::Note, .value = msg.getNoteNumber()});
             }
             return;
         }
@@ -62,7 +62,7 @@ void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
             }
             triggerAsyncUpdate();
             if (onValueChanged) {
-                onValueChanged({MidiLearnedType::CC, msg.getControllerNumber()});
+                onValueChanged({.type = MidiLearnedType::CC, .value = msg.getControllerNumber()});
             }
             return;
         }

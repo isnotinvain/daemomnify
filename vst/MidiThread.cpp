@@ -1,14 +1,15 @@
 #include "MidiThread.h"
 
-#include <climits>
-
 #include <juce_core/juce_core.h>
+
+#include <climits>
+#include <utility>
 
 #include "MidiMessageScheduler.h"
 #include "Omnify.h"
 
-MidiThread::MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, const juce::String& outputPortName)
-    : juce::Thread("MidiThread"), omnify(omnify), scheduler(scheduler), outputPortName(outputPortName) {}
+MidiThread::MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName)
+    : juce::Thread("MidiThread"), omnify(omnify), scheduler(scheduler), outputPortName(std::move(outputPortName)) {}
 
 MidiThread::~MidiThread() { stop(); }
 
@@ -26,7 +27,7 @@ void MidiThread::stop() {
 }
 
 void MidiThread::setInputDevice(std::optional<juce::String> newDeviceId) {
-    std::lock_guard<std::mutex> lock(deviceMutex);
+    std::scoped_lock lock(deviceMutex);
     deviceId = std::move(newDeviceId);
 }
 
@@ -43,7 +44,7 @@ void MidiThread::run() {
         // Check if input device needs to change
         std::optional<juce::String> desiredDeviceId;
         {
-            std::lock_guard<std::mutex> lock(deviceMutex);
+            std::scoped_lock lock(deviceMutex);
             desiredDeviceId = deviceId;
         }
 

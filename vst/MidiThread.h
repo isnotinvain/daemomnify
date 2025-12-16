@@ -11,7 +11,7 @@ class Omnify;
 
 class MidiThread : private juce::Thread {
    public:
-    MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, const juce::String& outputPortName);
+    MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName);
     ~MidiThread() override;
 
     MidiThread(const MidiThread&) = delete;

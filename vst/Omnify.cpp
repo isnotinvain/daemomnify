@@ -127,7 +127,7 @@ std::optional<std::vector<juce::MidiMessage>> Omnify::handleChordNoteOn(const ju
 
     for (int note : chord) {
         int clamped = clampNote(note);
-        if (clampedNotes.count(clamped)) {
+        if (clampedNotes.contains(clamped)) {
             continue;
         }
         clampedNotes.insert(clamped);
@@ -193,6 +193,7 @@ std::vector<juce::MidiMessage> Omnify::stopNotesOfCurrentChord() {
     currentRoot = std::nullopt;
 
     std::vector<juce::MidiMessage> events;
+    events.reserve(noteOnEventsOfCurrentChord.size());
     for (const auto& noteOn : noteOnEventsOfCurrentChord) {
         events.push_back(juce::MidiMessage::noteOff(noteOn.getChannel(), noteOn.getNoteNumber()));
     }

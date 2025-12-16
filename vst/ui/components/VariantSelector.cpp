@@ -1,5 +1,7 @@
 #include "VariantSelector.h"
 
+#include <utility>
+
 VariantSelector::VariantSelector() {
     addAndMakeVisible(comboBox);
 
@@ -54,7 +56,7 @@ void VariantSelector::bindToValue(juce::Value& value) {
 
     // Set initial selection from value
     int savedIndex = static_cast<int>(value.getValue());
-    if (savedIndex >= 0 && savedIndex < static_cast<int>(variants.size())) {
+    if (savedIndex >= 0 && std::cmp_less(savedIndex, variants.size())) {
         comboBox.setSelectedItemIndex(savedIndex, juce::dontSendNotification);
         updateVisibility();
     }
@@ -63,7 +65,7 @@ void VariantSelector::bindToValue(juce::Value& value) {
 void VariantSelector::valueChanged(juce::Value& value) {
     if (&value == &boundValue) {
         int index = static_cast<int>(value.getValue());
-        if (index >= 0 && index < static_cast<int>(variants.size())) {
+        if (index >= 0 && std::cmp_less(index, variants.size())) {
             comboBox.setSelectedItemIndex(index, juce::dontSendNotification);
             updateVisibility();
         }
