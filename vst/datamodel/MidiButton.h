@@ -12,7 +12,7 @@ class MidiButton {
     bool ccIsToggle = false;
 
     MidiButton() = default;
-    MidiButton(int note, int cc, bool isToggle);
+    MidiButton(int noteIn, int ccIn, bool isToggle);
 
     // Factory methods for common configurations
     static MidiButton fromNote(int noteNum);

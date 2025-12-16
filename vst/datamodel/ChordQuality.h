@@ -8,11 +8,11 @@
 enum class ChordQuality { MAJOR, MINOR, DOM_7, MAJOR_7, MINOR_7, DIM_7, AUGMENTED, SUS_4, ADD_9 };
 
 struct ChordQualityData {
-    std::string name;       // "MAJOR" - for JSON serialization
-    std::string nice_name;  // "Major" - for UI display
-    std::string suffix;     // "maj" - for chord notation like "Cmaj"
+    std::string name;      // "MAJOR" - for JSON serialization
+    std::string niceName;  // "Major" - for UI display
+    std::string suffix;    // "maj" - for chord notation like "Cmaj"
     std::vector<int> offsets;
-    std::vector<int> triad_offsets;
+    std::vector<int> triadOffsets;
 };
 
 inline constexpr std::array<ChordQuality, 9> ALL_CHORD_QUALITIES = {ChordQuality::MAJOR,     ChordQuality::MINOR,   ChordQuality::DOM_7,

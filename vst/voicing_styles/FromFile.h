@@ -22,7 +22,7 @@ struct ChordFile {
 inline void from_json(const nlohmann::json& j, ChordFile& cf) {
     j.at("name").get_to(cf.name);
     j.at("description").get_to(cf.description);
-    j.at("is_offset_file").get_to(cf.isOffsetFile);
+    j.at("isOffsetFile").get_to(cf.isOffsetFile);
 
     for (const auto& [qualityName, rootMap] : j.at("chords").items()) {
         ChordQuality quality = chordQualityFromName(qualityName);

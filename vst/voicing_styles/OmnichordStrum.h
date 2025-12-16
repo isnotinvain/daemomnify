@@ -13,7 +13,7 @@ class OmnichordStrum : public VoicingStyle<VoicingFor::Strum> {
     std::string displayName() const override { return "Omnichord"; }
 
     std::vector<int> constructChord(ChordQuality quality, int root) const override {
-        const auto& triad = getChordQualityData(quality).triad_offsets;
+        const auto& triad = getChordQualityData(quality).triadOffsets;
         std::vector<int> res;
         res.reserve(15);
         int rootOctaveStart = findLowestFSharp(root);

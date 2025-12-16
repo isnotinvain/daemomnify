@@ -1,6 +1,6 @@
 #include "MidiButton.h"
 
-MidiButton::MidiButton(int note, int cc, bool isToggle) : note(note), cc(cc), ccIsToggle(isToggle) {}
+MidiButton::MidiButton(int noteIn, int ccIn, bool isToggleIn) : note(noteIn), cc(ccIn), ccIsToggle(isToggleIn) {}
 
 MidiButton MidiButton::fromNote(int noteNum) { return MidiButton{noteNum, -1, false}; }
 

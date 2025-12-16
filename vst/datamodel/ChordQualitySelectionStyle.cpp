@@ -2,17 +2,16 @@
 
 #include <stdexcept>
 
-ButtonPerChordQuality::ButtonPerChordQuality(std::map<int, ChordQuality> notes, std::map<int, ChordQuality> ccs)
-    : notes(std::move(notes)), ccs(std::move(ccs)) {}
+ButtonPerChordQuality::ButtonPerChordQuality(std::map<int, ChordQuality> notesIn, std::map<int, ChordQuality> ccsIn)
+    : notes(std::move(notesIn)), ccs(std::move(ccsIn)) {}
 
-CCRangePerChordQuality::CCRangePerChordQuality(int cc) : cc(cc) {}
+CCRangePerChordQuality::CCRangePerChordQuality(int ccIn) : cc(ccIn) {}
 
 ChordQualitySelectionStyle::ChordQualitySelectionStyle(ButtonPerChordQuality v) : value(std::move(v)) {}
 
-ChordQualitySelectionStyle::ChordQualitySelectionStyle(CCRangePerChordQuality v) : value(std::move(v)) {}
+ChordQualitySelectionStyle::ChordQualitySelectionStyle(CCRangePerChordQuality v) : value(v) {}
 
-nlohmann::json ChordQualitySelectionStyle::to_json() const {
-    nlohmann::json j;
+void to_json(nlohmann::json& j, const ChordQualitySelectionStyle& style) {
     std::visit(
         [&j](auto&& arg) {
             using T = std::decay_t<decltype(arg)>;
@@ -23,18 +22,17 @@ nlohmann::json ChordQualitySelectionStyle::to_json() const {
                 j["type"] = "CCRangePerChordQuality";
             }
         },
-        value);
-    return j;
+        style.value);
 }
 
-ChordQualitySelectionStyle ChordQualitySelectionStyle::from_json(const nlohmann::json& j) {
+void from_json(const nlohmann::json& j, ChordQualitySelectionStyle& style) {
     std::string type = j.at("type").get<std::string>();
 
     if (type == "ButtonPerChordQuality") {
-        return ChordQualitySelectionStyle(j.get<ButtonPerChordQuality>());
+        style = ChordQualitySelectionStyle(j.get<ButtonPerChordQuality>());
     } else if (type == "CCRangePerChordQuality") {
-        return ChordQualitySelectionStyle(j.get<CCRangePerChordQuality>());
+        style = ChordQualitySelectionStyle(j.get<CCRangePerChordQuality>());
+    } else {
+        throw std::runtime_error("Unknown ChordQualitySelectionStyle type: " + type);
     }
-
-    throw std::runtime_error("Unknown ChordQualitySelectionStyle type: " + type);
 }

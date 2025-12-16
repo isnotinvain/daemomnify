@@ -5,12 +5,16 @@
 # By default, fails on errors. Use --no-fail to always exit 0 (for hooks).
 
 FAIL_FAST=true
+WARNINGS_AS_ERRORS=false
 FILE_PATH=""
 
 for arg in "$@"; do
     case $arg in
         --no-fail)
             FAIL_FAST=false
+            ;;
+        --warnings-as-errors)
+            WARNINGS_AS_ERRORS=true
             ;;
         *)
             FILE_PATH="$arg"
@@ -49,13 +53,38 @@ if [[ "$FILE_PATH" =~ \.(cpp|h|hpp)$ ]]; then
     REPO_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
     BUILD_DIR="$REPO_ROOT/vst/build"
 
-    /opt/homebrew/opt/llvm/bin/clang-tidy "$TIDY_TARGET" \
-        -p "$BUILD_DIR" \
-        --fix \
-        --fix-errors \
-        --extra-arg=-target --extra-arg=arm64-apple-macosx \
+    TIDY_ARGS=(
+        "$TIDY_TARGET"
+        -p "$BUILD_DIR"
+        --fix
+        --extra-arg=-target --extra-arg=arm64-apple-macosx
         --extra-arg=-isysroot --extra-arg="$SDK_PATH"
+    )
+    if [ "$WARNINGS_AS_ERRORS" = true ]; then
+        # Don't use --fix-errors here so exit code reflects actual errors
+        TIDY_ARGS+=(--warnings-as-errors='*')
+    else
+        # Use --fix-errors to apply fixes even with compile errors
+        TIDY_ARGS+=(--fix-errors)
+    fi
+
+    # Temporarily disable exit-on-error to capture clang-tidy output even on failure
+    set +e
+    TIDY_OUTPUT=$(/opt/homebrew/opt/llvm/bin/clang-tidy "${TIDY_ARGS[@]}" 2>&1)
+    TIDY_EXIT=$?
+    if [ "$FAIL_FAST" = true ]; then
+        set -e
+    fi
 
     # Step 2: Run clang-format on the original file
     clang-format -i "$FILE_PATH"
+
+    # If warnings-as-errors mode and clang-tidy failed, exit with code 2 to block
+    if [ "$WARNINGS_AS_ERRORS" = true ] && [ $TIDY_EXIT -ne 0 ]; then
+        # Filter to only show errors from user code (not "X warnings generated" noise)
+        FILTERED_OUTPUT=$(echo "$TIDY_OUTPUT" | grep -E ": (error|warning|note):" -A 10)
+        echo "clang-tidy errors:" >&2
+        echo "$FILTERED_OUTPUT" >&2
+        exit 2
+    fi
 fi

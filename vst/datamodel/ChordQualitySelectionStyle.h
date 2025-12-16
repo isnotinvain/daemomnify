@@ -12,7 +12,7 @@ class ButtonPerChordQuality {
     std::map<int, ChordQuality> ccs;
 
     ButtonPerChordQuality() = default;
-    ButtonPerChordQuality(std::map<int, ChordQuality> notes, std::map<int, ChordQuality> ccs);
+    ButtonPerChordQuality(std::map<int, ChordQuality> notesIn, std::map<int, ChordQuality> ccsIn);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(ButtonPerChordQuality, notes, ccs)
 };
@@ -22,7 +22,7 @@ class CCRangePerChordQuality {
     int cc = 0;
 
     CCRangePerChordQuality() = default;
-    CCRangePerChordQuality(int cc);
+    CCRangePerChordQuality(int ccIn);
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE(CCRangePerChordQuality, cc)
 };
@@ -34,7 +34,8 @@ class ChordQualitySelectionStyle {
     ChordQualitySelectionStyle() = default;
     ChordQualitySelectionStyle(ButtonPerChordQuality v);
     ChordQualitySelectionStyle(CCRangePerChordQuality v);
-
-    nlohmann::json to_json() const;
-    static ChordQualitySelectionStyle from_json(const nlohmann::json& j);
 };
+
+// Free-standing JSON functions for nlohmann integration
+void to_json(nlohmann::json& j, const ChordQualitySelectionStyle& style);
+void from_json(const nlohmann::json& j, ChordQualitySelectionStyle& style);

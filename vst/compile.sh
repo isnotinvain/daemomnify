@@ -39,9 +39,8 @@ uv run python "$SCRIPT_DIR/generate_settings.py"
 # Only iterate over .h files - format-cpp.sh will run clang-tidy on the corresponding .cpp if it exists
 if [ "$FORMAT" = true ]; then
     echo "Formatting C++ files..."
-    find "$SCRIPT_DIR" -type f -name "*.h" ! -path "*/JUCE/*" ! -path "*/build/*" ! -path "*/nlohmann/*" | while read -r file; do
-        "$(dirname "$SCRIPT_DIR")/.claude/hooks/format-cpp.sh" "$file"
-    done
+    find "$SCRIPT_DIR" -type f -name "*.h" ! -path "*/JUCE/*" ! -path "*/build/*" ! -path "*/nlohmann/*" \
+        | xargs -P $(sysctl -n hw.ncpu) -I {} "$(dirname "$SCRIPT_DIR")/.claude/hooks/format-cpp.sh" --no-fail {}
 fi
 
 # Determine build type
