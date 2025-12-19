@@ -3,7 +3,7 @@
     "**/__pycache__": true,
     "**/.venv": true,
     "**/.ruff_cache": true,
-    "vst/build": true,
+    "src/build": true,
     "**/JUCE/**": true,
     ".pytest_cache": true
   },
@@ -62,7 +62,7 @@
     "stack": "cpp",
     "streambuf": "cpp"
   },
-  "cmake.sourceDirectory": "/Users/alexlevenson/Documents/code/daemomnify/vst",
+  "cmake.sourceDirectory": "/Users/alexlevenson/Documents/code/daemomnify/src",
   "editor.formatOnSave": true,
   "files.watcherExclude": {
     "**/JUCE/**": true

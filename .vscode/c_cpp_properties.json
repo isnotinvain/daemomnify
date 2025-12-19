@@ -3,9 +3,9 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/vst/**",
-                "${workspaceFolder}/vst/JUCE/modules",
-                "${workspaceFolder}/vst/build/_deps/**"
+                "${workspaceFolder}/src/**",
+                "${workspaceFolder}/src/JUCE/modules",
+                "${workspaceFolder}/src/build/_deps/**"
             ],
             "defines": [
                 "JUCE_VST3_CAN_REPLACE_VST2=0"
@@ -17,7 +17,7 @@
             "compilerPath": "/usr/bin/clang++",
             "cStandard": "c17",
             "cppStandard": "c++17",
-            "compileCommands": "${workspaceFolder}/vst/build/compile_commands.json"
+            "compileCommands": "${workspaceFolder}/src/build/compile_commands.json"
         }
     ],
     "version": 4

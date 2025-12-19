@@ -55,8 +55,8 @@ project.xcworkspace/
 *.dwo
 
 # Build directory contents (but keep directory)
-/vst/build/*
-!/vst/build/.gitkeep
+/src/build/*
+!/src/build/.gitkeep
 
 # JUCE Generated Files
 JuceLibraryCode/

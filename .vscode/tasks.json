@@ -4,7 +4,7 @@
         {
             "label": "Tidy and Format All C++ Files",
             "type": "shell",
-            "command": "find vst -type f \\( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \\) ! -path './vst/JUCE/*' ! -path './vst/build/*' -exec ${workspaceFolder}/.claude/hooks/format-cpp.sh {} \\;",
+            "command": "find src -type f \\( -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \\) ! -path './src/JUCE/*' ! -path './src/build/*' -exec ${workspaceFolder}/.claude/hooks/format-cpp.sh {} \\;",
             "problemMatcher": [],
             "group": {
                 "kind": "build",
