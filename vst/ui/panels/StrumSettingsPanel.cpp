@@ -93,8 +93,8 @@ void StrumSettingsPanel::setupCallbacks() {
     };
 
     // APVTS slider attachments (these remain as APVTS for real-time automation)
-    gateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "strum_gate_time_secs", gateSlider);
-    cooldownAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "strum_cooldown_secs", cooldownSlider);
+    gateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "strum_gate_time_ms", gateSlider);
+    cooldownAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(apvts, "strum_cooldown_ms", cooldownSlider);
 }
 
 void StrumSettingsPanel::refreshFromSettings() {

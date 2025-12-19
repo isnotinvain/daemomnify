@@ -17,11 +17,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(juce::
                                                                           juce::AudioParameterFloat*& strumCooldownParam) {
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
 
-    auto gateParam = std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("strum_gate_time_secs", 1), "Strum Gate Time", 0.0F, 5.0F, 0.5F);
+    auto gateParam = std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("strum_gate_time_ms", 1), "Strum Gate Time", 0.0F, 5000.0F, 500.0F);
     strumGateTimeParam = gateParam.get();
     layout.add(std::move(gateParam));
 
-    auto cooldownParam = std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("strum_cooldown_secs", 1), "Strum Cooldown", 0.0F, 5.0F, 0.3F);
+    auto cooldownParam = std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("strum_cooldown_ms", 1), "Strum Cooldown", 0.0F, 5000.0F, 300.0F);
     strumCooldownParam = cooldownParam.get();
     layout.add(std::move(cooldownParam));
 
@@ -47,8 +47,8 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
       parameters(*this, nullptr, "PARAMETERS", createParameterLayout(strumGateTimeParam, strumCooldownParam)) {
     initVoicingRegistries();
 
-    parameters.addParameterListener("strum_gate_time_secs", this);
-    parameters.addParameterListener("strum_cooldown_secs", this);
+    parameters.addParameterListener("strum_gate_time_ms", this);
+    parameters.addParameterListener("strum_cooldown_ms", this);
 
     midiScheduler = std::make_unique<MidiMessageScheduler>();
     realtimeParams = std::make_shared<RealtimeParams>();
@@ -67,8 +67,8 @@ OmnifyAudioProcessor::~OmnifyAudioProcessor() {
     }
     closeMidiLearnInput();
 
-    parameters.removeParameterListener("strum_gate_time_secs", this);
-    parameters.removeParameterListener("strum_cooldown_secs", this);
+    parameters.removeParameterListener("strum_gate_time_ms", this);
+    parameters.removeParameterListener("strum_cooldown_ms", this);
 }
 
 //==============================================================================
@@ -129,10 +129,10 @@ void OmnifyAudioProcessor::modifySettings(std::function<void(OmnifySettings&)> m
 }
 
 void OmnifyAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue) {
-    if (parameterID == "strum_gate_time_secs") {
-        realtimeParams->strumGateTimeMs.store(static_cast<int>(newValue * 1000.0f));
-    } else if (parameterID == "strum_cooldown_secs") {
-        realtimeParams->strumCooldownMs.store(static_cast<int>(newValue * 1000.0f));
+    if (parameterID == "strum_gate_time_ms") {
+        realtimeParams->strumGateTimeMs.store(static_cast<int>(newValue));
+    } else if (parameterID == "strum_cooldown_ms") {
+        realtimeParams->strumCooldownMs.store(static_cast<int>(newValue));
     }
 }
 
@@ -150,10 +150,10 @@ void OmnifyAudioProcessor::loadSettingsFromValueTree() {
         std::atomic_store(&omnifySettings, newSettings);
 
         if (strumGateTimeParam) {
-            strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(static_cast<float>(newSettings->strumGateTimeMs) / 1000.0f));
+            strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(static_cast<float>(newSettings->strumGateTimeMs)));
         }
         if (strumCooldownParam) {
-            strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(static_cast<float>(newSettings->strumCooldownMs) / 1000.0f));
+            strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(static_cast<float>(newSettings->strumCooldownMs)));
         }
 
         setMidiInputDevice(juce::String(newSettings->midiDeviceName));
@@ -177,10 +177,10 @@ void OmnifyAudioProcessor::loadDefaultSettings() {
         std::atomic_store(&omnifySettings, newSettings);
 
         if (strumGateTimeParam) {
-            strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(static_cast<float>(newSettings->strumGateTimeMs) / 1000.0f));
+            strumGateTimeParam->setValueNotifyingHost(strumGateTimeParam->convertTo0to1(static_cast<float>(newSettings->strumGateTimeMs)));
         }
         if (strumCooldownParam) {
-            strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(static_cast<float>(newSettings->strumCooldownMs) / 1000.0f));
+            strumCooldownParam->setValueNotifyingHost(strumCooldownParam->convertTo0to1(static_cast<float>(newSettings->strumCooldownMs)));
         }
 
         setMidiInputDevice(juce::String(newSettings->midiDeviceName));
