@@ -4,15 +4,20 @@
 
 /**
  * Shared logging and temp directory for Omnify plugin.
- * Creates a unique session directory under /var/folders/.../T/omnify-<uuid>/
- * Both C++ and Python daemon use this same directory.
+ * Creates a unique session directory under the system temp dir.
+ *
+ * Use via juce::SharedResourcePointer<OmnifyLogger> to ensure proper cleanup.
  */
-namespace OmnifyLogger {
+class OmnifyLogger {
+   public:
+    OmnifyLogger();
 
-/** Get the unique session temp directory. Creates it on first call. */
-juce::File getTempDir();
+    juce::File getTempDir() const { return sessionTempDir; }
+    void log(const juce::String& message);
 
-/** Log a message to the shared log file. Thread-safe. */
-void log(const juce::String& message);
+   private:
+    juce::File sessionTempDir;
+    std::unique_ptr<juce::FileLogger> logger;
 
-}  // namespace OmnifyLogger
+    static juce::String getSystemTempDir();
+};

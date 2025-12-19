@@ -4,14 +4,26 @@
 #include <unistd.h>  // for confstr
 #endif
 
-namespace OmnifyLogger {
+OmnifyLogger::OmnifyLogger() {
+    auto systemTempDir = getSystemTempDir();
 
-static juce::String systemTempDir;
-static juce::File sessionTempDir;
-static std::unique_ptr<juce::FileLogger> logger;
-static std::once_flag initFlag;
+    // Create a unique session directory: omnify-<uuid>/
+    auto uuid = juce::Uuid().toString();
+    sessionTempDir = juce::File(systemTempDir).getChildFile("omnify-" + uuid);
+    sessionTempDir.createDirectory();
 
-static juce::String getSystemTempDir() {
+    // Create logger in the session directory
+    auto logFile = sessionTempDir.getChildFile("omnify.log");
+    logger = std::make_unique<juce::FileLogger>(logFile, "Omnify Debug Log");
+}
+
+void OmnifyLogger::log(const juce::String& message) {
+    if (logger) {
+        logger->logMessage(message);
+    }
+}
+
+juce::String OmnifyLogger::getSystemTempDir() {
 #if JUCE_MAC
     // Use confstr to get _CS_DARWIN_USER_TEMP_DIR (/var/folders/.../T)
     // This matches Python's tempfile.gettempdir()
@@ -25,32 +37,3 @@ static juce::String getSystemTempDir() {
     // Fallback to JUCE's temp directory
     return juce::File::getSpecialLocation(juce::File::tempDirectory).getFullPathName();
 }
-
-static void ensureInitialized() {
-    std::call_once(initFlag, []() {
-        systemTempDir = getSystemTempDir();
-
-        // Create a unique session directory: omnify-<uuid>/
-        auto uuid = juce::Uuid().toString();
-        sessionTempDir = juce::File(systemTempDir).getChildFile("omnify-" + uuid);
-        sessionTempDir.createDirectory();
-
-        // Create logger in the session directory
-        auto logFile = sessionTempDir.getChildFile("omnify.log");
-        logger = std::make_unique<juce::FileLogger>(logFile, "Omnify Debug Log");
-    });
-}
-
-juce::File getTempDir() {
-    ensureInitialized();
-    return sessionTempDir;
-}
-
-void log(const juce::String& message) {
-    ensureInitialized();
-    if (logger) {
-        logger->logMessage(message);
-    }
-}
-
-}  // namespace OmnifyLogger

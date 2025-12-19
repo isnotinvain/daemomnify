@@ -9,6 +9,7 @@
 #include "MidiMessageScheduler.h"
 #include "MidiThread.h"
 #include "Omnify.h"
+#include "OmnifyLogger.h"
 #include "datamodel/ChordQuality.h"
 #include "datamodel/VoicingStyle.h"
 #include "ui/components/MidiLearnComponent.h"
@@ -87,6 +88,8 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     void openMidiLearnInput(const juce::String& deviceName);
     void closeMidiLearnInput();
     void handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) override;
+
+    juce::SharedResourcePointer<OmnifyLogger> logger;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OmnifyAudioProcessor)
 };

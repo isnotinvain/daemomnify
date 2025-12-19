@@ -3,7 +3,6 @@
 #include <nlohmann/json.hpp>
 
 #include "BinaryData.h"
-#include "OmnifyLogger.h"
 #include "PluginEditor.h"
 #include "voicing_styles/FromFile.h"
 #include "voicing_styles/Omni84.h"
@@ -228,20 +227,20 @@ void OmnifyAudioProcessor::openMidiLearnInput(const juce::String& deviceName) {
             midiLearnInput = juce::MidiInput::openDevice(device.identifier, this);
             if (midiLearnInput) {
                 midiLearnInput->start();
-                OmnifyLogger::log("Opened MIDI input for MIDI Learn: " + deviceName);
+                logger->log("Opened MIDI input for MIDI Learn: " + deviceName);
             }
             return;
         }
     }
 
-    OmnifyLogger::log("MIDI device not found for MIDI Learn: " + deviceName);
+    logger->log("MIDI device not found for MIDI Learn: " + deviceName);
 }
 
 void OmnifyAudioProcessor::closeMidiLearnInput() {
     if (midiLearnInput) {
         midiLearnInput->stop();
         midiLearnInput.reset();
-        OmnifyLogger::log("Closed MIDI Learn input");
+        logger->log("Closed MIDI Learn input");
     }
 }
 
