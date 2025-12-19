@@ -21,14 +21,14 @@ class MidiLearnComponent : public juce::Component, private juce::AsyncUpdater {
     MidiLearnComponent();
     ~MidiLearnComponent() override;
 
-    static void broadcastMidi(const juce::MidiBuffer& buffer);
+    static void broadcastMidi(const juce::MidiMessage& message);
 
     void setLearnedValue(MidiLearnedValue val);
     MidiLearnedValue getLearnedValue() const;
     void setAcceptMode(MidiAcceptMode mode);
     void setAspectRatio(float ratio);
 
-    void processNextMidiBuffer(const juce::MidiBuffer& buffer);
+    void processMessage(const juce::MidiMessage& message);
 
     std::function<void(MidiLearnedValue)> onValueChanged;
 

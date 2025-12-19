@@ -202,9 +202,6 @@ void OmnifyAudioProcessor::setMidiInputDevice(const juce::String& deviceName) {
     midiThread->setInputDevice(std::nullopt);
 }
 
-//==============================================================================
-// MIDI Learn input - direct from system MIDI device, bypasses DAW routing
-//==============================================================================
 void OmnifyAudioProcessor::openMidiLearnInput(const juce::String& deviceName) {
     // Close existing input first
     closeMidiLearnInput();
@@ -237,12 +234,8 @@ void OmnifyAudioProcessor::closeMidiLearnInput() {
     }
 }
 
-void OmnifyAudioProcessor::handleIncomingMidiMessage(juce::MidiInput* /*source*/, const juce::MidiMessage& message) {
-    // Create a MidiBuffer with just this message and broadcast to MIDI Learn components
-    juce::MidiBuffer buffer;
-    buffer.addEvent(message, 0);
-    MidiLearnComponent::broadcastMidi(buffer);
+void OmnifyAudioProcessor::handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) {
+    MidiLearnComponent::broadcastMidi(message);
 }
 
-//==============================================================================
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter() { return new OmnifyAudioProcessor(); }

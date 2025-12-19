@@ -11,10 +11,10 @@ MidiLearnComponent::~MidiLearnComponent() {
     }
 }
 
-void MidiLearnComponent::broadcastMidi(const juce::MidiBuffer& buffer) {
+void MidiLearnComponent::broadcastMidi(const juce::MidiMessage& message) {
     auto* active = currentlyLearning.load();
     if (active != nullptr) {
-        active->processNextMidiBuffer(buffer);
+        active->processMessage(message);
     }
 }
 
@@ -30,7 +30,7 @@ void MidiLearnComponent::setAcceptMode(MidiAcceptMode mode) { acceptMode = mode;
 
 void MidiLearnComponent::setAspectRatio(float ratio) { aspectRatio = ratio; }
 
-void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
+void MidiLearnComponent::processMessage(const juce::MidiMessage& msg) {
     if (!isLearning.load()) {
         return;
     }
@@ -38,33 +38,29 @@ void MidiLearnComponent::processNextMidiBuffer(const juce::MidiBuffer& buffer) {
     bool acceptNotes = acceptMode == MidiAcceptMode::NotesOnly || acceptMode == MidiAcceptMode::Both;
     bool acceptCCs = acceptMode == MidiAcceptMode::CCsOnly || acceptMode == MidiAcceptMode::Both;
 
-    for (const auto& metadata : buffer) {
-        auto msg = metadata.getMessage();
-        if (acceptNotes && msg.isNoteOn() && msg.getVelocity() > 0) {
-            learnedType.store(MidiLearnedType::Note);
-            learnedValue.store(msg.getNoteNumber());
-            isLearning.store(false);
-            if (currentlyLearning.load() == this) {
-                currentlyLearning.store(nullptr);
-            }
-            triggerAsyncUpdate();
-            if (onValueChanged) {
-                onValueChanged({.type = MidiLearnedType::Note, .value = msg.getNoteNumber()});
-            }
-            return;
+    if (acceptNotes && msg.isNoteOn() && msg.getVelocity() > 0) {
+        learnedType.store(MidiLearnedType::Note);
+        learnedValue.store(msg.getNoteNumber());
+        isLearning.store(false);
+        if (currentlyLearning.load() == this) {
+            currentlyLearning.store(nullptr);
         }
-        if (acceptCCs && msg.isController()) {
-            learnedType.store(MidiLearnedType::CC);
-            learnedValue.store(msg.getControllerNumber());
-            isLearning.store(false);
-            if (currentlyLearning.load() == this) {
-                currentlyLearning.store(nullptr);
-            }
-            triggerAsyncUpdate();
-            if (onValueChanged) {
-                onValueChanged({.type = MidiLearnedType::CC, .value = msg.getControllerNumber()});
-            }
-            return;
+        triggerAsyncUpdate();
+        if (onValueChanged) {
+            onValueChanged({.type = MidiLearnedType::Note, .value = msg.getNoteNumber()});
+        }
+        return;
+    }
+    if (acceptCCs && msg.isController()) {
+        learnedType.store(MidiLearnedType::CC);
+        learnedValue.store(msg.getControllerNumber());
+        isLearning.store(false);
+        if (currentlyLearning.load() == this) {
+            currentlyLearning.store(nullptr);
+        }
+        triggerAsyncUpdate();
+        if (onValueChanged) {
+            onValueChanged({.type = MidiLearnedType::CC, .value = msg.getControllerNumber()});
         }
     }
 }
