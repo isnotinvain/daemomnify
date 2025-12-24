@@ -12,6 +12,7 @@
 #include "OmnifyLogger.h"
 #include "datamodel/ChordQuality.h"
 #include "datamodel/VoicingStyle.h"
+#include "ui/LcarsLookAndFeel.h"
 #include "ui/components/MidiLearnComponent.h"
 
 //==============================================================================
@@ -91,6 +92,8 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     void handleIncomingMidiMessage(juce::MidiInput* source, const juce::MidiMessage& message) override;
 
     juce::SharedResourcePointer<OmnifyLogger> logger;
+
+    LcarsLookAndFeel lcarsLookAndFeel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(OmnifyAudioProcessor)
 };

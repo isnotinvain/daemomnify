@@ -4,7 +4,6 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "PluginProcessor.h"
-#include "ui/LcarsLookAndFeel.h"
 #include "ui/components/MidiDeviceSelectorItem.h"
 #include "ui/panels/ChordQualityPanel.h"
 #include "ui/panels/ChordSettingsPanel.h"
@@ -21,8 +20,6 @@ class OmnifyAudioProcessorEditor : public juce::AudioProcessorEditor {
 
    private:
     OmnifyAudioProcessor& omnifyProcessor;
-
-    LcarsLookAndFeel lcarsLookAndFeel;
 
     // Top-level components
     MidiDeviceSelectorComponent midiDeviceSelector;

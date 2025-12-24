@@ -105,7 +105,7 @@ void MidiLearnComponent::paint(juce::Graphics& g) {
 
     boxBounds = localBounds;
     auto bounds = boxBounds.toFloat();
-    const float borderThickness = 2.0F;
+    const float borderThickness = 1.0F;
     const float radius = bounds.getHeight() * 0.5F;
 
     // Background

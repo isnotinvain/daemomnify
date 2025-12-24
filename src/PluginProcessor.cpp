@@ -46,6 +46,7 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
     : AudioProcessor(
           BusesProperties().withInput("Input", juce::AudioChannelSet::stereo(), true).withOutput("Output", juce::AudioChannelSet::stereo(), true)),
       parameters(*this, nullptr, "PARAMETERS", createParameterLayout(strumGateTimeParam, strumCooldownParam)) {
+    juce::LookAndFeel::setDefaultLookAndFeel(&lcarsLookAndFeel);
     initVoicingRegistries();
 
     parameters.addParameterListener("strum_gate_time_ms", this);
@@ -63,6 +64,8 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
 }
 
 OmnifyAudioProcessor::~OmnifyAudioProcessor() {
+    juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
+
     if (midiThread) {
         midiThread->stop();
     }

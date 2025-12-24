@@ -1,10 +1,12 @@
 #include "MidiDeviceSelectorItem.h"
 
+#include "../LcarsLookAndFeel.h"
+
 MidiDeviceSelectorComponent::MidiDeviceSelectorComponent() {
     addAndMakeVisible(comboBox);
     addAndMakeVisible(captionLabel);
 
-    captionLabel.setText("MIDI Device", juce::dontSendNotification);
+    captionLabel.setText("Input Device", juce::dontSendNotification);
     captionLabel.setJustificationType(juce::Justification::centredRight);
 
     comboBox.onChange = [this]() {
@@ -27,6 +29,10 @@ MidiDeviceSelectorComponent::MidiDeviceSelectorComponent() {
 MidiDeviceSelectorComponent::~MidiDeviceSelectorComponent() { stopTimer(); }
 
 void MidiDeviceSelectorComponent::resized() {
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        captionLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+    }
+
     auto bounds = getLocalBounds();
 
     // Caption on left, combo box on right

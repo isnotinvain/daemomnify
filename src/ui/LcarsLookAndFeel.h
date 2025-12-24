@@ -8,9 +8,12 @@
 class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
    public:
     // Standard font sizes - use these for consistency across the UI
-    static constexpr float fontSizeSmall = 14.0F;
-    static constexpr float fontSizeMedium = 18.0F;
-    static constexpr float fontSizeLarge = 24.0F;
+    static constexpr float fontSizeSmall = 22.0F;
+    static constexpr float fontSizeMedium = 26.0F;
+    static constexpr float fontSizeLarge = 34.0F;
+
+    // Standard border radius for boxes/panels
+    static constexpr float borderRadius = 4.0F;
 
     LcarsLookAndFeel() {
         orbitronTypeface = juce::Typeface::createSystemTypefaceFor(BinaryData::OrbitronRegular_ttf, BinaryData::OrbitronRegular_ttfSize);
@@ -39,11 +42,10 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
     juce::Typeface::Ptr orbitronTypeface;
 
     // Drawing constants
-    static constexpr float comboboxBorderRadius = 4.0F;
     static constexpr float comboboxArrowSize = 6.0F;
     static constexpr float comboboxArrowPadding = 8.0F;
-    static constexpr float popupMenuBorderSize = 2.0F;
-    static constexpr float buttonBorderThickness = 2.0F;
+    static constexpr float popupMenuBorderSize = 1.0F;
+    static constexpr float buttonBorderThickness = 1.0F;
 
     juce::Font getLabelFont(juce::Label& label) override { return getOrbitronFont(label.getFont().getHeight()); }
 
@@ -70,11 +72,11 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
 
         // Draw background
         g.setColour(box.findColour(juce::ComboBox::backgroundColourId));
-        g.fillRoundedRectangle(bounds.toFloat(), comboboxBorderRadius);
+        g.fillRoundedRectangle(bounds.toFloat(), borderRadius);
 
         // Draw outline
         g.setColour(box.findColour(juce::ComboBox::outlineColourId));
-        g.drawRoundedRectangle(bounds.toFloat().reduced(1.0F), comboboxBorderRadius, 2.0F);
+        g.drawRoundedRectangle(bounds.toFloat().reduced(1.0F), borderRadius, 1.0F);
 
         // Draw a single filled downward-pointing triangle
         const float arrowX = static_cast<float>(width) - comboboxArrowSize - comboboxArrowPadding;
@@ -125,7 +127,7 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
         juce::Path line;
         line.startNewSubPath(1.0F, static_cast<float>(h) - 1.0F);
         line.lineTo(static_cast<float>(w) - 1.0F, static_cast<float>(h) - 1.0F);
-        g.strokePath(line, juce::PathStrokeType(2.0F, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
+        g.strokePath(line, juce::PathStrokeType(1.0F, juce::PathStrokeType::curved, juce::PathStrokeType::rounded));
     }
 
     void drawButtonBackground(juce::Graphics& g, juce::Button& button, const juce::Colour&, bool shouldDrawButtonAsHighlighted,
@@ -174,7 +176,7 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
 
         // Draw checkbox border
         g.setColour(button.findColour(juce::ToggleButton::tickColourId));
-        g.drawRoundedRectangle(tickBounds, 3.0F, 2.0F);
+        g.drawRoundedRectangle(tickBounds, 3.0F, 1.0F);
 
         // Draw checkmark if toggled
         if (button.getToggleState()) {

@@ -128,13 +128,14 @@ void ChordQualityPanel::refreshFromSettings() {
 
 void ChordQualityPanel::paint(juce::Graphics& g) {
     g.setColour(LcarsColors::orange);
-    g.drawRect(getLocalBounds(), 2);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), LcarsLookAndFeel::borderRadius, 1.0F);
 }
 
 void ChordQualityPanel::resized() {
     // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
     if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
         titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+        singleCcLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
     auto bounds = getLocalBounds().reduced(10);

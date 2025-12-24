@@ -117,7 +117,7 @@ void ChordSettingsPanel::setupCallbacks() {
 
 void ChordSettingsPanel::paint(juce::Graphics& g) {
     g.setColour(LcarsColors::africanViolet);
-    g.drawRect(getLocalBounds(), 2);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), LcarsLookAndFeel::borderRadius, 1.0F);
 }
 
 void ChordSettingsPanel::refreshFromSettings() {
@@ -208,6 +208,9 @@ void ChordSettingsPanel::resized() {
     // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
     if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
         titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+        channelLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        latchLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        stopLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
     // Manual layout for nested rows since FlexBox doesn't nest well in performLayout

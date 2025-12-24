@@ -4,15 +4,11 @@
 
 OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
     : AudioProcessorEditor(&p), omnifyProcessor(p), chordSettings(p), strumSettings(p), chordQualityPanel(p) {
-    // Apply look and feel to this editor and all children
-    setLookAndFeel(&lcarsLookAndFeel);
-
     // Disable resizing
     setResizable(false, false);
     setSize(900, 600);
 
     // MIDI Device Selector
-    midiDeviceSelector.setCaption("MIDI Device");
     midiDeviceSelector.onDeviceSelected = [this](const juce::String& deviceName) {
         omnifyProcessor.modifySettings([deviceName](OmnifySettings& s) { s.midiDeviceName = deviceName.toStdString(); });
         omnifyProcessor.setMidiInputDevice(deviceName);
@@ -27,7 +23,7 @@ OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
     refreshFromSettings();
 }
 
-OmnifyAudioProcessorEditor::~OmnifyAudioProcessorEditor() { setLookAndFeel(nullptr); }
+OmnifyAudioProcessorEditor::~OmnifyAudioProcessorEditor() = default;
 
 void OmnifyAudioProcessorEditor::refreshFromSettings() {
     auto settings = omnifyProcessor.getSettings();

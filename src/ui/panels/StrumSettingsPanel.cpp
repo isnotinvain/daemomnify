@@ -127,13 +127,17 @@ void StrumSettingsPanel::refreshFromSettings() {
 
 void StrumSettingsPanel::paint(juce::Graphics& g) {
     g.setColour(LcarsColors::africanViolet);
-    g.drawRect(getLocalBounds(), 2);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), LcarsLookAndFeel::borderRadius, 1.0F);
 }
 
 void StrumSettingsPanel::resized() {
     // Set fonts from LookAndFeel (must be done after component is added to hierarchy)
     if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
         titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
+        channelLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        strumPlateLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        gateLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        cooldownLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
     auto bounds = getLocalBounds().reduced(10);

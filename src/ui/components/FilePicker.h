@@ -3,6 +3,7 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 
 #include "../LcarsColors.h"
+#include "../LcarsLookAndFeel.h"
 
 // A file picker with a label showing the path and a browse button.
 // Path is truncated from the left if too long.
@@ -23,7 +24,7 @@ class FilePicker : public juce::Component, private juce::Value::Listener {
         void paint(juce::Graphics& g) override {
             auto bounds = getLocalBounds().toFloat().reduced(1.0f);
             g.setColour(findColour(outlineColourId));
-            g.drawRoundedRectangle(bounds, 4.0f, 2.0f);
+            g.drawRoundedRectangle(bounds, LcarsLookAndFeel::borderRadius, 1.0F);
 
             // Draw text - truncate from left if too long
             g.setColour(findColour(textColourId));
