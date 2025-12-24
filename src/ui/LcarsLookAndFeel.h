@@ -229,27 +229,21 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
 
     void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool /*shouldDrawButtonAsHighlighted*/,
                           bool /*shouldDrawButtonAsDown*/) override {
-        auto bounds = button.getLocalBounds().toFloat();
-        auto tickBounds = bounds.removeFromLeft(bounds.getHeight()).reduced(4);
+        auto bounds = button.getLocalBounds().toFloat().reduced(2.0F);
+        const float borderThickness = 1.0F;
+        const float radius = bounds.getHeight() * 0.5F;
 
-        // Draw checkbox background
-        g.setColour(button.findColour(juce::ToggleButton::tickDisabledColourId));
-        g.fillRoundedRectangle(tickBounds, 3.0F);
+        // Background
+        g.setColour(juce::Colours::black);
+        g.fillRoundedRectangle(bounds.reduced(borderThickness * 0.5F), radius);
 
-        // Draw checkbox border
+        // Border
         g.setColour(button.findColour(juce::ToggleButton::tickColourId));
-        g.drawRoundedRectangle(tickBounds, 3.0F, 1.0F);
+        g.drawRoundedRectangle(bounds, radius, borderThickness);
 
-        // Draw checkmark if toggled
-        if (button.getToggleState()) {
-            g.setColour(button.findColour(juce::ToggleButton::tickColourId));
-            auto checkBounds = tickBounds.reduced(4);
-            g.fillRoundedRectangle(checkBounds, 2.0F);
-        }
-
-        // Draw text
-        g.setColour(button.findColour(juce::ToggleButton::textColourId));
+        // Text - show On/Off based on state
+        g.setColour(button.findColour(juce::ToggleButton::tickColourId));
         g.setFont(getOrbitronFont(fontSizeSmall));
-        g.drawText(button.getButtonText(), bounds.toNearestInt(), juce::Justification::centredLeft);
+        g.drawText(button.getToggleState() ? "On" : "Off", bounds.toNearestInt(), juce::Justification::centred);
     }
 };
