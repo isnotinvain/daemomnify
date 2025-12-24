@@ -140,12 +140,14 @@ void StrumSettingsPanel::resized() {
         cooldownLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
-    auto bounds = getLocalBounds().reduced(10);
+    auto bounds = getLocalBounds().reduced(10, 2);
 
-    titleLabel.setBounds(bounds.removeFromTop(30));
+    int titleHeight = static_cast<int>(LcarsLookAndFeel::fontSizeLarge) + 10;
+    titleLabel.setBounds(bounds.removeFromTop(titleHeight));
     bounds.removeFromTop(4);
 
-    auto channelRowBounds = bounds.removeFromTop(35);
+    LcarsLookAndFeel::setComboBoxFontSize(channelComboBox, LcarsLookAndFeel::fontSizeSmall);
+    auto channelRowBounds = bounds.removeFromTop(30);
     channelLabel.setBounds(channelRowBounds.removeFromLeft(channelRowBounds.getWidth() - 80));
     channelComboBox.setBounds(channelRowBounds);
     bounds.removeFromTop(4);

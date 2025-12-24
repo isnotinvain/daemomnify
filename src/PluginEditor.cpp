@@ -10,9 +10,9 @@ OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
     setSize(900, 600);
 
     // Title
-    titleLabel.setText("Omnify", juce::dontSendNotification);
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
-    titleLabel.setJustificationType(juce::Justification::centredLeft);
+    titleLabel.setText("OMNIFY", juce::dontSendNotification);
+    titleLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    titleLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(titleLabel);
 
     // MIDI Device Selector
@@ -44,7 +44,15 @@ void OmnifyAudioProcessorEditor::refreshFromSettings() {
     chordQualityPanel.refreshFromSettings();
 }
 
-void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) { g.fillAll(juce::Colours::black); }
+void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) {
+    g.fillAll(juce::Colours::black);
+
+    // Draw capsule behind title
+    auto titleBounds = titleLabel.getBounds().toFloat();
+    float radius = titleBounds.getHeight() * 0.5F;
+    g.setColour(LcarsColors::red);
+    g.fillRoundedRectangle(titleBounds, radius);
+}
 
 void OmnifyAudioProcessorEditor::resized() {
     auto bounds = getLocalBounds().reduced(6);

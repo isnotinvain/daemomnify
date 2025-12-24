@@ -138,9 +138,10 @@ void ChordQualityPanel::resized() {
         singleCcLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
-    auto bounds = getLocalBounds().reduced(10);
+    auto bounds = getLocalBounds().reduced(10, 2);
 
-    titleLabel.setBounds(bounds.removeFromTop(30));
+    int titleHeight = static_cast<int>(LcarsLookAndFeel::fontSizeLarge) + 10;
+    titleLabel.setBounds(bounds.removeFromTop(titleHeight));
     bounds.removeFromTop(4);
 
     styleSelector.setBounds(bounds);

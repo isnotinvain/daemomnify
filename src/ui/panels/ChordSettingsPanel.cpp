@@ -178,7 +178,8 @@ void ChordSettingsPanel::resized() {
     fb.justifyContent = juce::FlexBox::JustifyContent::flexStart;
 
     // Title
-    fb.items.add(juce::FlexItem(titleLabel).withHeight(30.0F).withMargin(4));
+    float titleHeightF = LcarsLookAndFeel::fontSizeLarge + 10.0F;
+    fb.items.add(juce::FlexItem(titleLabel).withHeight(titleHeightF).withMargin(4));
 
     // Channel row
     juce::FlexBox channelRow;
@@ -214,12 +215,14 @@ void ChordSettingsPanel::resized() {
     }
 
     // Manual layout for nested rows since FlexBox doesn't nest well in performLayout
-    auto bounds = getLocalBounds().reduced(10);
+    auto bounds = getLocalBounds().reduced(10, 2);
 
-    titleLabel.setBounds(bounds.removeFromTop(30));
+    int titleHeight = static_cast<int>(LcarsLookAndFeel::fontSizeLarge) + 10;
+    titleLabel.setBounds(bounds.removeFromTop(titleHeight));
     bounds.removeFromTop(4);
 
-    auto channelRowBounds = bounds.removeFromTop(35);
+    LcarsLookAndFeel::setComboBoxFontSize(channelComboBox, LcarsLookAndFeel::fontSizeSmall);
+    auto channelRowBounds = bounds.removeFromTop(30);
     channelLabel.setBounds(channelRowBounds.removeFromLeft(channelRowBounds.getWidth() - 80));
     channelComboBox.setBounds(channelRowBounds);
     bounds.removeFromTop(4);
