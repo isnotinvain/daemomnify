@@ -80,7 +80,9 @@ void MidiDeviceSelectorComponent::refreshDeviceList() {
 
     juce::StringArray newNames;
     for (const auto& device : devices) {
-        newNames.add(device.name);
+        if (!device.name.startsWith("Omnify")) {
+            newNames.add(device.name);
+        }
     }
 
     // Only update if the list changed

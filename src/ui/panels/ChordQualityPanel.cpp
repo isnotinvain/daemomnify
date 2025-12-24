@@ -7,7 +7,7 @@
 
 ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
     // Title - font will be set in resized() after LookAndFeel is available
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::red);
     addAndMakeVisible(titleLabel);
 
     // Quality grid (configure before adding to selector)

@@ -32,6 +32,7 @@ class StrumSettingsPanel : public juce::Component {
     juce::ComboBox channelComboBox;
 
     // Voicing Style
+    juce::Label voicingLabel{"", "Voicing"};
     VariantSelector voicingStyleSelector;
     std::vector<std::unique_ptr<juce::Component>> voicingStyleViews;
     std::vector<std::string> voicingStyleTypeNames;  // Maps UI index to registry type name

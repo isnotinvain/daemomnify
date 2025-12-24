@@ -6,17 +6,21 @@
 
 StrumSettingsPanel::StrumSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     // Title - font will be set in resized() after LookAndFeel is available
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::red);
     addAndMakeVisible(titleLabel);
 
     // MIDI Channel
-    channelLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
+    channelLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
     addAndMakeVisible(channelLabel);
 
     for (int i = 1; i <= 16; ++i) {
         channelComboBox.addItem(juce::String(i), i);
     }
     addAndMakeVisible(channelComboBox);
+
+    // Voicing Style
+    voicingLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    addAndMakeVisible(voicingLabel);
 
     // Voicing Style Selector - iterate registry to build options
     for (const auto& [typeName, entry] : processor.getStrumVoicingRegistry().getRegistry()) {
@@ -135,6 +139,7 @@ void StrumSettingsPanel::resized() {
     if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
         titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeLarge));
         channelLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        voicingLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
         strumPlateLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
         gateLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
         cooldownLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
@@ -152,6 +157,8 @@ void StrumSettingsPanel::resized() {
     channelComboBox.setBounds(channelRowBounds);
     bounds.removeFromTop(4);
 
+    voicingLabel.setBounds(bounds.removeFromTop(24));
+    bounds.removeFromTop(12);
     voicingStyleSelector.setBounds(bounds.removeFromTop(60));
     bounds.removeFromTop(8);
 
