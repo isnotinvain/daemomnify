@@ -57,7 +57,7 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
     omnifySettings = std::make_shared<OmnifySettings>();
 
     omnify = std::make_unique<Omnify>(*midiScheduler, omnifySettings, realtimeParams);
-    midiThread = std::make_unique<MidiThread>(*omnify, *midiScheduler, "Daemomnify");
+    midiThread = std::make_unique<MidiThread>(*omnify, *midiScheduler, "Omnify");
     midiThread->start();
 
     loadDefaultSettings();

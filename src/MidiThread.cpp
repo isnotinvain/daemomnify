@@ -9,7 +9,7 @@
 #include "Omnify.h"
 
 MidiThread::MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName)
-    : juce::Thread("MidiThread"), omnify(omnify), scheduler(scheduler), outputPortName(std::move(outputPortName)) {}
+    : juce::Thread("Daemomnify"), omnify(omnify), scheduler(scheduler), outputPortName(std::move(outputPortName)) {}
 
 MidiThread::~MidiThread() { stop(); }
 
