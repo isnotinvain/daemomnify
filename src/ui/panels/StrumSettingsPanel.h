@@ -25,7 +25,7 @@ class StrumSettingsPanel : public juce::Component {
     OmnifyAudioProcessor& processor;
 
     // Title
-    juce::Label titleLabel{"", "Strum Settings"};
+    juce::Label titleLabel{"", "Strum"};
 
     // MIDI Channel
     juce::Label channelLabel{"", "MIDI Channel"};

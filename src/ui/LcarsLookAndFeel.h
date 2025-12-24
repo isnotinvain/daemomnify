@@ -11,9 +11,20 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
     static constexpr float fontSizeSmall = 22.0F;
     static constexpr float fontSizeMedium = 26.0F;
     static constexpr float fontSizeLarge = 34.0F;
+    static constexpr float fontSizeTitle = 56.0F;
 
     // Standard border radius for boxes/panels
     static constexpr float borderRadius = 4.0F;
+
+    // Standard combo box row height
+    static constexpr int comboBoxRowHeight = 50;
+
+    // Property ID for custom combo box font size
+    static inline const juce::Identifier comboBoxFontSizeId{"LcarsFontSize"};
+
+    static void setComboBoxFontSize(juce::ComboBox& box, float fontSize) {
+        box.getProperties().set(comboBoxFontSizeId, fontSize);
+    }
 
     LcarsLookAndFeel() {
         orbitronTypeface = juce::Typeface::createSystemTypefaceFor(BinaryData::OrbitronRegular_ttf, BinaryData::OrbitronRegular_ttfSize);
@@ -49,18 +60,28 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
 
     juce::Font getLabelFont(juce::Label& label) override { return getOrbitronFont(label.getFont().getHeight()); }
 
-    juce::Font getComboBoxFont(juce::ComboBox&) override { return getOrbitronFont(fontSizeSmall); }
+    juce::Font getComboBoxFont(juce::ComboBox& box) override {
+        auto fontSize = static_cast<float>(box.getProperties().getWithDefault(comboBoxFontSizeId, fontSizeSmall));
+        return getOrbitronFont(fontSize);
+    }
 
     juce::Font getPopupMenuFont() override { return getOrbitronFont(fontSizeSmall); }
 
     void getIdealPopupMenuItemSizeWithOptions(const juce::String& text, bool isSeparator, int standardMenuItemHeight, int& idealWidth,
-                                              int& idealHeight, const juce::PopupMenu::Options&) override {
+                                              int& idealHeight, const juce::PopupMenu::Options& options) override {
         if (isSeparator) {
             idealWidth = 50;
             idealHeight = standardMenuItemHeight > 0 ? standardMenuItemHeight / 10 : 10;
         } else {
-            idealHeight = static_cast<int>(fontSizeMedium);
-            auto font = getOrbitronFont(fontSizeSmall);
+            idealHeight = comboBoxRowHeight;
+            float fontSize = fontSizeSmall;
+
+            if (auto* targetComp = options.getTargetComponent()) {
+                idealHeight = targetComp->getHeight();
+                fontSize = static_cast<float>(targetComp->getProperties().getWithDefault(comboBoxFontSizeId, fontSizeSmall));
+            }
+
+            auto font = getOrbitronFont(fontSize);
             juce::GlyphArrangement glyphs;
             glyphs.addLineOfText(font, text, 0, 0);
             idealWidth = static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + idealHeight * 2;
@@ -93,6 +114,47 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
     }
 
     int getPopupMenuBorderSize() override { return static_cast<int>(popupMenuBorderSize); }
+
+    void drawPopupMenuBackground(juce::Graphics& g, int width, int height) override {
+        auto bounds = juce::Rectangle<float>(0, 0, static_cast<float>(width), static_cast<float>(height));
+
+        g.fillAll(juce::Colours::black);
+
+        g.setColour(findColour(juce::PopupMenu::backgroundColourId));
+        g.fillRoundedRectangle(bounds, borderRadius);
+
+        g.setColour(LcarsColors::orange);
+        g.drawRoundedRectangle(bounds.reduced(0.5F), borderRadius, 1.0F);
+    }
+
+    void drawPopupMenuItemWithOptions(juce::Graphics& g, const juce::Rectangle<int>& area, bool isHighlighted,
+                                       const juce::PopupMenu::Item& item, const juce::PopupMenu::Options& options) override {
+        if (item.isSeparator) {
+            auto r = area.reduced(5, 0).toFloat();
+            r.removeFromTop(juce::roundToInt((r.getHeight() * 0.5F) - 0.5F));
+            g.setColour(findColour(juce::PopupMenu::textColourId).withAlpha(0.3F));
+            g.fillRect(r.removeFromTop(1.0F));
+            return;
+        }
+
+        auto textColour = findColour(isHighlighted ? juce::PopupMenu::highlightedTextColourId : juce::PopupMenu::textColourId);
+
+        if (isHighlighted && item.isEnabled) {
+            g.setColour(findColour(juce::PopupMenu::highlightedBackgroundColourId));
+            g.fillRoundedRectangle(area.toFloat(), borderRadius);
+        }
+
+        float fontSize = fontSizeSmall;
+        if (auto* targetComp = options.getTargetComponent()) {
+            fontSize = static_cast<float>(targetComp->getProperties().getWithDefault(comboBoxFontSizeId, fontSizeSmall));
+        }
+
+        g.setColour(textColour);
+        g.setFont(getOrbitronFont(fontSize));
+
+        auto textArea = area.reduced(12, 0);
+        g.drawText(item.text, textArea, juce::Justification::centredLeft, true);
+    }
 
     void drawTabButton(juce::TabBarButton& button, juce::Graphics& g, bool, bool) override {
         const auto activeArea = button.getActiveArea();

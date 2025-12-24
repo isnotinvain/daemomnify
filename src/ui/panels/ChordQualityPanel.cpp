@@ -7,7 +7,7 @@
 
 ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
     // Title - font will be set in resized() after LookAndFeel is available
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
     addAndMakeVisible(titleLabel);
 
     // Quality grid (configure before adding to selector)
@@ -127,7 +127,7 @@ void ChordQualityPanel::refreshFromSettings() {
 }
 
 void ChordQualityPanel::paint(juce::Graphics& g) {
-    g.setColour(LcarsColors::orange);
+    g.setColour(LcarsColors::africanViolet);
     g.drawRoundedRectangle(getLocalBounds().toFloat(), LcarsLookAndFeel::borderRadius, 1.0F);
 }
 

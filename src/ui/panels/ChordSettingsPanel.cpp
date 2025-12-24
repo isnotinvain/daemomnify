@@ -9,7 +9,7 @@
 
 ChordSettingsPanel::ChordSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     // Title - font will be set in resized() after LookAndFeel is available
-    titleLabel.setColour(juce::Label::textColourId, LcarsColors::orange);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
     addAndMakeVisible(titleLabel);
 
     // MIDI Channel

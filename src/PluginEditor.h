@@ -22,6 +22,7 @@ class OmnifyAudioProcessorEditor : public juce::AudioProcessorEditor {
     OmnifyAudioProcessor& omnifyProcessor;
 
     // Top-level components
+    juce::Label titleLabel;
     MidiDeviceSelectorComponent midiDeviceSelector;
     ChordSettingsPanel chordSettings;
     StrumSettingsPanel strumSettings;

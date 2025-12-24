@@ -13,6 +13,7 @@ class MidiDeviceSelectorComponent : public juce::Component, private juce::Timer 
     MidiDeviceSelectorComponent();
     ~MidiDeviceSelectorComponent() override;
 
+    void paint(juce::Graphics& g) override;
     void resized() override;
 
     /** Callback when a device is selected. */

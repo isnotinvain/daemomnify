@@ -26,7 +26,7 @@ class ChordQualityPanel : public juce::Component {
     OmnifyAudioProcessor& processor;
 
     // Title
-    juce::Label titleLabel{"", "Chord Quality"};
+    juce::Label titleLabel{"", "Quality Selection"};
 
     // Selection style selector
     VariantSelector styleSelector;

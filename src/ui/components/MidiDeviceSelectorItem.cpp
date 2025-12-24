@@ -7,7 +7,8 @@ MidiDeviceSelectorComponent::MidiDeviceSelectorComponent() {
     addAndMakeVisible(captionLabel);
 
     captionLabel.setText("Input Device", juce::dontSendNotification);
-    captionLabel.setJustificationType(juce::Justification::centredRight);
+    captionLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    captionLabel.setJustificationType(juce::Justification::centredLeft);
 
     comboBox.onChange = [this]() {
         int idx = comboBox.getSelectedItemIndex();
@@ -28,16 +29,26 @@ MidiDeviceSelectorComponent::MidiDeviceSelectorComponent() {
 
 MidiDeviceSelectorComponent::~MidiDeviceSelectorComponent() { stopTimer(); }
 
+void MidiDeviceSelectorComponent::paint(juce::Graphics& g) {
+    g.setColour(LcarsColors::africanViolet);
+    g.drawRoundedRectangle(getLocalBounds().toFloat(), LcarsLookAndFeel::borderRadius, 1.0F);
+}
+
 void MidiDeviceSelectorComponent::resized() {
     if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
         captionLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
-    auto bounds = getLocalBounds();
+    constexpr int contentHeight = 30;
+    auto bounds = getLocalBounds().reduced(6, 0);
+    bounds = bounds.withSizeKeepingCentre(bounds.getWidth(), contentHeight);
 
-    // Caption on left, combo box on right
-    int captionWidth = bounds.getWidth() / 3;
+    juce::GlyphArrangement glyphs;
+    glyphs.addLineOfText(captionLabel.getFont(), captionLabel.getText(), 0, 0);
+    int captionWidth = static_cast<int>(glyphs.getBoundingBox(0, -1, false).getWidth()) + 8;
+
     captionLabel.setBounds(bounds.removeFromLeft(captionWidth));
+    bounds.removeFromLeft(4);
     comboBox.setBounds(bounds);
 }
 

@@ -1,12 +1,19 @@
 #include "PluginEditor.h"
 
 #include "datamodel/OmnifySettings.h"
+#include "ui/LcarsLookAndFeel.h"
 
 OmnifyAudioProcessorEditor::OmnifyAudioProcessorEditor(OmnifyAudioProcessor& p)
     : AudioProcessorEditor(&p), omnifyProcessor(p), chordSettings(p), strumSettings(p), chordQualityPanel(p) {
     // Disable resizing
     setResizable(false, false);
     setSize(900, 600);
+
+    // Title
+    titleLabel.setText("Omnify", juce::dontSendNotification);
+    titleLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    titleLabel.setJustificationType(juce::Justification::centredLeft);
+    addAndMakeVisible(titleLabel);
 
     // MIDI Device Selector
     midiDeviceSelector.onDeviceSelected = [this](const juce::String& deviceName) {
@@ -42,9 +49,17 @@ void OmnifyAudioProcessorEditor::paint(juce::Graphics& g) { g.fillAll(juce::Colo
 void OmnifyAudioProcessorEditor::resized() {
     auto bounds = getLocalBounds().reduced(6);
 
-    // Top row: MIDI device selector (spans full width)
-    auto topArea = bounds.removeFromTop(50);
-    midiDeviceSelector.setBounds(topArea);
+    // Top row: Title (1/3) + MIDI device selector (2/3)
+    if (auto* laf = dynamic_cast<LcarsLookAndFeel*>(&getLookAndFeel())) {
+        titleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeTitle));
+    }
+
+    auto topArea = bounds.removeFromTop(70);
+    juce::FlexBox topRow;
+    topRow.flexDirection = juce::FlexBox::Direction::row;
+    topRow.items.add(juce::FlexItem(titleLabel).withFlex(1.0F).withMargin(3));
+    topRow.items.add(juce::FlexItem(midiDeviceSelector).withFlex(2.0F).withMargin(3));
+    topRow.performLayout(topArea);
 
     bounds.removeFromTop(6);
 

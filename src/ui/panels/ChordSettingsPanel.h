@@ -26,7 +26,7 @@ class ChordSettingsPanel : public juce::Component {
     OmnifyAudioProcessor& processor;
 
     // Title
-    juce::Label titleLabel{"", "Chord Settings"};
+    juce::Label titleLabel{"", "Chords"};
 
     // MIDI Channel
     juce::Label channelLabel{"", "MIDI Channel"};
