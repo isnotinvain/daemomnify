@@ -12,7 +12,7 @@ ChordQualityPanel::ChordQualityPanel(OmnifyAudioProcessor& p) : processor(p) {
 
     // Quality grid (configure before adding to selector)
     // Font size will be set in resized() after LookAndFeel is available
-    qualityGrid.setLabelColor(LcarsColors::orange);
+    qualityGrid.setLabelColor(LcarsColors::africanViolet);
     qualityGrid.setMidiLearnAspectRatio(2.0F);
 
     // Single CC container (configure before adding to selector)

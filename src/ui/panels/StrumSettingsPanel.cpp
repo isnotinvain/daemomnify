@@ -158,7 +158,7 @@ void StrumSettingsPanel::resized() {
     bounds.removeFromTop(4);
 
     voicingLabel.setBounds(bounds.removeFromTop(24));
-    bounds.removeFromTop(12);
+    bounds.removeFromTop(8);
     voicingStyleSelector.setBounds(bounds.removeFromTop(60));
     bounds.removeFromTop(8);
 

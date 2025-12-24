@@ -42,7 +42,8 @@ class ChordSettingsPanel : public juce::Component {
     // Latch controls
     juce::Label latchLabel{"", "Latch On / Off"};
     MidiLearnComponent latchToggleLearn;
-    juce::ToggleButton latchIsToggle{"Toggle Mode"};
+    juce::Label toggleLabel{"", "Toggle Mode"};
+    juce::ToggleButton latchIsToggle;
 
     // Stop button
     juce::Label stopLabel{"", "Stop Chords"};
