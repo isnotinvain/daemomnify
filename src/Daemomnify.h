@@ -9,13 +9,13 @@
 class MidiMessageScheduler;
 class Omnify;
 
-class MidiThread : private juce::Thread {
+class Daemomnify : private juce::Thread {
    public:
-    MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName);
-    ~MidiThread() override;
+    Daemomnify(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName);
+    ~Daemomnify() override;
 
-    MidiThread(const MidiThread&) = delete;
-    MidiThread& operator=(const MidiThread&) = delete;
+    Daemomnify(const Daemomnify&) = delete;
+    Daemomnify& operator=(const Daemomnify&) = delete;
 
     void start();
     void stop();

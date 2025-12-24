@@ -1,4 +1,4 @@
-#include "MidiThread.h"
+#include "Daemomnify.h"
 
 #include <juce_core/juce_core.h>
 
@@ -8,30 +8,30 @@
 #include "MidiMessageScheduler.h"
 #include "Omnify.h"
 
-MidiThread::MidiThread(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName)
+Daemomnify::Daemomnify(Omnify& omnify, MidiMessageScheduler& scheduler, juce::String outputPortName)
     : juce::Thread("Daemomnify"), omnify(omnify), scheduler(scheduler), outputPortName(std::move(outputPortName)) {}
 
-MidiThread::~MidiThread() { stop(); }
+Daemomnify::~Daemomnify() { stop(); }
 
-void MidiThread::start() {
+void Daemomnify::start() {
     if (isThreadRunning()) {
         return;
     }
     startThread();
 }
 
-void MidiThread::stop() {
+void Daemomnify::stop() {
     stopThread(1000);
     closeMidiInput();
     closeMidiOutput();
 }
 
-void MidiThread::setInputDevice(std::optional<juce::String> newDeviceId) {
+void Daemomnify::setInputDevice(std::optional<juce::String> newDeviceId) {
     std::scoped_lock lock(deviceMutex);
     deviceId = std::move(newDeviceId);
 }
 
-void MidiThread::run() {
+void Daemomnify::run() {
     while (!threadShouldExit()) {
         // Ensure output port is open
         if (!midiOutput) {
@@ -69,7 +69,7 @@ void MidiThread::run() {
                         midiOutput->sendMessageNow(m);
                     }
                 } catch (const std::exception& e) {
-                    DBG("MidiThread: exception in handle(): " << e.what());
+                    DBG("Daemomnify: exception in handle(): " << e.what());
                 }
             }
         }
@@ -84,7 +84,7 @@ void MidiThread::run() {
     }
 }
 
-bool MidiThread::openMidiInput(const juce::String& inputDeviceId) {
+bool Daemomnify::openMidiInput(const juce::String& inputDeviceId) {
     double now = juce::Time::getMillisecondCounterHiRes();
     if (now < lastInputOpenAttemptMs + RETRY_INTERVAL_MS) {
         return false;
@@ -105,16 +105,16 @@ bool MidiThread::openMidiInput(const juce::String& inputDeviceId) {
     return false;
 }
 
-void MidiThread::closeMidiInput() {
+void Daemomnify::closeMidiInput() {
     if (midiInput) {
         midiInput->stop();
         midiInput.reset();
     }
 }
 
-bool MidiThread::openMidiOutput() {
+bool Daemomnify::openMidiOutput() {
     midiOutput = juce::MidiOutput::createNewDevice(outputPortName);
     return midiOutput != nullptr;
 }
 
-void MidiThread::closeMidiOutput() { midiOutput.reset(); }
+void Daemomnify::closeMidiOutput() { midiOutput.reset(); }

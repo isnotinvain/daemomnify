@@ -6,8 +6,8 @@
 #include <functional>
 #include <memory>
 
+#include "Daemomnify.h"
 #include "MidiMessageScheduler.h"
-#include "MidiThread.h"
 #include "Omnify.h"
 #include "OmnifyLogger.h"
 #include "datamodel/ChordQuality.h"
@@ -16,9 +16,7 @@
 #include "ui/components/MidiLearnComponent.h"
 
 //==============================================================================
-class OmnifyAudioProcessor : public juce::AudioProcessor,
-                             private juce::AudioProcessorValueTreeState::Listener,
-                             private juce::MidiInputCallback {
+class OmnifyAudioProcessor : public juce::AudioProcessor, private juce::AudioProcessorValueTreeState::Listener, private juce::MidiInputCallback {
    public:
     OmnifyAudioProcessor();
     ~OmnifyAudioProcessor() override;
@@ -83,7 +81,7 @@ class OmnifyAudioProcessor : public juce::AudioProcessor,
     std::shared_ptr<RealtimeParams> realtimeParams;
     std::shared_ptr<OmnifySettings> omnifySettings;
     std::unique_ptr<Omnify> omnify;
-    std::unique_ptr<MidiThread> midiThread;
+    std::unique_ptr<Daemomnify> daemomnify;
 
     // Direct MIDI input for MIDI Learn (bypasses DAW routing)
     std::unique_ptr<juce::MidiInput> midiLearnInput;

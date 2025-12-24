@@ -57,8 +57,8 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
     omnifySettings = std::make_shared<OmnifySettings>();
 
     omnify = std::make_unique<Omnify>(*midiScheduler, omnifySettings, realtimeParams);
-    midiThread = std::make_unique<MidiThread>(*omnify, *midiScheduler, "Omnify");
-    midiThread->start();
+    daemomnify = std::make_unique<Daemomnify>(*omnify, *midiScheduler, "Omnify");
+    daemomnify->start();
 
     loadDefaultSettings();
 }
@@ -66,8 +66,8 @@ OmnifyAudioProcessor::OmnifyAudioProcessor()
 OmnifyAudioProcessor::~OmnifyAudioProcessor() {
     juce::LookAndFeel::setDefaultLookAndFeel(nullptr);
 
-    if (midiThread) {
-        midiThread->stop();
+    if (daemomnify) {
+        daemomnify->stop();
     }
     closeMidiLearnInput();
 
@@ -190,19 +190,19 @@ void OmnifyAudioProcessor::loadDefaultSettings() {
 //==============================================================================
 void OmnifyAudioProcessor::setMidiInputDevice(const juce::String& deviceName) {
     if (deviceName.isEmpty()) {
-        midiThread->setInputDevice(std::nullopt);
+        daemomnify->setInputDevice(std::nullopt);
         return;
     }
 
     auto devices = juce::MidiInput::getAvailableDevices();
     for (const auto& device : devices) {
         if (device.name == deviceName) {
-            midiThread->setInputDevice(device.identifier);
+            daemomnify->setInputDevice(device.identifier);
             return;
         }
     }
 
-    midiThread->setInputDevice(std::nullopt);
+    daemomnify->setInputDevice(std::nullopt);
 }
 
 void OmnifyAudioProcessor::openMidiLearnInput(const juce::String& deviceName) {
