@@ -15,6 +15,13 @@ OmnifyLogger::OmnifyLogger() {
     // Create logger in the session directory
     auto logFile = sessionTempDir.getChildFile("omnify.log");
     logger = std::make_unique<juce::FileLogger>(logFile, "Omnify Debug Log");
+
+    // Set as current logger so Logger::writeToLog works
+    juce::Logger::setCurrentLogger(logger.get());
+}
+
+OmnifyLogger::~OmnifyLogger() {
+    juce::Logger::setCurrentLogger(nullptr);
 }
 
 void OmnifyLogger::log(const juce::String& message) {

@@ -11,9 +11,14 @@
 class OmnifyLogger {
    public:
     OmnifyLogger();
+    ~OmnifyLogger();
 
     juce::File getTempDir() const { return sessionTempDir; }
+
+    // Logs via OmnifyLogger directly
     void log(const juce::String& message);
+
+    // Also sets itself as juce::Logger::currentLogger, so Logger::writeToLog() works too
 
    private:
     juce::File sessionTempDir;

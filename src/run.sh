@@ -21,5 +21,5 @@ done
 if [ "$DEBUG" = true ]; then
     "$SCRIPT_DIR/build/Omnify_artefacts/Debug/Standalone/Omnify.app/Contents/MacOS/Omnify"
 else
-    "$SCRIPT_DIR/build/Omnify_artefacts/Standalone/Omnify.app/Contents/MacOS/Omnify"
+    "$SCRIPT_DIR/build/Omnify_artefacts/Release/Standalone/Omnify.app/Contents/MacOS/Omnify"
 fi
