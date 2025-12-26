@@ -15,6 +15,7 @@ nlohmann::json OmnifySettings::to_json() const {
     if (strumVoicingStyle) {
         strumVoicingStyle->to_json(j["strumVoicingStyle"]);
     }
+    j["voicingModifier"] = voicingModifier;
 
     j["chordQualitySelectionStyle"] = chordQualitySelectionStyle;
     j["latchButton"] = latchButton;
@@ -37,6 +38,9 @@ OmnifySettings OmnifySettings::from_json(const nlohmann::json& j,
 
     settings.chordVoicingStyle = chordRegistry.from_json(j.at("chordVoicingStyle"));
     settings.strumVoicingStyle = strumRegistry.from_json(j.at("strumVoicingStyle"));
+    if (j.contains("voicingModifier")) {
+        settings.voicingModifier = j.at("voicingModifier").get<VoicingModifier>();
+    }
 
     settings.chordQualitySelectionStyle = j.at("chordQualitySelectionStyle").get<ChordQualitySelectionStyle>();
     settings.latchButton = j.at("latchButton").get<MidiButton>();

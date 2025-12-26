@@ -48,4 +48,5 @@ class Omnify {
 
     std::vector<juce::MidiMessage> stopNotesOfCurrentChord();
     static int clampNote(int note);
+    static std::vector<int> smooth(std::vector<int> offsets, int root);
 };

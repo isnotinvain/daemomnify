@@ -9,6 +9,7 @@
     "type": "Omnichord",
     "relative": true
   },
+  "voicingModifier": "NONE",
   "strumVoicingStyle": {
     "type": "Omnichord"
   },

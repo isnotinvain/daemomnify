@@ -3,6 +3,7 @@
 #include "../../PluginProcessor.h"
 #include "../../datamodel/MidiButton.h"
 #include "../../datamodel/OmnifySettings.h"
+#include "../../datamodel/VoicingModifier.h"
 #include "../../voicing_styles/FromFile.h"
 #include "../LcarsLookAndFeel.h"
 #include "../components/FromFileView.h"
@@ -51,6 +52,18 @@ ChordSettingsPanel::ChordSettingsPanel(OmnifyAudioProcessor& p) : processor(p) {
     }
     addAndMakeVisible(voicingStyleSelector);
 
+    // Voicing Modifier
+    voicingModifierLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
+    voicingModifierLabel.setJustificationType(juce::Justification::centredLeft);
+    addAndMakeVisible(voicingModifierLabel);
+
+    voicingModifierButton.setColour(juce::TextButton::buttonColourId, juce::Colours::black);
+    voicingModifierButton.setColour(juce::TextButton::buttonOnColourId, juce::Colours::black);
+    voicingModifierButton.setColour(juce::TextButton::textColourOffId, LcarsColors::orange);
+    voicingModifierButton.setColour(juce::TextButton::textColourOnId, LcarsColors::orange);
+    voicingModifierButton.setColour(juce::ComboBox::outlineColourId, LcarsColors::orange);
+    addAndMakeVisible(voicingModifierButton);
+
     // Latch controls
     latchLabel.setColour(juce::Label::textColourId, LcarsColors::africanViolet);
     latchLabel.setJustificationType(juce::Justification::centredLeft);
@@ -93,6 +106,25 @@ void ChordSettingsPanel::setupCallbacks() {
                 processor.modifySettings([style = it->second.style](OmnifySettings& s) { s.chordVoicingStyle = style; });
             }
         }
+    };
+
+    // Voicing Modifier - cycles through None -> Fixed -> Smooth -> None
+    voicingModifierButton.onClick = [this]() {
+        auto settings = processor.getSettings();
+        VoicingModifier next;
+        switch (settings->voicingModifier) {
+            case VoicingModifier::NONE:
+                next = VoicingModifier::FIXED;
+                break;
+            case VoicingModifier::FIXED:
+                next = VoicingModifier::SMOOTH;
+                break;
+            case VoicingModifier::SMOOTH:
+                next = VoicingModifier::NONE;
+                break;
+        }
+        processor.modifySettings([next](OmnifySettings& s) { s.voicingModifier = next; });
+        refreshFromSettings();
     };
 
     // Latch button MIDI learn
@@ -167,6 +199,19 @@ void ChordSettingsPanel::refreshFromSettings() {
     }
     stopButtonLearn.setLearnedValue(stopVal);
 
+    // Voicing Modifier
+    switch (settings->voicingModifier) {
+        case VoicingModifier::NONE:
+            voicingModifierButton.setButtonText("None");
+            break;
+        case VoicingModifier::FIXED:
+            voicingModifierButton.setButtonText("Fixed");
+            break;
+        case VoicingModifier::SMOOTH:
+            voicingModifierButton.setButtonText("Smooth");
+            break;
+    }
+
     // Voicing style selector - find matching index via registry lookup
     if (settings->chordVoicingStyle) {
         auto currentType = processor.getChordVoicingRegistry().getTypeName(settings->chordVoicingStyle.get());
@@ -230,6 +275,7 @@ void ChordSettingsPanel::resized() {
         latchLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
         toggleLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
         stopLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
+        voicingModifierLabel.setFont(laf->getOrbitronFont(LcarsLookAndFeel::fontSizeSmall));
     }
 
     // Manual layout for nested rows since FlexBox doesn't nest well in performLayout
@@ -268,6 +314,12 @@ void ChordSettingsPanel::resized() {
     auto latchRowBounds = bounds.removeFromBottom(LcarsLookAndFeel::rowHeight);
     latchToggleLearn.setBounds(latchRowBounds.removeFromRight(LcarsLookAndFeel::capsuleWidth));
     latchLabel.setBounds(latchRowBounds);
+    bounds.removeFromBottom(4);
+
+    // Voicing Modifier row: label on left, button on right
+    auto modifierRowBounds = bounds.removeFromBottom(LcarsLookAndFeel::rowHeight);
+    voicingModifierButton.setBounds(modifierRowBounds.removeFromRight(LcarsLookAndFeel::capsuleWidth));
+    voicingModifierLabel.setBounds(modifierRowBounds);
     bounds.removeFromBottom(4);
 
     // Voicing selector gets remaining middle space

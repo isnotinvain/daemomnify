@@ -9,8 +9,7 @@ class OmnichordChords : public VoicingStyle<VoicingFor::Chord> {
    public:
     std::string displayName() const override { return "Omnichord"; }
     std::string description() const override {
-        return "Behaves like a real Omnichord. Three 'most important' notes of the chord, using the same inversions as the Omnichord. Voiced for "
-               "F#->F# octaves.";
+        return "Behaves like a real Omnichord. Three 'most important' notes of the chord, using the same inversions as the Omnichord.";
     }
 
     std::vector<int> constructChord(ChordQuality quality, int root) const override {

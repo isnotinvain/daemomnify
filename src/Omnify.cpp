@@ -122,7 +122,27 @@ std::optional<std::vector<juce::MidiMessage>> Omnify::handleChordNoteOn(const ju
     currentChord = Chord{enqueuedChordQuality, msg.getNoteNumber()};
 
     std::unordered_set<int> clampedNotes;
-    auto chord = s.chordVoicingStyle->constructChord(currentChord->quality, currentChord->root);
+
+    std::vector<int> chord;
+
+    switch (s.voicingModifier) {
+        case VoicingModifier::NONE:
+            chord = s.chordVoicingStyle->constructChord(currentChord->quality, currentChord->root);
+            break;
+        case VoicingModifier::FIXED:
+            chord = s.chordVoicingStyle->constructChord(currentChord->quality, 60 + (currentChord->root % 12));
+            break;
+        case VoicingModifier::SMOOTH:
+            auto normalizedRoot = 60 + (currentChord->root % 12);
+            auto middleOctaveNotes = s.chordVoicingStyle->constructChord(currentChord->quality, normalizedRoot);
+            std::vector<int> offsets;
+            offsets.reserve(middleOctaveNotes.size());
+            for (int x : middleOctaveNotes) {
+                offsets.push_back(x - 60);
+            }
+            chord = smooth(offsets, currentChord->root);
+            break;
+    }
 
     for (int note : chord) {
         int clamped = clampNote(note);
@@ -200,3 +220,39 @@ std::vector<juce::MidiMessage> Omnify::stopNotesOfCurrentChord() {
 }
 
 int Omnify::clampNote(int note) { return std::clamp(note, 0, 127); }
+
+std::vector<int> Omnify::smooth(std::vector<int> offsets, int root) {
+    std::sort(offsets.begin(), offsets.end());
+    auto octave = root / 12;
+    auto pitchClass = root % 12;
+    std::vector<int> notes;
+    notes.reserve(offsets.size());
+
+    std::vector<int> inversionOffsets(offsets.size(), 0);
+
+    switch (octave) {
+        case 3:
+            inversionOffsets[inversionOffsets.size() - 2] = -12;
+            inversionOffsets[inversionOffsets.size() - 1] = -12;
+            break;
+        case 4:
+            inversionOffsets[inversionOffsets.size() - 1] = -12;
+            break;
+        // case 5: middle octave, do nothing
+        case 6:
+            inversionOffsets[0] = 12;
+            break;
+        case 7:
+            inversionOffsets[0] = 12;
+            inversionOffsets[1] = 12;
+            break;
+        default:
+            break;
+    }
+
+    for (size_t i = 0; i < offsets.size(); i++) {
+        notes.push_back(60 + pitchClass + offsets[i] + inversionOffsets[i]);
+    }
+
+    return notes;
+}

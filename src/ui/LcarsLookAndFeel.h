@@ -202,13 +202,17 @@ class LcarsLookAndFeel : public juce::LookAndFeel_V4 {
         const float radius = bounds.getHeight() * 0.5F;
 
         // Determine background color based on state
+        juce::Colour baseColour = button.findColour(button.getToggleState() ? juce::TextButton::buttonOnColourId : juce::TextButton::buttonColourId);
         juce::Colour bgColour;
-        if (shouldDrawButtonAsDown) {
+        if (baseColour == juce::Colours::black) {
+            // Button has custom black background - don't use purple hover
+            bgColour = baseColour;
+        } else if (shouldDrawButtonAsDown) {
             bgColour = LcarsColors::africanViolet;
         } else if (shouldDrawButtonAsHighlighted) {
             bgColour = LcarsColors::moonlitViolet;
         } else {
-            bgColour = button.findColour(button.getToggleState() ? juce::TextButton::buttonOnColourId : juce::TextButton::buttonColourId);
+            bgColour = baseColour;
         }
 
         juce::Colour borderColour = LcarsColors::orange;

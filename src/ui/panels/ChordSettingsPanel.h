@@ -39,6 +39,10 @@ class ChordSettingsPanel : public juce::Component {
     std::vector<std::string> voicingStyleTypeNames;  // Maps UI index to registry type name
     FromFileView* fromFileChordView = nullptr;       // Non-owning pointer for updating path
 
+    // Voicing Modifier
+    juce::Label voicingModifierLabel{"", "Modifier"};
+    juce::TextButton voicingModifierButton;
+
     // Latch controls
     juce::Label latchLabel{"", "Latch"};
     MidiLearnComponent latchToggleLearn;

@@ -6,6 +6,7 @@
 
 #include "ChordQualitySelectionStyle.h"
 #include "MidiButton.h"
+#include "VoicingModifier.h"
 #include "VoicingStyle.h"
 
 class OmnifySettings {
@@ -20,6 +21,7 @@ class OmnifySettings {
 
     std::shared_ptr<VoicingStyle<VoicingFor::Chord>> chordVoicingStyle;
     std::shared_ptr<VoicingStyle<VoicingFor::Strum>> strumVoicingStyle;
+    VoicingModifier voicingModifier = VoicingModifier::NONE;
 
     ChordQualitySelectionStyle chordQualitySelectionStyle;
     MidiButton latchButton;
