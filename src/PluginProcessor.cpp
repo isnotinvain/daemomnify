@@ -34,7 +34,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout(juce::
 void OmnifyAudioProcessor::initVoicingRegistries() {
     chordVoicingRegistry.registerStyle("RootPosition", std::make_shared<RootPosition>(), RootPosition::from_json);
     chordVoicingRegistry.registerStyle("FromFile", std::make_shared<FromFile<VoicingFor::Chord>>(""), FromFile<VoicingFor::Chord>::from_json);
-    chordVoicingRegistry.registerStyle("Omnichord", std::make_shared<OmnichordChords>(true), OmnichordChords::from_json);
+    chordVoicingRegistry.registerStyle("Omnichord", std::make_shared<OmnichordChords>(), OmnichordChords::from_json);
 
     chordVoicingRegistry.registerStyle("Omni84", std::make_shared<Omni84>(), Omni84::from_json);
 
