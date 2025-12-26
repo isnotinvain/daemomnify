@@ -23,6 +23,9 @@ class OmnichordChords : public VoicingStyle<VoicingFor::Chord> {
         int beginFSharpOctave = 54;
         if (relative) {
             beginFSharpOctave = findLowestFSharp(root);
+            if (root % 12 >= 6) {
+                beginFSharpOctave -= 12;
+            }
         }
         for (auto o : triad) {
             res.push_back(clamp(beginFSharpOctave, (root + o)));
