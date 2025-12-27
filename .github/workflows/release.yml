@@ -128,12 +128,11 @@ jobs:
 
       - name: Configure CMake
         working-directory: src
-        env:
-          CXXFLAGS: "-I/usr/include/freetype2"
-          CFLAGS: "-I/usr/include/freetype2"
         run: |
           mkdir -p build
           cd build
+          export CXXFLAGS="$(pkg-config --cflags freetype2 gtk+-3.0)"
+          export CFLAGS="$(pkg-config --cflags freetype2 gtk+-3.0)"
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
