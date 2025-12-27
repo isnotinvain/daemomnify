@@ -1,0 +1,3 @@
+#!/bin/bash
+codesign --force --deep --sign - "/Applications/Omnify.app" || true
+exit 0

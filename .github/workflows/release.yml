@@ -40,26 +40,55 @@ jobs:
 
       - name: Package
         run: |
-          mkdir -p release
-          cp -r src/build/Omnify_artefacts/Release/AU/Omnify.component release/
-          cp -r src/build/Omnify_artefacts/Release/VST3/Omnify.vst3 release/
-          cp -r src/build/Omnify_artefacts/Release/Standalone/Omnify.app release/
-          ln -s /Library/Audio/Plug-Ins/Components release/AU-Plugins
-          ln -s /Library/Audio/Plug-Ins/VST3 release/VST3-Plugins
-          hdiutil create -volname "Omnify" -srcfolder release -ov -format UDZO Omnify-${{ env.VERSION }}-macos.dmg
+          # Create directory structures for each component
+          mkdir -p vst3-root/Library/Audio/Plug-Ins/VST3
+          mkdir -p au-root/Library/Audio/Plug-Ins/Components
+          mkdir -p app-root/Applications
+
+          cp -r src/build/Omnify_artefacts/Release/VST3/Omnify.vst3 vst3-root/Library/Audio/Plug-Ins/VST3/
+          cp -r src/build/Omnify_artefacts/Release/AU/Omnify.component au-root/Library/Audio/Plug-Ins/Components/
+          cp -r src/build/Omnify_artefacts/Release/Standalone/Omnify.app app-root/Applications/
+
+          # Setup postinstall scripts (pkgbuild expects them named "postinstall")
+          mkdir -p scripts-vst3 scripts-au scripts-app
+          cp packaging/macos/scripts/postinstall-vst3 scripts-vst3/postinstall
+          cp packaging/macos/scripts/postinstall-au scripts-au/postinstall
+          cp packaging/macos/scripts/postinstall-app scripts-app/postinstall
+
+          # Build component packages
+          pkgbuild --root vst3-root --identifier com.alexlevenson.omnify.vst3 \
+            --version ${{ env.VERSION }} --install-location / \
+            --scripts scripts-vst3 omnify-vst3.pkg
+
+          pkgbuild --root au-root --identifier com.alexlevenson.omnify.au \
+            --version ${{ env.VERSION }} --install-location / \
+            --scripts scripts-au omnify-au.pkg
+
+          pkgbuild --root app-root --identifier com.alexlevenson.omnify.app \
+            --version ${{ env.VERSION }} --install-location / \
+            --scripts scripts-app omnify-app.pkg
+
+          # Prepare distribution XML with version substituted
+          export VERSION="${{ env.VERSION }}"
+          envsubst < packaging/macos/distribution.xml > distribution.xml
+
+          # Build final product
+          productbuild --distribution distribution.xml \
+            --package-path . \
+            Omnify-${{ env.VERSION }}-macos.pkg
 
       - name: Upload to Release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v1
         with:
-          files: Omnify-${{ env.VERSION }}-macos.dmg
+          files: Omnify-${{ env.VERSION }}-macos.pkg
 
       - name: Upload Artifact (for manual runs)
         if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
         with:
           name: Omnify-${{ env.VERSION }}-macos
-          path: Omnify-${{ env.VERSION }}-macos.dmg
+          path: Omnify-${{ env.VERSION }}-macos.pkg
 
   build-windows:
     runs-on: windows-2025

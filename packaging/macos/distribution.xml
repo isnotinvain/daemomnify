@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <title>Omnify</title>
+    <options customize="always" require-scripts="false" hostArchitectures="x86_64,arm64"/>
+    <choices-outline>
+        <line choice="vst3"/>
+        <line choice="au"/>
+        <line choice="app"/>
+    </choices-outline>
+    <choice id="vst3" title="VST3 Plugin" description="Install VST3 plugin for DAWs like Ableton, FL Studio, Cubase, etc.">
+        <pkg-ref id="com.alexlevenson.omnify.vst3"/>
+    </choice>
+    <choice id="au" title="Audio Unit Plugin" description="Install Audio Unit plugin for Logic Pro, GarageBand, etc.">
+        <pkg-ref id="com.alexlevenson.omnify.au"/>
+    </choice>
+    <choice id="app" title="Standalone Application" description="Install standalone application to /Applications.">
+        <pkg-ref id="com.alexlevenson.omnify.app"/>
+    </choice>
+    <pkg-ref id="com.alexlevenson.omnify.vst3" version="${VERSION}">omnify-vst3.pkg</pkg-ref>
+    <pkg-ref id="com.alexlevenson.omnify.au" version="${VERSION}">omnify-au.pkg</pkg-ref>
+    <pkg-ref id="com.alexlevenson.omnify.app" version="${VERSION}">omnify-app.pkg</pkg-ref>
+</installer-gui-script>

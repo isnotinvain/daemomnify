@@ -1,0 +1,3 @@
+#!/bin/bash
+codesign --force --deep --sign - "/Library/Audio/Plug-Ins/VST3/Omnify.vst3" || true
+exit 0
