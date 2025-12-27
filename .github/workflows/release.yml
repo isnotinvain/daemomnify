@@ -22,7 +22,7 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
-        run: brew install cmake ninja
+        run: brew install --quiet cmake ninja
 
       - name: Configure CMake (Universal Binary)
         working-directory: src
