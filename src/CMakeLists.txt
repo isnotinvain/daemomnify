@@ -68,21 +68,25 @@ target_include_directories(Omnify PUBLIC
 
 target_compile_definitions(Omnify PUBLIC JUCE_VST3_CAN_REPLACE_VST2=0)
 
-target_compile_options(Omnify PRIVATE
-    -Wall
-    -Wstrict-aliasing
-    -Wuninitialized
-    -Wconversion
-    -Wsign-compare
-    -Wint-conversion
-    -Wconditional-uninitialized
-    -Wconstant-conversion
-    -Wbool-conversion
-    -Wextra-semi
-    -Wunreachable-code
-    -Wcast-align
-    -Wshift-sign-overflow
-    -Wmissing-prototypes
-    -Wnullable-to-nonnull-conversion
-    -Wno-unused-parameter
-    -Wno-shadow-field-in-constructor)
+if(MSVC)
+    target_compile_options(Omnify PRIVATE /W4)
+else()
+    target_compile_options(Omnify PRIVATE
+        -Wall
+        -Wstrict-aliasing
+        -Wuninitialized
+        -Wconversion
+        -Wsign-compare
+        -Wint-conversion
+        -Wconditional-uninitialized
+        -Wconstant-conversion
+        -Wbool-conversion
+        -Wextra-semi
+        -Wunreachable-code
+        -Wcast-align
+        -Wshift-sign-overflow
+        -Wmissing-prototypes
+        -Wnullable-to-nonnull-conversion
+        -Wno-unused-parameter
+        -Wno-shadow-field-in-constructor)
+endif()
