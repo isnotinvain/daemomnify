@@ -123,6 +123,7 @@ jobs:
             libxcursor-dev \
             libgl1-mesa-dev \
             libcurl4-openssl-dev \
+            libgtk-3-dev \
             ninja-build
 
       - name: Configure CMake
