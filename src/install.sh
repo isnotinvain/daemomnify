@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Source and destination paths
 SOURCE_PLUGIN="$SCRIPT_DIR/build/Omnify_artefacts/Release/VST3/Omnify.vst3"
-DESTINATION_DIR="$HOME/Library/Audio/Plug-Ins/VST3"
+DESTINATION_DIR="/Library/Audio/Plug-Ins/VST3"
 DESTINATION_PLUGIN="$DESTINATION_DIR/Omnify.vst3"
 
 echo "Starting plugin installation..."
